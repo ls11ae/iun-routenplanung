@@ -72,7 +72,15 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 }
 .karten { position: relative; min-height: 0; background: #e9e9e4; }
 .karte { position: absolute; inset: 0; }
-.karte-weiss { background: #fff !important; }
+.karte.leaflet-container { background: #f4f3ef; }
+.ortsname { white-space: nowrap; transform: translate(-50%, -50%); font-size: 12px; color: #3a3a3a; font-weight: 600;
+  text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 2px #fff; pointer-events: none; display: none; width: auto !important; height: auto !important; }
+.orte-start .ortsname-town, .orte-start .ortsname-auswahl { display: block; }
+.orte-gross .ortsname-borough, .orte-gross .ortsname-suburb { display: block; }
+.orte-klein .ortsname-quarter { display: block; font-weight: 400; font-size: 11px; }
+.ortsname-town { font-size: 13px; color: #555; }
+.leaflet-container .ortsname-city { display: none; }    /* „Dortmund“ stünde über „Mitte“ */
+.rechtliches { margin-top: 0.6rem; }
 .leinwand { position: absolute; left: 0; top: 0; pointer-events: none; }
 
 .seite {
@@ -173,6 +181,16 @@ details[open] > summary { margin-bottom: 0.4rem; }
 .nur-vorleser { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* Reisezeitkarte */
+.kartenlegende { background: rgba(255, 255, 255, 0.95); border: 1px solid var(--linie); border-radius: 6px; padding: 0.35rem 0.6rem;
+  max-width: 19rem; font-size: 0.82rem; line-height: 1.35; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15); }
+.kartenlegende details { border: 0; padding: 0; margin: 0; }
+.kartenlegende summary { cursor: pointer; font-weight: 650; }
+.kartenlegende .legende-titel { font-weight: 600; margin: 0.3rem 0 0.1rem; }
+.kartenlegende .klassen { margin: 0.2rem 0; }
+.kartenlegende .klassen li { grid-template-columns: 26px 1fr auto; gap: 0.4rem; }
+.kartenlegende .klassen .feld { width: 26px; height: 14px; box-sizing: border-box; }
+.kartenlegende .annahmen-kurz { margin: 0.3rem 0 0.1rem; padding-left: 1rem; color: var(--text-leise); }
+.kartenlegende .annahmen-kurz li { margin: 0.1rem 0; }
 .klassen { list-style: none; margin: 0.4rem 0; padding: 0; font-size: 0.9rem; }
 .klassen li { display: grid; grid-template-columns: 34px 1fr auto; gap: 0.5rem; align-items: center; padding: 0.15rem 0; }
 .klassen .feld { width: 34px; height: 18px; border: 1px solid #777; }

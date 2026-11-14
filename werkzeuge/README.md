@@ -13,6 +13,7 @@ node werkzeuge/routing_prep.mjs webdemo
 | Skript | Aufgabe | Ergebnis |
 |---|---|---|
 | `make_routing_demo.py` | Radnetz aus OSM-XML (alle Wege mit `highway` im Stadtgebiet): Kreuzungsgraph mit den Gewichten „schnell“ (Reisezeit) und „ruhig“ | `dortmund-graph.json.gz` |
+| `grundkarte.py` | Grundkarte der Webdemo aus den Geofabrik-Auszügen: Gewässer, Grünflächen, Bahn, Hauptstraßen, Ortsteilnamen (braucht `osmium`) | `webdemo/daten/grundkarte.json` |
 | `routing_prep.mjs` | Contraction Hierarchy für die Reisezeit, 8 Landmarken, Prüfung aller Algorithmen gegen Dijkstra auf 300 Zufallspaaren, Messwerte für die Folien | `dortmund-ch.json.gz`, `radnetz-stats.json` |
 
 Die Algorithmen selbst stehen in [`webdemo/js/routing.js`](../webdemo/js/routing.js); die

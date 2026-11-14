@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Die beste Route für wen? – Informatik und Nachhaltigkeit</title>
-  <meta name="description" content="Webdemo zur Routenplanung: Routen für verschiedene Personen vergleichen, Dijkstra und A* beobachten, Pareto-optimale Routen erkunden. Wegenetz Dortmund-Süd aus OpenStreetMap.">
+  <meta name="description" content="Webdemo zur Routenplanung: Routen für verschiedene Personen vergleichen und Pareto-optimale Routen erkunden. Wegenetz Dortmund-Süd aus OpenStreetMap.">
   <link rel="stylesheet" href="vendor/leaflet-1.9.4/leaflet.css">
   <link rel="stylesheet" href="css/stil.css">
 </head>
@@ -111,13 +111,6 @@
       <details id="karteneinstellungen" hidden>
         <summary>Karte und Daten ansehen</summary>
         <div class="zeile">
-          <label for="hintergrund">Hintergrund</label>
-          <select id="hintergrund">
-            <option value="osm">OpenStreetMap-Karte</option>
-            <option value="netz">nur das Wegenetz aus den Daten</option>
-          </select>
-        </div>
-        <div class="zeile">
           <label for="hervorheben">Hervorheben</label>
           <select id="hervorheben"></select>
         </div>
@@ -126,8 +119,9 @@
 
       <footer class="fuss">
         <p><b>Nur ein Prototyp für die Lehre.</b> Die Daten sind unvollständig und können falsch sein. Die Routen sind keine Empfehlung und keine Navigationshilfe, auch nicht für Menschen mit Behinderung.</p>
-        <p>Wege und Karte: © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a> (ODbL)<span id="stand-wege"></span>. Höhen: DGM1, Geobasis NRW (Datenlizenz Deutschland Zero 2.0). Kartendarstellung mit <a href="https://leafletjs.com">Leaflet</a>.</p>
+        <p>Wege und Grundkarte: © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a> (ODbL)<span id="stand-wege"></span>. Höhen: DGM1, Geobasis NRW (Datenlizenz Deutschland Zero 2.0). Kartendarstellung mit <a href="https://leafletjs.com">Leaflet</a>.</p>
         <p>Vereinfachungen: Einbahnstraßen werden nicht beachtet, Wartezeiten an Ampeln zählen nicht. Kriterien und Personas stehen im <a href="https://github.com/ls11ae/iun-routenplanung">Repository</a> in <code>wegenetz/routen_hilfen.py</code> und <code>webdemo/personas.json</code>.</p>
+        <p class="rechtliches"><a href="https://ae.cs.tu-dortmund.de/imprint/">Impressum</a> · <a href="https://ae.cs.tu-dortmund.de/privacy/">Datenschutz</a> · Die Seite wird über GitHub Pages ausgeliefert und lädt nichts von anderen Servern.</p>
       </footer>
     </aside>
   </main>
@@ -136,6 +130,7 @@
   <script src="vendor/leaflet-1.9.4/leaflet.js"></script>
   <script src="js/routing.js"></script>
   <script src="js/kern.js"></script>
+  <script src="js/grundkarte.js"></script>
   <script src="js/karte.js"></script>
   <script src="js/app.js"></script>
   <script src="js/pareto.js"></script>

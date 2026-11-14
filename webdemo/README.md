@@ -9,7 +9,7 @@ dann <http://localhost:8000>.
 | `index.html#routen` | Routen mehrerer Personas vergleichen, Gewichte selbst einstellen, Kriterien auf der Karte hervorheben | `daten/netz.json` (Wegenetz Dortmund-Süd), `personas.json` |
 | `index.html#pareto` | alle Pareto-optimalen Routen für zwei Kriterien; welche findet eine gewichtete Summe, wie viele Labels und wie viel Zeit kostet das | wie oben |
 | `algorithmen.html` | Dijkstra, bidirektionaler Dijkstra, A*, ALT und Contraction Hierarchies mit Animation, Statistik je Lauf, „Alle vergleichen“ und „Zufällige Paare“ | `daten/dortmund-graph.json.gz`, `dortmund-ch.json.gz` (Radnetz ganz Dortmund) |
-| `reisezeit.html` | Raster über Dortmund: Reisezeit zum Campus Nord mit Bus und Bahn, Auto und Rad | `daten/reisezeiten.json` |
+| `reisezeit.html` | Raster über Dortmund: Reisezeit zum Campus Nord mit Bus und Bahn (Median über die Abfahrten 7:00–8:00 Uhr), Auto (mit 5 min Zuschlag für Parken) und Rad; Legende mit Annahmen auf der Karte | `daten/reisezeiten.json` |
 
 ## Aufbau des Codes
 
@@ -18,10 +18,11 @@ dann <http://localhost:8000>.
 - `js/kern.js`: liest `netz.json`, bildet das Kostenfeld einer Persona und berechnet die
   Pareto-Front; kürzeste Wege rechnet `routing.js`.
 - `js/app.js`, `js/pareto.js`, `js/karte.js`: Bedienung und Karte (Leaflet) von `index.html`.
+- `js/grundkarte.js`, `daten/grundkarte.json`: eigene Grundkarte (Gewässer, Grünflächen, Bahn,
+  Hauptstraßen, Ortsteilnamen) aus OpenStreetMap-Daten, erzeugt mit `werkzeuge/grundkarte.py`.
 - `js/algorithmen.js`, `js/reisezeit.js`: die beiden anderen Seiten.
-- `vendor/leaflet-1.9.4/`: Leaflet liegt im Repository, damit die Seite ohne fremde Server
-  auskommt. Nur die Hintergrundkarte kommt von openstreetmap.org; ohne Internet zeichnet
-  `index.html` das Wegenetz aus den Daten.
+- `vendor/leaflet-1.9.4/`: Leaflet liegt im Repository. Die Seiten laden nichts von fremden
+  Servern, auch keine Kartenkacheln; `tests/test_webdemo.py` prüft das.
 
 ## Die Algorithmen-Ansicht in Folien einbetten
 

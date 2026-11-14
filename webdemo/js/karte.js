@@ -1,13 +1,10 @@
-/* Kartenhilfen für die Webdemo: Leaflet-Karte mit OpenStreetMap-Kacheln und eine
- * Zeichenebene (Canvas), auf der das Wegenetz und die Suchanimation gezeichnet werden.
- * Das eigene Wegenetz dient auch als Hintergrund, wenn keine Kacheln geladen werden können.
+/* Kartenhilfen für die Webdemo: Leaflet-Karte mit der eigenen Grundkarte (grundkarte.js) und
+ * eine Zeichenebene (Canvas), auf der das Wegenetz gezeichnet wird. Es werden keine
+ * Kartenkacheln von fremden Servern geladen.
  */
 (function () {
   "use strict";
   const K = (window.IUNKarte = {});
-
-  const KACHELN = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
-  const NENNUNG = '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a>';
 
   /** Ergänzt Web-Mercator-Koordinaten (0..1) für Knoten und Zwischenpunkte. */
   K.mercator = function (netz) {
@@ -72,40 +69,21 @@
     },
   });
 
-  /** Legt eine Karte mit OpenStreetMap-Kacheln an; fällt ohne Netzverbindung auf das
-   *  eigene Wegenetz als Hintergrund zurück. */
-  K.karte = function (element, netz, opt = {}) {
+  /** Legt eine Karte an: eigene Grundkarte, darüber das Wegenetz aus den Daten. */
+  K.karte = function (element, netz) {
     const grenzen = L.latLngBounds(netz.grenzen);
     const map = L.map(element, { minZoom: 12, maxZoom: 19, maxBounds: grenzen.pad(0.5), zoomSnap: 0.5 });
     map.attributionControl.setPrefix('<a href="https://leafletjs.com">Leaflet</a>');
     // Anfangs der Ausschnitt mit den vier voreingestellten Orten (das Netz reicht weiter)
     map.fitBounds(L.latLngBounds(Object.values(netz.orte)).pad(0.25));
-    const kacheln = L.tileLayer(KACHELN, { maxZoom: 19, attribution: NENNUNG });
-    const zustand = { map, kacheln, hintergrund: "osm", hervorheben: "", fehler: 0, geladen: 0 };
-    map.createPane("netz").style.zIndex = 250;        // über den Kacheln, unter den Routen
-    map.createPane("suche").style.zIndex = 300;
+    const zustand = { map, hervorheben: "" };
+    map.createPane("netz").style.zIndex = 250;        // über der Grundkarte, unter den Routen
     const netzEbene = new K.Leinwand((ctx, p) => K.netzZeichnen(ctx, p, netz, zustand), { pane: "netz" });
     zustand.netzEbene = netzEbene;
     netzEbene.addTo(map);
-    kacheln.on("tileload", () => { zustand.geladen++; });
-    kacheln.on("tileerror", () => {
-      // Keine Verbindung zum Kachelserver: Wegenetz als Hintergrund benutzen
-      if (++zustand.fehler >= 4 && zustand.geladen === 0 && zustand.hintergrund === "osm") {
-        zustand.setHintergrund("netz");
-        if (opt.beiKachelfehler) opt.beiKachelfehler();
-      }
-    });
-    zustand.setHintergrund = function (art) {
-      zustand.hintergrund = art;
-      if (art === "osm") kacheln.addTo(map); else kacheln.remove();
-      map.getContainer().classList.toggle("karte-weiss", art !== "osm");
-      // Namensnennung für das Wegenetz steht auch ohne Kacheln auf der Karte
-      map.attributionControl.removeAttribution(NENNUNG);
-      map.attributionControl.addAttribution(NENNUNG);
-      netzEbene.neu();
-    };
+    IUNGrundkarte.laden().then((daten) => IUNGrundkarte.zeichnen(map, daten))
+      .catch(() => map.attributionControl.addAttribution(IUNGrundkarte.NENNUNG));
     zustand.setHervorheben = function (id) { zustand.hervorheben = id; netzEbene.neu(); };
-    zustand.setHintergrund("osm");
     return zustand;
   };
 
@@ -128,7 +106,7 @@
     else { ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = "#fff"; ctx.stroke(); }
   };
 
-  /** Zeichnet das Wegenetz (als Hintergrund) und hebt auf Wunsch ein Kriterium hervor. */
+  /** Zeichnet das Wegenetz und hebt auf Wunsch ein Kriterium hervor. */
   K.netzZeichnen = function (ctx, p, netz, zustand) {
     ctx.clearRect(0, 0, p.w, p.h);
     const { U, V, mx, my, gx, gy, geoStart, art, F } = netz;
@@ -144,7 +122,7 @@
     const treppe = netz.flaggen.indexOf("treppe");
     ctx.lineCap = "round"; ctx.lineJoin = "round";
 
-    if (zustand.hintergrund === "netz") {
+    {
       const z = p.zoom, basis = z >= 17 ? 2 : z >= 15 ? 1.3 : z >= 14 ? 0.9 : 0.6;
       const stile = [
         { test: (k) => art[k] === 0 && !(F[k] >> treppe & 1), farbe: "#b9b9b4", breite: basis * 0.8 },

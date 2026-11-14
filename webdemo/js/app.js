@@ -116,7 +116,6 @@
       setzenModus(null);
       A.setPunkt(art, e.latlng.lat, e.latlng.lng);
     });
-    k.setHintergrund($("#hintergrund").value);
     k.setHervorheben($("#hervorheben").value);
     A.karten.push(k);
   };
@@ -252,7 +251,6 @@
       const k = A.kriterium(wahl.value);
       $("#hervorheben-text").textContent = HERVORHEBEN_TEXT[wahl.value] || (k ? "Orange Linien: " + k.beschreibung : "");
     });
-    $("#hintergrund").addEventListener("change", (e) => { for (const k of A.karten) k.setHintergrund(e.target.value); });
   }
 
   // ------------------------------------------------------------------ Start
@@ -294,13 +292,7 @@
     $("#wahl-start").value = "Hauptbahnhof"; $("#wahl-ziel").value = "Phoenix-See";
 
     karteneinstellungen();
-    A.karte = K.karte("karte", A.netz, {
-      beiKachelfehler: () => {
-        $("#hintergrund").value = "netz";
-        for (const k of A.karten) k.setHintergrund("netz");
-        A.meldung("Keine Verbindung zum Kartenserver: Als Hintergrund dient das Wegenetz aus den Daten.");
-      },
-    });
+    A.karte = K.karte("karte", A.netz);
     A.karteAnbinden(A.karte, true);
     routenEbene = L.layerGroup().addTo(A.karte.map);
 

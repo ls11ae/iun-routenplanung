@@ -99,8 +99,9 @@ cd webdemo
 python -m http.server
 ```
 
-Danach öffnen Sie <http://localhost:8000>. Die Karte im Hintergrund kommt von
-openstreetmap.org; ohne Internet zeichnet die Seite stattdessen das Wegenetz aus den Daten.
+Danach öffnen Sie <http://localhost:8000>. Die Seite lädt nichts von fremden Servern,
+auch keine Kartenkacheln: Die Grundkarte ist aus OpenStreetMap-Daten erzeugt und liegt mit
+im Ordner. Sie funktioniert deshalb auch ohne Internet.
 
 ## Tests
 
@@ -128,7 +129,8 @@ Parkplatzsuche gerechnet.
   Algorithmen-Ansicht mit Stand 09.11.2026
 - Fahrplan: [gtfs.de](https://gtfs.de), Daten von DELFI e.V., CC BY 4.0
 - Höhen: Digitales Geländemodell DGM1, Geobasis NRW, Datenlizenz Deutschland Zero 2.0
-- Kartendarstellung: [Leaflet](https://leafletjs.com) (BSD-2-Clause)
+- Kartendarstellung: [Leaflet](https://leafletjs.com) (BSD-2-Clause); Grundkarte der Webdemo
+  aus OpenStreetMap-Daten (ODbL)
 - Routenplaner: [MOTIS](https://github.com/motis-project/motis) (MIT)
 - Die Algorithmen-Ansicht und die Bibliothek `webdemo/js/routing.js` stammen aus der
   Vorlesung „Algorithms and Sustainability“ (Kevin Buchin, TU Dortmund).
