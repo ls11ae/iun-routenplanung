@@ -1,38 +1,24 @@
 {
-  "hinweis": "Gemeinsame Datei für die Webdemo (JavaScript) und die Python-Starter. Kosten einer Kante = Zeit + Summe aus Gewicht mal Kriterium; eine Kante ist gesperrt, wenn ein Kriterium aus 'sperren' auf ihr größer als 0 ist. Die Werte sind bewusst einfache Annahmen: Sie zu begründen und zu verbessern ist Teil des Projekts.",
+  "hinweis": "Gemeinsame Datei für die Webdemo (JavaScript) und die Python-Starter. Kosten einer Kante = Zeit + Summe aus Gewicht mal Kriterium; eine Kante ist gesperrt, wenn ein Kriterium aus 'sperren' auf ihr größer als 0 ist. Die Werte sind bewusst einfache Annahmen: Sie zu begründen und zu verbessern ist Teil des Projekts. Kriterien mit 'nur_sperre' dienen nur zum Sperren.",
   "kriterien": [
-    {"id": "laenge", "name": "Länge", "einheit": "m", "gewicht_einheit": "s je m", "max": 2, "schritt": 0.1,
-     "beschreibung": "Länge des Weges in Metern."},
-    {"id": "hauptstrasse", "name": "Hauptstraße ohne Radweg", "einheit": "m", "gewicht_einheit": "s je m", "max": 3, "schritt": 0.1,
-     "beschreibung": "Meter auf Bundes-, Landes- und Kreisstraßen (highway=primary, secondary), an denen kein Radweg erfasst ist."},
-    {"id": "nebenstrasse", "name": "Sammelstraße ohne Radweg", "einheit": "m", "gewicht_einheit": "s je m", "max": 3, "schritt": 0.1,
-     "beschreibung": "Meter auf Straßen mittlerer Bedeutung (highway=tertiary, unclassified) ohne erfassten Radweg."},
-    {"id": "fahrbahn", "name": "Fahrbahn ohne Gehweg", "einheit": "m", "gewicht_einheit": "s je m", "max": 3, "schritt": 0.1,
-     "beschreibung": "Meter auf Straßen mit Autoverkehr, an denen kein Gehweg erfasst ist oder der Gehweg als eigener Weg eingetragen ist."},
-    {"id": "treppe", "name": "Treppen", "einheit": "m", "gewicht_einheit": "s je m", "max": 20, "schritt": 0.5,
-     "beschreibung": "Meter auf Treppen (highway=steps)."},
-    {"id": "belag_schlecht", "name": "Schlechter Belag", "einheit": "m", "gewicht_einheit": "s je m", "max": 5, "schritt": 0.1,
-     "beschreibung": "Meter auf Kopfsteinpflaster, Schotter, Erde, Gras und Ähnlichem (surface)."},
-    {"id": "belag_unbekannt", "name": "Belag unbekannt", "einheit": "m", "gewicht_einheit": "s je m", "max": 5, "schritt": 0.1,
-     "beschreibung": "Meter auf Wegen ohne Angabe zum Belag. So lässt sich einstellen, wie vorsichtig mit fehlenden Daten umgegangen wird."},
-    {"id": "anstieg", "name": "Höhenmeter bergauf", "einheit": "m", "gewicht_einheit": "s je Höhenmeter", "max": 60, "schritt": 1,
-     "beschreibung": "Summe der Anstiege aus dem Geländemodell."},
-    {"id": "steil", "name": "Steile Abschnitte", "einheit": "m", "gewicht_einheit": "s je m", "max": 20, "schritt": 0.5,
-     "beschreibung": "Meter auf Wegstücken mit mehr als 6 % Steigung oder Gefälle."},
-    {"id": "bordstein", "name": "Hoher Bordstein", "einheit": "Stück", "gewicht_einheit": "s je Stück", "max": 300, "schritt": 10,
-     "beschreibung": "Anzahl der Stellen mit hohem Bordstein (kerb=raised)."},
-    {"id": "querung_ohne_ampel", "name": "Querung ohne Ampel", "einheit": "Stück", "gewicht_einheit": "s je Stück", "max": 600, "schritt": 10,
-     "beschreibung": "Anzahl der Fußgängerquerungen ohne Ampel (Zebrastreifen, Mittelinsel oder unmarkiert)."},
-    {"id": "querung_ampel_stumm", "name": "Ampel ohne akustisches Signal", "einheit": "Stück", "gewicht_einheit": "s je Stück", "max": 600, "schritt": 10,
-     "beschreibung": "Anzahl der Querungen mit Ampel, für die kein akustisches Signal erfasst ist."},
-    {"id": "querung_akustisch", "name": "Ampel mit akustischem Signal", "einheit": "Stück", "gewicht_einheit": "s je Stück", "max": 600, "schritt": 10,
-     "beschreibung": "Anzahl der Querungen mit Ampel und akustischem Signal (traffic_signals:sound=yes)."},
-    {"id": "querung_ohne_bodenindikator", "name": "Querung ohne Bodenindikatoren", "einheit": "Stück", "gewicht_einheit": "s je Stück", "max": 300, "schritt": 10,
-     "beschreibung": "Anzahl der Querungen, an denen keine tastbaren Bodenindikatoren (Noppen- oder Rippenplatten) erfasst sind (tactile_paving)."},
-    {"id": "rad_schieben", "name": "Rad schieben", "einheit": "m", "gewicht_einheit": "s je m", "max": 3, "schritt": 0.1,
-     "beschreibung": "Meter auf reinen Fußwegen und Treppen, auf denen das Rad geschoben wird."},
-    {"id": "rollstuhl_verboten", "name": "Für Rollstuhl ungeeignet erfasst", "einheit": "m", "gewicht_einheit": "s je m", "max": 20, "schritt": 0.5,
-     "beschreibung": "Meter auf Wegen, die in OpenStreetMap ausdrücklich als ungeeignet eingetragen sind (wheelchair=no)."}
+    {"id": "laenge", "name": "Länge", "einheit": "m", "gewicht_einheit": "s je m", "max": 2, "schritt": 0.1, "beschreibung": "Länge des Weges in Metern."},
+    {"id": "hauptstrasse", "name": "Hauptstraße ohne Radweg", "einheit": "m", "gewicht_einheit": "s je m", "max": 3, "schritt": 0.1, "beschreibung": "Meter auf Bundes-, Landes- und Kreisstraßen (highway=primary, secondary), an denen kein Radweg erfasst ist."},
+    {"id": "nebenstrasse", "name": "Sammelstraße ohne Radweg", "einheit": "m", "gewicht_einheit": "s je m", "max": 3, "schritt": 0.1, "beschreibung": "Meter auf Straßen mittlerer Bedeutung (highway=tertiary, unclassified) ohne erfassten Radweg."},
+    {"id": "fahrbahn", "name": "Fahrbahn ohne Gehweg", "einheit": "m", "gewicht_einheit": "s je m", "max": 3, "schritt": 0.1, "beschreibung": "Meter auf Straßen mit Autoverkehr, an denen kein Gehweg erfasst ist oder der Gehweg als eigener Weg eingetragen ist."},
+    {"id": "treppe", "name": "Treppen", "einheit": "m", "gewicht_einheit": "s je m", "max": 20, "schritt": 0.5, "beschreibung": "Meter auf Treppen (highway=steps)."},
+    {"id": "belag_schlecht", "name": "Schlechter Belag", "einheit": "m", "gewicht_einheit": "s je m", "max": 5, "schritt": 0.1, "beschreibung": "Meter auf Kopfsteinpflaster, Schotter, Erde, Gras und Ähnlichem (surface)."},
+    {"id": "belag_unbekannt", "name": "Belag unbekannt", "einheit": "m", "gewicht_einheit": "s je m", "max": 5, "schritt": 0.1, "beschreibung": "Meter auf Wegen ohne Angabe zum Belag. So lässt sich einstellen, wie vorsichtig mit fehlenden Daten umgegangen wird."},
+    {"id": "anstieg", "name": "Höhenmeter bergauf", "einheit": "m", "gewicht_einheit": "s je Höhenmeter", "max": 60, "schritt": 1, "beschreibung": "Summe der Anstiege aus dem Geländemodell."},
+    {"id": "steil", "name": "Steile Abschnitte", "einheit": "m", "gewicht_einheit": "s je m", "max": 20, "schritt": 0.5, "beschreibung": "Meter auf Wegstücken mit mehr als 6 % Steigung oder Gefälle."},
+    {"id": "bordstein", "name": "Hoher Bordstein", "einheit": "Stück", "gewicht_einheit": "s je Stück", "max": 300, "schritt": 10, "beschreibung": "Anzahl der Stellen mit hohem Bordstein (kerb=raised)."},
+    {"id": "querung_ohne_ampel", "name": "Querung ohne Ampel", "einheit": "Stück", "gewicht_einheit": "s je Stück", "max": 600, "schritt": 10, "beschreibung": "Anzahl der Fußgängerquerungen ohne Ampel (Zebrastreifen, Mittelinsel oder unmarkiert)."},
+    {"id": "querung_ampel_stumm", "name": "Ampel ohne akustisches Signal", "einheit": "Stück", "gewicht_einheit": "s je Stück", "max": 600, "schritt": 10, "beschreibung": "Anzahl der Querungen mit Ampel, für die kein akustisches Signal erfasst ist."},
+    {"id": "querung_akustisch", "name": "Ampel mit akustischem Signal", "einheit": "Stück", "gewicht_einheit": "s je Stück", "max": 600, "schritt": 10, "beschreibung": "Anzahl der Querungen mit Ampel und akustischem Signal (traffic_signals:sound=yes)."},
+    {"id": "querung_ohne_bodenindikator", "name": "Querung ohne Bodenindikatoren", "einheit": "Stück", "gewicht_einheit": "s je Stück", "max": 300, "schritt": 10, "beschreibung": "Anzahl der Querungen, an denen keine tastbaren Bodenindikatoren (Noppen- oder Rippenplatten) erfasst sind (tactile_paving)."},
+    {"id": "rad_schieben", "name": "Rad schieben", "einheit": "m", "gewicht_einheit": "s je m", "max": 3, "schritt": 0.1, "beschreibung": "Meter auf reinen Fußwegen und Treppen, auf denen das Rad geschoben wird."},
+    {"id": "rollstuhl_verboten", "name": "Für Rollstuhl ungeeignet erfasst", "einheit": "m", "gewicht_einheit": "s je m", "max": 20, "schritt": 0.5, "beschreibung": "Meter auf Wegen, die in OpenStreetMap ausdrücklich als ungeeignet eingetragen sind (wheelchair=no).", "nur_sperre": true},
+    {"id": "fuss_verboten", "name": "Für Fußgänger gesperrt", "einheit": "m", "gewicht_einheit": "s je m", "max": 20, "schritt": 0.5, "nur_sperre": true, "beschreibung": "Meter auf Wegen, die zu Fuß nicht benutzt werden dürfen (foot=no, Kraftfahrstraße, access=private)."},
+    {"id": "rad_verboten", "name": "Für Fahrräder gesperrt", "einheit": "m", "gewicht_einheit": "s je m", "max": 20, "schritt": 0.5, "nur_sperre": true, "beschreibung": "Meter auf Wegen, auf denen das Rad weder gefahren noch geschoben werden darf."}
   ],
   "kennzahlen": ["laenge", "zeit", "hauptstrasse", "treppe", "querung_ohne_ampel", "querung_akustisch", "anstieg"],
   "personas": [
@@ -44,7 +30,9 @@
       "strich": "",
       "tempo": 1.2,
       "tempo_schieben": null,
-      "sperren": [],
+      "sperren": [
+        "fuss_verboten"
+      ],
       "gewichte": {}
     },
     {
@@ -55,19 +43,39 @@
       "strich": "10 6",
       "tempo": 4.2,
       "tempo_schieben": 1.2,
-      "sperren": ["treppe"],
-      "gewichte": {"hauptstrasse": 0.5, "nebenstrasse": 0.1, "belag_schlecht": 0.3, "anstieg": 6}
+      "sperren": [
+        "treppe",
+        "rad_verboten"
+      ],
+      "gewichte": {
+        "hauptstrasse": 0.5,
+        "nebenstrasse": 0.1,
+        "belag_schlecht": 0.3,
+        "anstieg": 6
+      }
     },
     {
       "id": "rollstuhl",
       "name": "Rollstuhlfahrer",
       "beschreibung": "Fährt 1,0 m/s. Treppen, hohe Bordsteine und als ungeeignet erfasste Wege sind gesperrt; schlechter oder unbekannter Belag, Steigung und Querungen ohne Ampel werden gemieden.",
       "farbe": "#009E73",
-      "strich": "2 7",
+      "strich": "1 9",
       "tempo": 1.0,
       "tempo_schieben": null,
-      "sperren": ["treppe", "bordstein", "rollstuhl_verboten"],
-      "gewichte": {"belag_schlecht": 3, "belag_unbekannt": 0.3, "anstieg": 20, "steil": 3, "querung_ohne_ampel": 20, "fahrbahn": 0.3}
+      "sperren": [
+        "treppe",
+        "bordstein",
+        "rollstuhl_verboten",
+        "fuss_verboten"
+      ],
+      "gewichte": {
+        "belag_schlecht": 3,
+        "belag_unbekannt": 0.3,
+        "anstieg": 20,
+        "steil": 3,
+        "querung_ohne_ampel": 20,
+        "fahrbahn": 0.3
+      }
     },
     {
       "id": "blind",
@@ -77,8 +85,16 @@
       "strich": "14 5 2 5",
       "tempo": 1.0,
       "tempo_schieben": null,
-      "sperren": [],
-      "gewichte": {"querung_ohne_ampel": 180, "querung_ampel_stumm": 60, "querung_ohne_bodenindikator": 30, "treppe": 2, "fahrbahn": 1}
+      "sperren": [
+        "fuss_verboten"
+      ],
+      "gewichte": {
+        "querung_ohne_ampel": 180,
+        "querung_ampel_stumm": 60,
+        "querung_ohne_bodenindikator": 30,
+        "treppe": 2,
+        "fahrbahn": 1
+      }
     }
   ]
 }

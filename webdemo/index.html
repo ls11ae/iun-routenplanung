@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Die beste Route für wen? – Informatik und Nachhaltigkeit</title>
+  <meta name="description" content="Webdemo zur Routenplanung: Routen für verschiedene Personen vergleichen, Dijkstra und A* beobachten, Pareto-optimale Routen erkunden. Wegenetz Dortmund-Süd aus OpenStreetMap.">
+  <link rel="stylesheet" href="vendor/leaflet-1.9.4/leaflet.css">
+  <link rel="stylesheet" href="css/stil.css">
+</head>
+<body>
+  <header class="seitenkopf">
+    <div>
+      <h1>Die beste Route für wen?</h1>
+      <div class="untertitel">Informatik und Nachhaltigkeit · TU Dortmund · Wegenetz Dortmund-Süd</div>
+    </div>
+    <nav aria-label="Ansichten">
+      <div role="tablist" aria-label="Ansichten der Demo" style="display:contents">
+        <button class="reiter" role="tab" id="reiter-routen" aria-controls="feld-routen" aria-selected="true">Routen vergleichen</button>
+        <button class="reiter" role="tab" id="reiter-suche" aria-controls="feld-suche" aria-selected="false">Dijkstra und A*</button>
+        <button class="reiter" role="tab" id="reiter-pareto" aria-controls="feld-pareto" aria-selected="false">Pareto-Front</button>
+      </div>
+      <a class="reiter" href="reisezeit.html">Nahverkehr gegen Auto</a>
+    </nav>
+  </header>
+
+  <main class="arbeitsflaeche">
+    <section class="karten" id="karten" aria-label="Karte">
+      <div class="karte" id="karte" role="application" aria-label="Karte von Dortmund-Süd. Start und Ziel lassen sich auch rechts über die Auswahllisten setzen."></div>
+      <div class="doppelkarte" id="doppelkarte" hidden>
+        <div>
+          <div class="kartentitel">Dijkstra <span id="titel-dijkstra"></span></div>
+          <div class="karte" id="karte-dijkstra" role="application" aria-label="Karte: vom Algorithmus von Dijkstra abgeschlossene Knoten"></div>
+        </div>
+        <div>
+          <div class="kartentitel">A* <span id="titel-astern"></span></div>
+          <div class="karte" id="karte-astern" role="application" aria-label="Karte: von A* abgeschlossene Knoten"></div>
+        </div>
+        <button class="knopf haupt schwebend" id="suche-start-karte">Suche starten</button>
+      </div>
+    </section>
+
+    <aside class="seite" id="seite">
+      <div id="meldung" class="hinweis" role="status" aria-live="polite">Das Wegenetz wird geladen …</div>
+
+      <section id="startziel" hidden>
+        <h2>Start und Ziel</h2>
+        <div class="startziel">
+          <label for="wahl-start">Start</label>
+          <select id="wahl-start"></select>
+          <button class="knopf" id="setze-start" aria-pressed="false" aria-label="Start auf der Karte wählen">auf Karte</button>
+          <label for="wahl-ziel">Ziel</label>
+          <select id="wahl-ziel"></select>
+          <button class="knopf" id="setze-ziel" aria-pressed="false" aria-label="Ziel auf der Karte wählen">auf Karte</button>
+        </div>
+        <p class="leise" id="klickhinweis">Die Marken <b>S</b> und <b>Z</b> lassen sich auch verschieben.</p>
+      </section>
+
+      <!-- ------------------------------------------------ Routen vergleichen -->
+      <section id="feld-routen" role="tabpanel" aria-labelledby="reiter-routen" hidden>
+        <h2>Für wen?</h2>
+        <p class="leise">Jede Persona bewertet Wege anders: Kosten einer Strecke = Zeit + Aufschläge. Wählen Sie eine oder mehrere aus.</p>
+        <ul class="personas" id="personas"></ul>
+
+        <details id="eigene-einstellung">
+          <summary>Gewichte selbst einstellen</summary>
+          <p class="leise">Die „Eigene Einstellung“ erscheint als weitere Route. Ein Gewicht sagt, wie viele Sekunden Umweg ein Meter (oder ein Stück) wert ist.</p>
+          <div class="zeile">
+            <label for="vorlage">Vorlage</label>
+            <select id="vorlage"></select>
+            <button class="knopf" id="vorlage-nehmen">übernehmen</button>
+          </div>
+          <div class="zeile">
+            <label for="tempo">Tempo</label>
+            <input type="number" id="tempo" min="1" max="30" step="0.5" style="width:5rem"> km/h
+          </div>
+          <div id="regler"></div>
+        </details>
+
+        <h2>Kennzahlen der Routen</h2>
+        <div class="tabellenrahmen"><table class="kennzahlen" id="kennzahlen"></table></div>
+        <div class="knopfreihe">
+          <label><input type="checkbox" id="alle-kriterien"> alle Kriterien anzeigen</label>
+        </div>
+        <div id="routenhinweise" class="leise"></div>
+      </section>
+
+      <!-- ------------------------------------------------ Dijkstra und A* -->
+      <section id="feld-suche" role="tabpanel" aria-labelledby="reiter-suche" hidden>
+        <h2>Dijkstra und A* im Vergleich</h2>
+        <p class="leise">Beide Algorithmen finden denselben kürzesten Weg. Dijkstra breitet sich gleichmäßig in alle Richtungen aus; A* schätzt die Restkosten mit der Luftlinie zum Ziel und sucht dadurch zielgerichtet.</p>
+        <div class="zeile">
+          <label for="suche-persona">Kosten für</label>
+          <select id="suche-persona"></select>
+        </div>
+        <div class="zeile">
+          <label for="suche-tempo">Tempo der Animation</label>
+          <input type="range" id="suche-tempo" min="1" max="6" step="0.5" value="3.5" aria-describedby="suche-tempo-text">
+          <span class="leise" id="suche-tempo-text"></span>
+        </div>
+        <div class="knopfreihe">
+          <button class="knopf haupt" id="suche-start">Suche starten</button>
+          <button class="knopf" id="suche-pause" disabled>Pause</button>
+          <button class="knopf" id="suche-ende" disabled>zum Ende</button>
+        </div>
+        <div class="zaehler" aria-live="off">
+          <div><div class="titel">Dijkstra: abgeschlossene Knoten</div><div class="zahl" id="zahl-dijkstra">–</div></div>
+          <div><div class="titel">A*: abgeschlossene Knoten</div><div class="zahl" id="zahl-astern">–</div></div>
+        </div>
+        <p id="suche-ergebnis" role="status" aria-live="polite"></p>
+        <ul class="legende" aria-label="Legende">
+          <li><svg width="14" height="14" aria-hidden="true"><rect x="3" y="3" width="8" height="8" fill="#0072B2"/></svg> abgeschlossener Knoten</li>
+          <li><svg width="30" height="14" aria-hidden="true"><line x1="1" y1="7" x2="29" y2="7" stroke="#1b1b1b" stroke-width="4"/></svg> gefundener Weg</li>
+        </ul>
+        <p class="leise">Die Schätzung von A* ist die Luftlinie geteilt durch das Tempo. Sie ist nie zu groß, deshalb bleibt das Ergebnis optimal. Je mehr Aufschläge eine Persona hat, desto schwächer ist die Schätzung: Probieren Sie verschiedene Personas aus.</p>
+      </section>
+
+      <!-- ------------------------------------------------ Pareto-Front -->
+      <section id="feld-pareto" role="tabpanel" aria-labelledby="reiter-pareto" hidden>
+        <h2>Alle Kompromisse zwischen zwei Kriterien</h2>
+        <p class="leise">Eine Route ist Pareto-optimal, wenn keine andere in beiden Kriterien mindestens so gut und in einem besser ist. Hier werden alle Pareto-optimalen Routen exakt berechnet.</p>
+        <div class="zeile"><label for="pareto-persona">Tempo und Sperren von</label><select id="pareto-persona"></select></div>
+        <div class="zeile"><label for="pareto-a">Kriterium 1</label><select id="pareto-a"></select></div>
+        <div class="zeile"><label for="pareto-b">Kriterium 2</label><select id="pareto-b"></select></div>
+        <div class="knopfreihe"><button class="knopf haupt" id="pareto-start">Pareto-Front berechnen</button></div>
+        <p id="pareto-status" role="status" aria-live="polite"></p>
+        <div id="pareto-ergebnis" hidden>
+          <svg class="diagramm" id="pareto-diagramm" viewBox="0 0 400 300" role="img" aria-labelledby="pareto-titel pareto-beschreibung">
+            <title id="pareto-titel">Pareto-Front</title>
+            <desc id="pareto-beschreibung"></desc>
+          </svg>
+          <ul class="legende" aria-label="Legende des Diagramms">
+            <li><svg width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="5" fill="#0072B2"/></svg> findet eine gewichtete Summe</li>
+            <li><svg width="16" height="16" aria-hidden="true"><path d="M8 2 L14 8 L8 14 L2 8 Z" fill="#fff" stroke="#D55E00" stroke-width="2"/></svg> findet keine gewichtete Summe</li>
+            <li><svg width="20" height="16" aria-hidden="true"><circle cx="10" cy="8" r="7" fill="none" stroke="#1b1b1b" stroke-width="1.5"/></svg> spürbar verschieden (nummeriert)</li>
+            <li><svg width="26" height="16" aria-hidden="true"><line x1="1" y1="8" x2="25" y2="8" stroke="#0072B2" stroke-width="1.5" stroke-dasharray="4 3"/></svg> untere konvexe Hülle</li>
+          </ul>
+          <h3>Fast gleiche Routen ausdünnen</h3>
+          <p class="leise">Viele Pareto-optimale Routen unterscheiden sich kaum (etwa Straße und daneben eigens erfasster Radweg). Behalten wird eine Route nur, wenn sie im zweiten Kriterium spürbar spart und es keine fast gleich gute, aber deutlich bessere gibt.</p>
+          <div class="zeile"><label for="spiel-a" id="spiel-a-name">Spielraum 1</label><input type="range" id="spiel-a" min="0" max="100" value="25"><output id="spiel-a-wert" for="spiel-a"></output></div>
+          <div class="zeile"><label for="spiel-b" id="spiel-b-name">Spielraum 2</label><input type="range" id="spiel-b" min="0" max="100" value="25"><output id="spiel-b-wert" for="spiel-b"></output></div>
+          <div class="tabellenrahmen"><table class="kennzahlen" id="pareto-tabelle"></table></div>
+          <p class="leise">Zeile oder Punkt anklicken, um die Route auf der Karte hervorzuheben.</p>
+          <details>
+            <summary>Alle Pareto-optimalen Routen als Tabelle</summary>
+            <div class="tabellenrahmen" style="max-height: 16rem; overflow-y: auto"><table class="kennzahlen" id="pareto-alle"></table></div>
+          </details>
+        </div>
+      </section>
+
+      <details id="karteneinstellungen" hidden>
+        <summary>Karte und Daten ansehen</summary>
+        <div class="zeile">
+          <label for="hintergrund">Hintergrund</label>
+          <select id="hintergrund">
+            <option value="osm">OpenStreetMap-Karte</option>
+            <option value="netz">nur das Wegenetz aus den Daten</option>
+          </select>
+        </div>
+        <div class="zeile">
+          <label for="hervorheben">Hervorheben</label>
+          <select id="hervorheben"></select>
+        </div>
+        <p class="leise" id="hervorheben-text"></p>
+      </details>
+
+      <footer class="fuss">
+        <p><b>Nur ein Prototyp für die Lehre.</b> Die Daten sind unvollständig und können falsch sein. Die Routen sind keine Empfehlung und keine Navigationshilfe, auch nicht für Menschen mit Behinderung.</p>
+        <p>Wege und Karte: © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a> (ODbL)<span id="stand-wege"></span>. Höhen: DGM1, Geobasis NRW (Datenlizenz Deutschland Zero 2.0). Kartendarstellung mit <a href="https://leafletjs.com">Leaflet</a>.</p>
+        <p>Vereinfachungen: Einbahnstraßen werden nicht beachtet, Wartezeiten an Ampeln zählen nicht. Kriterien und Personas stehen im <a href="https://github.com/ls11ae/iun-routenplanung">Repository</a> in <code>wegenetz/routen_hilfen.py</code> und <code>webdemo/personas.json</code>.</p>
+      </footer>
+    </aside>
+  </main>
+  <div class="tipp" id="tipp" hidden></div>
+
+  <script src="vendor/leaflet-1.9.4/leaflet.js"></script>
+  <script src="js/kern.js"></script>
+  <script src="js/karte.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/suche.js"></script>
+  <script src="js/pareto.js"></script>
+</body>
+</html>

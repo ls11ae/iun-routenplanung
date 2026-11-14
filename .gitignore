@@ -31,3 +31,6 @@ Thumbs.db
 /daten/stand.json
 /daten/*.geojson
 *.netz.pickle
+
+# lokale Werkzeug-Einstellungen
+.claude/

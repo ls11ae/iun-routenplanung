@@ -230,7 +230,8 @@ def hoehen_ergaenzen(G, raster=DATEN / "dortmund-sued-hoehen.tif"):
     y = np.array([G.nodes[n]["y"] for n in knoten])
     with rasterio.open(raster) as src:
         band = src.read(1).astype("float64")
-        spalte, zeile = ~src.transform * (x, y)
+        t = ~src.transform                       # Koordinaten -> Rasterposition
+        spalte, zeile = t.a * x + t.b * y + t.c, t.d * x + t.e * y + t.f
     # bilineare Interpolation zwischen den vier umliegenden Rasterpunkten (Zellmitten)
     s, z = spalte - 0.5, zeile - 0.5
     s0 = np.clip(np.floor(s).astype(int), 0, band.shape[1] - 2)
@@ -393,7 +394,7 @@ def karte(G, routen, namen=None, farben=None, striche=None, gewichte=None):
     """
     import folium
     farben = farben or ["#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00", "#56B4E9"]
-    striche = striche or ["", "10 6", "2 7", "14 5 2 5", "6 3", "1 5"]
+    striche = striche or ["", "10 6", "1 9", "14 5 2 5", "6 5", "1 5"]
     alle = [n for r in routen for n in r]
     mitte = (np.mean([G.nodes[n]["y"] for n in alle]), np.mean([G.nodes[n]["x"] for n in alle]))
     k = folium.Map(location=mitte, zoom_start=14, tiles="OpenStreetMap")
@@ -401,5 +402,6 @@ def karte(G, routen, namen=None, farben=None, striche=None, gewichte=None):
         folium.PolyLine(linie(G, r, gewichte[i] if gewichte else None),
                         color=farben[i % len(farben)], weight=5, opacity=0.9,
                         dash_array=striche[i % len(striche)] or None,
+                        line_cap="round" if striche[i % len(striche)][:1] in ("", "1", "2") else "butt",
                         tooltip=(namen[i] if namen else f"Route {i + 1}")).add_to(k)
     return k
