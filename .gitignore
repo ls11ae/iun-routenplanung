@@ -1,0 +1,28 @@
+# Daten werden nicht versioniert: Sie veralten (der Fahrplan gilt nur etwa einen Monat).
+# Sie kommen als Release-Datei und werden mit daten/herunterladen.py geladen.
+# Ausnahme: die kompakten Daten der Webdemo in webdemo/daten/.
+/daten/*.zip
+/daten/*.pbf
+/daten/*.osm.bz2
+/daten/*.tif
+/daten/_*
+*.osm.pbf
+*.osm.bz2
+
+# MOTIS (Programm und erzeugte Dateien)
+/nahverkehr/motis/
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+cache/
+
+# Betriebssystem und Editoren
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
