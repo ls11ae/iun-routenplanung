@@ -1,0 +1,18 @@
+# Python-Pakete für die Starter (getestet mit Python 3.12 unter Windows 11, 14.11.2026).
+# Installation:  python -m pip install -r requirements.txt
+osmnx==2.1.1
+networkx==3.7
+pandas==3.1.1
+numpy==2.5.4
+geopandas==1.2.0
+shapely==2.2.0
+pyproj==3.8.0
+rasterio==1.5.2
+folium==0.20.0
+matplotlib==3.11.2
+requests==2.34.2
+tzdata==2026.6
+Jinja2==3.1.6
+notebook==7.6.5
+nbconvert==7.17.2
+pytest==9.2.0

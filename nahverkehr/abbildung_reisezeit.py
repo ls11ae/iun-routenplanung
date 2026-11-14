@@ -15,8 +15,6 @@ import statistics
 from datetime import datetime
 from pathlib import Path
 
-import matplotlib
-matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch, Rectangle
 
@@ -78,6 +76,7 @@ if __name__ == "__main__":
     D = json.loads(a.daten.read_text(encoding="utf-8"))
     zeit = datetime.fromisoformat(D["zeitpunkt"])
 
+    plt.switch_backend("Agg")                 # ohne Fenster zeichnen
     plt.rcParams.update({"font.family": "DejaVu Sans", "svg.fonttype": "none", "hatch.linewidth": 0.5,
                          "hatch.color": "#888888"})
     fig, achsen = plt.subplots(1, 2, figsize=(13, 6.6))
