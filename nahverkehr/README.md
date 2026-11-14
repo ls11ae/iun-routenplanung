@@ -1,8 +1,11 @@
 # Nahverkehr: Starter für Projekt 1
 
-*Wo verliert der Nahverkehr gegen das Auto?* Hier fragen Sie den Routenplaner
-[MOTIS](https://github.com/motis-project/motis) ab, der auf Ihrem eigenen Rechner läuft:
-Reisezeiten von Tür zu Tür mit Bus und Bahn, Auto, Rad und zu Fuß.
+*Was wäre, wenn …? Eine bessere Verbindung zum Campus.* Ausgangspunkt ist die Karte
+„Nahverkehr gegen Auto“: Mit Bus und Bahn dauert der Weg zum Campus meist deutlich länger als
+mit dem Auto. Ihr Projekt sind Szenarien: Sie ändern den Fahrplan (GTFS), rechnen ihn mit dem
+Routenplaner [MOTIS](https://github.com/motis-project/motis) auf Ihrem eigenen Rechner durch und
+messen, was die Änderung bringt (Reisezeiten, Menschen, die den Campus in 30 Minuten
+erreichen) und was sie kostet (Fahrzeugkilometer, Emissionen).
 
 ## Loslegen
 

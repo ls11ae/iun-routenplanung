@@ -23,7 +23,8 @@ Diese Datei beschreibt Aufbau, Konventionen, Datenquellen und Tests für die Arb
 
 ## Die vier Projekte
 
-1. Wo verliert der Nahverkehr gegen das Auto? → `nahverkehr/` (MOTIS, optional Connection Scan)
+1. Was wäre, wenn …? Eine bessere Verbindung zum Campus → `nahverkehr/` (Szenarien am Fahrplan
+   mit MOTIS; die Reisezeitkarte „Nahverkehr gegen Auto“ ist der Aufhänger; optional Connection Scan)
 2. Entspannt mit dem Rad ans Ziel → `wegenetz/`
 3. Ohne Stufen ans Ziel (Rollstuhl, Rollator, Kinderwagen) → `wegenetz/`
 4. Sicher über die Straße (blinde und sehbehinderte Menschen) → `wegenetz/`

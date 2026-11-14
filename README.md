@@ -11,7 +11,7 @@ Startpunkt für vier Projektideen.
 |---|---|---|
 | [`webdemo/`](webdemo/) | Webseite: Routen für verschiedene Personen vergleichen, Algorithmen für kürzeste Wege beobachten und messen, Pareto-optimale Routen erkunden, Karte „Nahverkehr gegen Auto“ | Sitzung am 18.11., alle Projekte |
 | [`wegenetz/`](wegenetz/) | Python-Starter mit OSMnx und NetworkX: Wegenetz laden, Kriterien aus OpenStreetMap ableiten, Routen je Persona | Projekte 2 bis 4 |
-| [`nahverkehr/`](nahverkehr/) | Python-Starter mit dem Routenplaner MOTIS: Reisezeiten mit Bus und Bahn, Auto und Rad; dazu ein eigener Connection Scan | Projekt 1 |
+| [`nahverkehr/`](nahverkehr/) | Python-Starter mit dem Routenplaner MOTIS: Reisezeiten mit Bus und Bahn, Auto und Rad, Fahrplan-Szenarien; dazu ein eigener Connection Scan | Projekt 1 |
 | [`daten/`](daten/) | Skripte, die das Datenpaket herunterladen oder neu erzeugen | alle |
 
 Webseite und Python-Starter benutzen dieselben Daten und dieselben Kriterien: Die Personas
@@ -20,10 +20,12 @@ Regeln dazu in [`wegenetz/routen_hilfen.py`](wegenetz/routen_hilfen.py).
 
 ## Die vier Projektideen
 
-1. **Wo verliert der Nahverkehr gegen das Auto?** Sie berechnen für viele Startpunkte in
-   Dortmund die Reisezeit mit Bus und Bahn, mit dem Auto und mit dem Rad, zeigen auf einer
-   Karte, wo der Nahverkehr mithalten kann, und ordnen Ihre Annahmen kritisch ein
-   (Parkplatzsuche, Stau, Takt, Tageszeit). → [`nahverkehr/`](nahverkehr/)
+1. **Was wäre, wenn …? Eine bessere Verbindung zum Campus.** Die Karte „Nahverkehr gegen
+   Auto“ in der Webdemo zeigt: Mit Bus und Bahn dauert der Weg zum Campus meist deutlich
+   länger als mit dem Auto. Sie übernehmen die Verkehrsplanung: Sie entwerfen Änderungen am
+   Fahrplan (dichterer Takt, neue Linie, abgestimmte Anschlüsse, Rad als Zubringer, …), bauen
+   sie in den Fahrplan ein und messen ihre Wirkung: Reisezeiten, Menschen, die den Campus in
+   30 Minuten erreichen, zusätzliche Fahrzeugkilometer und Emissionen. → [`nahverkehr/`](nahverkehr/)
 2. **Entspannt mit dem Rad ans Ziel.** Was macht eine gute Radroute aus, was davon steht
    in OpenStreetMap, und welche weiteren Daten helfen (Unfallatlas, Höhenmodell)? Sie
    bauen einen Prototyp und prüfen ihn in der Umgebung der Uni. → [`wegenetz/`](wegenetz/)
