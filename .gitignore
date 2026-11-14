@@ -26,3 +26,8 @@ cache/
 Thumbs.db
 .vscode/
 .idea/
+
+# erzeugte Dateien des Datenpakets und Zwischenspeicher
+/daten/stand.json
+/daten/*.geojson
+*.netz.pickle

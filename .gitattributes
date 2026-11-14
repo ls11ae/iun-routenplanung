@@ -1,0 +1,9 @@
+* text=auto
+*.sh text eol=lf
+*.bat text eol=crlf
+*.ipynb text eol=lf
+*.json text eol=lf
+*.tif binary
+*.pbf binary
+*.zip binary
+*.png binary
