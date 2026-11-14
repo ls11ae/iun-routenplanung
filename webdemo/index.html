@@ -17,7 +17,7 @@
     <nav aria-label="Ansichten">
       <div role="tablist" aria-label="Ansichten der Demo" style="display:contents">
         <button class="reiter" role="tab" id="reiter-routen" aria-controls="feld-routen" aria-selected="true">Routen vergleichen</button>
-        <button class="reiter" role="tab" id="reiter-suche" aria-controls="feld-suche" aria-selected="false">Dijkstra und A*</button>
+        <a class="reiter" href="algorithmen.html">Algorithmen</a>
         <button class="reiter" role="tab" id="reiter-pareto" aria-controls="feld-pareto" aria-selected="false">Pareto-Front</button>
       </div>
       <a class="reiter" href="reisezeit.html">Nahverkehr gegen Auto</a>
@@ -27,17 +27,6 @@
   <main class="arbeitsflaeche">
     <section class="karten" id="karten" aria-label="Karte">
       <div class="karte" id="karte" role="application" aria-label="Karte von Dortmund-Süd. Start und Ziel lassen sich auch rechts über die Auswahllisten setzen."></div>
-      <div class="doppelkarte" id="doppelkarte" hidden>
-        <div>
-          <div class="kartentitel">Dijkstra <span id="titel-dijkstra"></span></div>
-          <div class="karte" id="karte-dijkstra" role="application" aria-label="Karte: vom Algorithmus von Dijkstra abgeschlossene Knoten"></div>
-        </div>
-        <div>
-          <div class="kartentitel">A* <span id="titel-astern"></span></div>
-          <div class="karte" id="karte-astern" role="application" aria-label="Karte: von A* abgeschlossene Knoten"></div>
-        </div>
-        <button class="knopf haupt schwebend" id="suche-start-karte">Suche starten</button>
-      </div>
     </section>
 
     <aside class="seite" id="seite">
@@ -85,45 +74,16 @@
         <div id="routenhinweise" class="leise"></div>
       </section>
 
-      <!-- ------------------------------------------------ Dijkstra und A* -->
-      <section id="feld-suche" role="tabpanel" aria-labelledby="reiter-suche" hidden>
-        <h2>Dijkstra und A* im Vergleich</h2>
-        <p class="leise">Beide Algorithmen finden denselben kürzesten Weg. Dijkstra breitet sich gleichmäßig in alle Richtungen aus; A* schätzt die Restkosten mit der Luftlinie zum Ziel und sucht dadurch zielgerichtet.</p>
-        <div class="zeile">
-          <label for="suche-persona">Kosten für</label>
-          <select id="suche-persona"></select>
-        </div>
-        <div class="zeile">
-          <label for="suche-tempo">Tempo der Animation</label>
-          <input type="range" id="suche-tempo" min="1" max="6" step="0.5" value="3.5" aria-describedby="suche-tempo-text">
-          <span class="leise" id="suche-tempo-text"></span>
-        </div>
-        <div class="knopfreihe">
-          <button class="knopf haupt" id="suche-start">Suche starten</button>
-          <button class="knopf" id="suche-pause" disabled>Pause</button>
-          <button class="knopf" id="suche-ende" disabled>zum Ende</button>
-        </div>
-        <div class="zaehler" aria-live="off">
-          <div><div class="titel">Dijkstra: abgeschlossene Knoten</div><div class="zahl" id="zahl-dijkstra">–</div></div>
-          <div><div class="titel">A*: abgeschlossene Knoten</div><div class="zahl" id="zahl-astern">–</div></div>
-        </div>
-        <p id="suche-ergebnis" role="status" aria-live="polite"></p>
-        <ul class="legende" aria-label="Legende">
-          <li><svg width="14" height="14" aria-hidden="true"><rect x="3" y="3" width="8" height="8" fill="#0072B2"/></svg> abgeschlossener Knoten</li>
-          <li><svg width="30" height="14" aria-hidden="true"><line x1="1" y1="7" x2="29" y2="7" stroke="#1b1b1b" stroke-width="4"/></svg> gefundener Weg</li>
-        </ul>
-        <p class="leise">Die Schätzung von A* ist die Luftlinie geteilt durch das Tempo. Sie ist nie zu groß, deshalb bleibt das Ergebnis optimal. Je mehr Aufschläge eine Persona hat, desto schwächer ist die Schätzung: Probieren Sie verschiedene Personas aus.</p>
-      </section>
-
       <!-- ------------------------------------------------ Pareto-Front -->
       <section id="feld-pareto" role="tabpanel" aria-labelledby="reiter-pareto" hidden>
         <h2>Alle Kompromisse zwischen zwei Kriterien</h2>
-        <p class="leise">Eine Route ist Pareto-optimal, wenn keine andere in beiden Kriterien mindestens so gut und in einem besser ist. Hier werden alle Pareto-optimalen Routen exakt berechnet.</p>
+        <p class="leise">Eine Route ist Pareto-optimal, wenn keine andere in beiden Kriterien mindestens so gut und in einem besser ist. Hier werden alle Pareto-optimalen Routen exakt berechnet, mit einem Label-Setting-Algorithmus: Statt einer Distanz verwaltet er an jedem Knoten eine Menge nicht dominierter Marken (Labels).</p>
         <div class="zeile"><label for="pareto-persona">Tempo und Sperren von</label><select id="pareto-persona"></select></div>
         <div class="zeile"><label for="pareto-a">Kriterium 1</label><select id="pareto-a"></select></div>
         <div class="zeile"><label for="pareto-b">Kriterium 2</label><select id="pareto-b"></select></div>
         <div class="knopfreihe"><button class="knopf haupt" id="pareto-start">Pareto-Front berechnen</button></div>
         <p id="pareto-status" role="status" aria-live="polite"></p>
+        <p id="pareto-aufwand" class="leise"></p>
         <div id="pareto-ergebnis" hidden>
           <svg class="diagramm" id="pareto-diagramm" viewBox="0 0 400 300" role="img" aria-labelledby="pareto-titel pareto-beschreibung">
             <title id="pareto-titel">Pareto-Front</title>
@@ -174,10 +134,10 @@
   <div class="tipp" id="tipp" hidden></div>
 
   <script src="vendor/leaflet-1.9.4/leaflet.js"></script>
+  <script src="js/routing.js"></script>
   <script src="js/kern.js"></script>
   <script src="js/karte.js"></script>
   <script src="js/app.js"></script>
-  <script src="js/suche.js"></script>
   <script src="js/pareto.js"></script>
 </body>
 </html>

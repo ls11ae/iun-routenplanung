@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kürzeste Wege: Algorithmen im Vergleich – Informatik und Nachhaltigkeit</title>
+  <meta name="description" content="Dijkstra, bidirektionaler Dijkstra, A*, ALT und Contraction Hierarchies auf dem Radnetz von Dortmund: Animation der Suche, Statistik je Lauf und Vergleich.">
+  <link rel="stylesheet" href="css/stil.css">
+  <style>
+    .karten canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; touch-action: none; }
+    .karten { background: #fff; }
+    #laden { position: absolute; left: 50%; top: 45%; transform: translate(-50%, -50%); color: var(--text-leise); font-size: 1.1rem; text-align: center; }
+    #zoom { position: absolute; left: 10px; top: 10px; display: flex; flex-direction: column; gap: 2px; z-index: 5; }
+    #zoom button { width: 34px; height: 34px; font-size: 20px; line-height: 1; padding: 0; }
+    #nennung { position: absolute; right: 6px; bottom: 4px; font-size: 11px; color: var(--text-leise); background: rgba(255, 255, 255, 0.85); padding: 1px 5px; border-radius: 3px; }
+    #legende, #mini { position: absolute; left: 10px; top: 10px; z-index: 6; display: none; background: rgba(255, 255, 255, 0.94); border: 1px solid var(--linie); border-radius: 6px; padding: 6px 10px; font-size: 15px; line-height: 1.4; font-variant-numeric: tabular-nums; max-width: 340px; }
+    .strich { display: inline-block; width: 22px; height: 4px; vertical-align: middle; margin-right: 6px; border-radius: 2px; }
+    .knopfreihe .gruppe { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    dl.statistik { display: grid; grid-template-columns: auto 1fr; gap: 0.15rem 0.8rem; margin: 0.4rem 0; font-variant-numeric: tabular-nums; }
+    dl.statistik dt { color: var(--text-leise); }
+    dl.statistik dd { margin: 0; font-weight: 600; }
+    /* Einbettung in Folien: ?ui=none | legend | compact */
+    body.eingebettet .seitenkopf, body.eingebettet .seite, body.eingebettet #zoom { display: none; }
+    body.eingebettet .arbeitsflaeche { display: block; height: 100dvh; }
+    body.eingebettet .karten { height: 100dvh; }
+    body.ui-legend #legende { display: block; }
+    body.ui-compact #mini { display: block; }
+  </style>
+</head>
+<body>
+  <header class="seitenkopf">
+    <div>
+      <h1>Kürzeste Wege: Algorithmen im Vergleich</h1>
+      <div class="untertitel">Informatik und Nachhaltigkeit · TU Dortmund · Radnetz Dortmund</div>
+    </div>
+    <nav aria-label="Ansichten">
+      <a class="reiter" href="index.html#routen">Routen vergleichen</a>
+      <a class="reiter" href="algorithmen.html" aria-current="page">Algorithmen</a>
+      <a class="reiter" href="index.html#pareto">Pareto-Front</a>
+      <a class="reiter" href="reisezeit.html">Nahverkehr gegen Auto</a>
+    </nav>
+  </header>
+
+  <main class="arbeitsflaeche">
+    <section class="karten" id="karten" aria-label="Karte">
+      <canvas id="grund" role="img" aria-label="Radnetz von Dortmund. Die Ergebnisse der Suche stehen rechts als Text und Tabelle."></canvas>
+      <canvas id="suche" aria-hidden="true"></canvas>
+      <canvas id="oben" aria-hidden="true"></canvas>
+      <div id="laden" role="status">Das Radnetz von Dortmund wird geladen …</div>
+      <div id="zoom">
+        <button class="knopf" id="zoom-rein" aria-label="hineinzoomen">+</button>
+        <button class="knopf" id="zoom-raus" aria-label="herauszoomen">−</button>
+        <button class="knopf" id="zoom-alles" aria-label="ganze Karte zeigen" title="ganze Karte">⤢</button>
+      </div>
+      <div id="legende"></div>
+      <div id="mini">
+        <div class="knopfreihe" id="mini-algos"></div>
+        <div class="knopfreihe"><button class="knopf haupt" data-tat="lauf">▶ Animation</button><button class="knopf" data-tat="ergebnis">Ergebnis</button></div>
+        <div id="mini-text"></div>
+      </div>
+      <div id="nennung">Kartendaten © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a> (ODbL)</div>
+    </section>
+
+    <aside class="seite">
+      <h2>Start und Ziel</h2>
+      <div class="startziel">
+        <label for="wahl-start">Start</label><select id="wahl-start"></select><span></span>
+        <label for="wahl-ziel">Ziel</label><select id="wahl-ziel"></select><span></span>
+      </div>
+      <p class="leise">Auf der Karte: erster Klick setzt den Start, zweiter Klick das Ziel. Ziehen verschiebt, Mausrad oder zwei Finger zoomen.</p>
+
+      <h2>Algorithmus</h2>
+      <div class="knopfreihe" id="algos" role="group" aria-label="Algorithmus"></div>
+      <div class="zeile">
+        <span><b>Gewicht</b></span>
+        <button class="knopf" data-gewicht="fast" aria-pressed="true">schnell (Reisezeit)</button>
+        <button class="knopf" data-gewicht="quiet" aria-pressed="false">ruhig</button>
+      </div>
+      <div class="knopfreihe">
+        <button class="knopf haupt" data-tat="lauf">▶ Animation</button>
+        <button class="knopf" data-tat="ergebnis">Ergebnis</button>
+        <button class="knopf" data-tat="leeren">Löschen</button>
+      </div>
+      <div class="zeile">
+        <span><b>Tempo</b></span>
+        <button class="knopf" data-tempo="0.1">langsam</button>
+        <button class="knopf" data-tempo="1">normal</button>
+        <button class="knopf" data-tempo="6">schnell</button>
+      </div>
+
+      <h2>Statistik des Laufs</h2>
+      <div id="statistik" role="status" aria-live="polite"></div>
+      <ul class="legende" id="zeichen" aria-label="Legende der Karte"></ul>
+
+      <h2>Vergleich</h2>
+      <div class="knopfreihe">
+        <button class="knopf haupt" id="alle">Alle vergleichen</button>
+        <button class="knopf" id="zufall">Zufällige Paare</button>
+        <label>Anzahl <select id="zufall-anzahl"><option>100</option><option>300</option><option>1000</option></select></label>
+      </div>
+      <p class="leise">„Alle vergleichen“ rechnet das aktuelle Paar mit jedem Algorithmus. Die Laufzeit ist der Median über mehrere Wiederholungen in Ihrem Browser; sie schwankt je nach Gerät. Knoten und Kanten sind immer gleich.</p>
+      <div id="vergleich" role="status" aria-live="polite"></div>
+      <div id="zufall-ergebnis" role="status" aria-live="polite"></div>
+
+      <details>
+        <summary>Was bedeuten die Spalten?</summary>
+        <p class="leise"><b>Abgearbeitete Knoten:</b> Knoten, deren kürzeste Distanz feststeht (aus der Vorrangwarteschlange entnommen). <b>Relaxierte Kanten:</b> Kanten, die dabei angesehen wurden. <b>Vorberechnung:</b> ALT speichert Distanzen von und zu einigen Landmarken (je Landmarke zwei Dijkstra-Läufe); Contraction Hierarchies (CH) fügen vorab Abkürzungen (Shortcuts) ein und suchen danach nur noch „bergauf“.</p>
+        <p class="leise"><b>Schnell und ruhig:</b> Die Reisezeit rechnet mit 18 km/h auf Straßen und Radwegen, langsamer auf schlechtem Belag, 5 km/h beim Schieben. „Ruhig“ multipliziert die Zeit auf Hauptstraßen mit einem Stressfaktor (bis 3), weniger mit Radweg oder Tempo 30. Die CH ist nur für die Reisezeit vorberechnet.</p>
+      </details>
+
+      <footer class="fuss">
+        <p>Die Demo stammt aus der Vorlesung „Algorithms and Sustainability“ (Kevin Buchin, TU Dortmund) und wurde für diese Veranstaltung übersetzt und erweitert.</p>
+        <p>Radnetz: © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a> (ODbL)<span id="stand"></span>. Ein Modell für die Lehre, kein echtes Radprofil und keine Navigationshilfe.</p>
+      </footer>
+    </aside>
+  </main>
+
+  <script src="js/routing.js"></script>
+  <script src="js/algorithmen.js"></script>
+</body>
+</html>

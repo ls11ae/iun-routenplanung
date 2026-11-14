@@ -37,17 +37,20 @@
     $("#pareto-status").textContent = "Rechnet …";
     $("#pareto-start").disabled = true;
     setTimeout(() => {
-      const e = A.endpunkte(p);
+      const e = A.endpunkte(p), FA = IUN.kriteriumFeld(A.netz, p, a), FB = IUN.kriteriumFeld(A.netz, p, b);
       const t0 = performance.now();
-      const r = IUN.paretoFront(A.netz, IUN.kriteriumFeld(A.netz, p, a), IUN.kriteriumFeld(A.netz, p, b), e.start, e.ziel, { maxMarken: 12e6 });
+      const r = IUN.paretoFront(A.netz, FA, FB, e.start, e.ziel, { maxMarken: 12e6 });
       const ms = performance.now() - t0;
+      // zum Vergleich: ein einzelner Dijkstra-Lauf für das erste Kriterium
+      const t1 = performance.now(), dj = IUN.kuerzesterWeg(A.netz, FA, e.start, e.ziel), msDijkstra = performance.now() - t1;
       $("#pareto-start").disabled = false;
       if (!r.routen.length) {
         P.ergebnis = null; $("#pareto-ergebnis").hidden = true; P.ebene.clearLayers();
         $("#pareto-status").textContent = "Für diese Persona gibt es keinen Weg zwischen Start und Ziel.";
         return;
       }
-      P.ergebnis = { p, a, b, routen: r.routen, art: IUN.gestuetzt(r.routen), marken: r.marken, ms, abgebrochen: r.abgebrochen };
+      P.ergebnis = { p, a, b, routen: r.routen, art: IUN.gestuetzt(r.routen), marken: r.marken, ms, abgebrochen: r.abgebrochen,
+                     abgeschlossen: r.abgeschlossen, dijkstra: { ms: msDijkstra, knoten: dj.abgeschlossen } };
       P.auswahl = -1;
       for (const [x, id] of [["a", a], ["b", b]]) {
         const [vor, max, schritt] = spielraum(id), regler = $("#spiel-" + x);
@@ -69,10 +72,14 @@
     if (P.auswahl < 0 || P.auswahl >= E.routen.length) P.auswahl = E.relevant[0];
     const n = E.routen.length, mit = E.art.filter((x) => x > 0).length;
     $("#pareto-status").innerHTML =
-      `<b>${A.de(n)}</b> Pareto-optimale ${n === 1 ? "Route" : "Routen"} in ${A.de(E.ms)} ms (${A.de(E.marken)} Marken erzeugt). ` +
+      `<b>${A.de(n)}</b> Pareto-optimale ${n === 1 ? "Route" : "Routen"}. ` +
       `<b>${A.de(mit)}</b> davon findet eine gewichtete Summe, <b>${A.de(n - mit)}</b> nicht. ` +
       `Spürbar verschieden: <b>${E.relevant.length}</b>.` +
       (E.abgebrochen ? " Achtung: Die Suche wurde wegen zu vieler Marken abgebrochen; die Liste ist unvollständig." : "");
+    $("#pareto-aufwand").innerHTML =
+      `Aufwand: ${A.de(E.marken)} Marken (Labels) erzeugt, ${A.de(E.abgeschlossen)} davon abgearbeitet, ${A.de(E.ms)} ms. ` +
+      `Zum Vergleich: Dijkstra für ${A.name(E.a)} allein arbeitet ${A.de(E.dijkstra.knoten)} Knoten ab und braucht ${A.de(E.dijkstra.ms)} ms. ` +
+      `Marken, die das Ziel nachweislich nicht mehr verbessern können, werden verworfen; sonst wären es um ein Vielfaches mehr.`;
     $("#pareto-beschreibung").textContent =
       `Streudiagramm mit ${n} Pareto-optimalen Routen: ${achsentext(E.a)} gegen ${achsentext(E.b)}. ` +
       `${mit} Routen liegen auf der unteren konvexen Hülle und werden von einer gewichteten Summe gefunden, ${n - mit} nicht.`;

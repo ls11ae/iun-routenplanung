@@ -1,6 +1,6 @@
 /* Webdemo: gemeinsamer Zustand (Netz, Personas, Start und Ziel) und der Reiter
- * „Routen vergleichen“. Die Reiter „Dijkstra und A*“ und „Pareto-Front“ stehen in
- * suche.js und pareto.js und benutzen window.APP.
+ * „Routen vergleichen“. Der Reiter „Pareto-Front“ steht in pareto.js und benutzt
+ * window.APP. Kürzeste Wege rechnet routing.js (Dijkstra), siehe kern.js.
  */
 (function () {
   "use strict";
@@ -124,17 +124,14 @@
   // ------------------------------------------------------------------ Reiter
 
   A.zeigeReiter = function (name) {
-    if (!["routen", "suche", "pareto"].includes(name)) name = "routen";
+    if (!["routen", "pareto"].includes(name)) name = "routen";
     A.reiter = name;
-    for (const r of ["routen", "suche", "pareto"]) {
+    for (const r of ["routen", "pareto"]) {
       $("#reiter-" + r).setAttribute("aria-selected", r === name);
       $("#feld-" + r).hidden = r !== name;
     }
-    $("#karte").hidden = name === "suche";
-    $("#doppelkarte").hidden = name !== "suche";
-    $("#karten").classList.toggle("doppelt", name === "suche");
     if (location.hash.slice(1) !== name) history.replaceState(null, "", "#" + name);
-    if (name !== "suche") A.karte.map.invalidateSize();
+    A.karte.map.invalidateSize();
     A.beiReiter.forEach((f) => f(name));
   };
 
@@ -321,7 +318,7 @@
     A.beiAenderung.push(routenNeu);
     A.beiReiter.push((name) => { if (name === "routen") routenNeu(); else routenEbene.clearLayers(); });
 
-    for (const r of ["routen", "suche", "pareto"]) $("#reiter-" + r).addEventListener("click", () => A.zeigeReiter(r));
+    for (const r of ["routen", "pareto"]) $("#reiter-" + r).addEventListener("click", () => A.zeigeReiter(r));
     window.addEventListener("hashchange", () => A.zeigeReiter(location.hash.slice(1)));
     $("#startziel").hidden = false;
     $("#karteneinstellungen").hidden = false;

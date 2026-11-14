@@ -1,15 +1,18 @@
-/* Kern der Webdemo: Netz lesen, Kosten je Persona, Dijkstra, A*, Pareto-Front.
+/* Kern der Persona-Ansicht: Netz lesen, Kosten je Persona, Pareto-Front.
  *
- * Reines JavaScript ohne Abhängigkeiten; läuft im Browser (window.IUN), in einem
- * Web Worker und in Node.js (require). Die Kriterien selbst werden in Python berechnet
- * (wegenetz/routen_hilfen.py) und mit wegenetz/export_webdemo.py exportiert; hier
- * werden sie nur gelesen. Der Aufbau der Datei netz.json ist dort beschrieben.
+ * Kürzeste Wege rechnet die Bibliothek routing.js (dieselbe wie in der Algorithmen-Ansicht);
+ * hier wird das Wegenetz in deren Form gebracht und das Kostenfeld einer Persona gebildet.
+ * Läuft im Browser (window.IUN, routing.js vorher laden) und in Node.js (require).
+ * Die Kriterien selbst werden in Python berechnet (wegenetz/routen_hilfen.py) und mit
+ * wegenetz/export_webdemo.py exportiert; hier werden sie nur gelesen. Der Aufbau der
+ * Datei netz.json ist dort beschrieben.
  */
 (function (root, factory) {
-  const api = factory();
-  if (typeof module === "object" && module.exports) module.exports = api;
+  const knoten = typeof module === "object" && module.exports;
+  const api = factory(knoten ? require("./routing.js") : root.Routing);
+  if (knoten) module.exports = api;
   else root.IUN = api;
-})(typeof self !== "undefined" ? self : this, function () {
+})(typeof self !== "undefined" ? self : this, function (R) {
   "use strict";
 
   const ERDRADIUS = 6371009; // Meter, wie in OSMnx
@@ -60,8 +63,17 @@
     const laenge = new Float64Array(M);
     for (let e = 0; e < M; e++) laenge[e] = K.l[kante[e]] / 10;
 
+    // Dasselbe Netz in der Form, die routing.js erwartet (Kanten nach Anfangsknoten sortiert,
+    // eingehende Kanten als Liste, Koordinaten in Metern); Gewichte kommen je Anfrage dazu.
+    const lat0 = roh.ursprung[1], kx = Math.cos(lat0 * Math.PI / 180) * 111319.49;
+    const G = {
+      n, m: M, off: start, to: nach, from: von, roff: einStart, redge: ein, w: {},
+      x: Float64Array.from(lon, (l) => (l - roh.ursprung[0]) * kx),
+      y: Float64Array.from(lat, (b) => (b - lat0) * 111132.95),
+    };
+
     return {
-      n, m, M, lon, lat, hoehe, start, von, nach, kante, gegen, code, einStart, ein, laenge,
+      G, n, m, M, lon, lat, hoehe, start, von, nach, kante, gegen, code, einStart, ein, laenge,
       flaggen: roh.flaggen, F: K.f, art: K.art, U: K.u, V: K.v, geo: roh.geo, geoStart,
       orte: roh.orte, quellen: roh.quellen, erzeugt: roh.erzeugt, _werte: { laenge },
     };
@@ -185,99 +197,27 @@
     return beste;
   }
 
-  // ------------------------------------------------------------------ Vorrangwarteschlange
-
-  /** Binäre Halde für Paare (Schlüssel, Wert); kleinster Schlüssel zuerst. */
-  class Halde {
-    constructor(platz = 1024) {
-      this.s = new Float64Array(platz); this.w = new Int32Array(platz); this.n = 0;
-    }
-    push(schluessel, wert) {
-      if (this.n === this.s.length) {
-        const s = new Float64Array(2 * this.n), w = new Int32Array(2 * this.n);
-        s.set(this.s); w.set(this.w); this.s = s; this.w = w;
-      }
-      let i = this.n++;
-      const s = this.s, w = this.w;
-      while (i > 0) {
-        const p = (i - 1) >> 1;
-        if (s[p] <= schluessel) break;
-        s[i] = s[p]; w[i] = w[p]; i = p;
-      }
-      s[i] = schluessel; w[i] = wert;
-    }
-    /** Entfernt das kleinste Element; Schlüssel und Wert stehen danach in .schluessel und .wert. */
-    pop() {
-      const s = this.s, w = this.w;
-      this.schluessel = s[0]; this.wert = w[0];
-      const n = --this.n;
-      if (n > 0) {
-        const ls = s[n], lw = w[n];
-        let i = 0;
-        for (;;) {
-          let c = 2 * i + 1;
-          if (c >= n) break;
-          if (c + 1 < n && s[c + 1] < s[c]) c++;
-          if (s[c] >= ls) break;
-          s[i] = s[c]; w[i] = w[c]; i = c;
-        }
-        s[i] = ls; w[i] = lw;
-      }
-    }
-  }
-
   // ------------------------------------------------------------------ Dijkstra und A*
 
   /**
-   * Kürzester Weg von `start` nach `ziel` (Knotennummern) für das Kostenfeld `kosten`.
+   * Kürzester Weg von `start` nach `ziel` (Knotennummern) für das Kostenfeld `kosten`
+   * (ein Wert je gerichteter Kante, Infinity = gesperrt). Gerechnet wird mit routing.js.
    * opt.astern: A* mit der Luftlinie als Schätzung; opt.untergrenze = Kosten je Meter,
    *   die jede Kante mindestens hat (z. B. 1 / Tempo), damit die Schätzung nie zu groß ist.
-   * opt.protokoll: Reihenfolge der abgeschlossenen Knoten mitschreiben (für die Animation).
-   * opt.rueckwaerts: Kanten gegen ihre Richtung benutzen; mit ziel = -1 ganzer Baum.
+   * Ergebnis: Kosten, Kanten der Route, abgearbeitete Knoten und relaxierte Kanten.
    */
   function kuerzesterWeg(netz, kosten, start, ziel, opt = {}) {
-    const { n, nach, von } = netz;
-    const dist = new Float64Array(n).fill(Infinity), vor = new Int32Array(n).fill(-1);
-    const fertig = new Uint8Array(n);
-    const halde = new Halde();
-    const reihenfolge = opt.protokoll ? [] : null;
-    const rueck = !!opt.rueckwaerts;
-    const anfang = rueck ? netz.einStart : netz.start;
     let schaetzung = null;
     if (opt.astern) {
       const faktor = (opt.untergrenze || 0) * 0.999;   // Längen sind auf Dezimeter gerundet
-      const cache = new Float64Array(n).fill(-1);
+      const cache = new Float64Array(netz.n).fill(-1);
       schaetzung = (v) => (cache[v] >= 0 ? cache[v] : (cache[v] = faktor * luftlinie(netz, v, ziel)));
     }
-    dist[start] = 0;
-    halde.push(schaetzung ? schaetzung(start) : 0, start);
-    let abgeschlossen = 0;
-    while (halde.n > 0) {
-      halde.pop();
-      const u = halde.wert;
-      if (fertig[u]) continue;
-      fertig[u] = 1; abgeschlossen++;
-      if (reihenfolge) reihenfolge.push(u);
-      if (u === ziel) break;
-      const du = dist[u];
-      for (let j = anfang[u]; j < anfang[u + 1]; j++) {
-        const e = rueck ? netz.ein[j] : j;
-        const c = kosten[e];
-        if (c === Infinity) continue;
-        const v = rueck ? von[e] : nach[e];
-        const d = du + c;
-        if (d < dist[v]) {
-          dist[v] = d; vor[v] = e;
-          halde.push(schaetzung ? d + schaetzung(v) : d, v);
-        }
-      }
-    }
-    const ergebnis = { dist, vor, abgeschlossen, reihenfolge: reihenfolge && Int32Array.from(reihenfolge) };
-    if (ziel >= 0) {
-      ergebnis.kosten = dist[ziel];
-      ergebnis.kanten = dist[ziel] < Infinity ? pfadKanten(netz, vor, start, ziel) : null;
-    }
-    return ergebnis;
+    const r = R.search(netz.G, start, ziel, kosten, schaetzung);
+    return {
+      kosten: r.dist, kanten: r.dist < Infinity ? pfadKanten(netz, r.parent, start, ziel) : null,
+      abgeschlossen: r.settled, relaxiert: r.relaxed, reihenfolge: r.order,
+    };
   }
 
   function pfadKanten(netz, vor, start, ziel) {
@@ -344,8 +284,8 @@
     for (let e = 0; e < netz.M; e++) offen[e] = (A[e] === Infinity || B[e] === Infinity) ? Infinity : 0;
     const mitSperre = (X) => { const f = Float64Array.from(X); for (let e = 0; e < netz.M; e++) if (offen[e]) f[e] = Infinity; return f; };
     A = mitSperre(A); B = mitSperre(B);
-    const uA = kuerzesterWeg(netz, A, ziel, -1, { rueckwaerts: true }).dist;
-    const uB = kuerzesterWeg(netz, B, ziel, -1, { rueckwaerts: true }).dist;
+    const uA = R.allDistances(netz.G, ziel, A, true);      // untere Schranken bis zum Ziel
+    const uB = R.allDistances(netz.G, ziel, B, true);
     if (uA[start] === Infinity) return { routen: [], marken: 0, abgeschlossen: 0, abgebrochen: false };
 
     // Größtes sinnvolles a: das kleinste a unter allen Wegen mit kleinstem b
@@ -472,6 +412,6 @@
   return {
     netzAufbauen, werte, zeitFeld, kostenFeld, kriteriumFeld, sperren, luftlinie,
     groessteKomponente, naechsterKnoten, kuerzesterWeg, summe, bewerten, linie,
-    paretoFront, gestuetzt, relevante, Halde,
+    paretoFront, gestuetzt, relevante,
   };
 });
