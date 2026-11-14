@@ -26,6 +26,8 @@ Was gemessen wird:
                    ein Bus oder eine Bahn abfährt.
 - auto_min         Reine Fahrzeit nach OpenStreetMap: ohne Stau, ohne Parkplatzsuche.
 - rad_min, fuss_min  Fahrrad und zu Fuß nach OpenStreetMap.
+- einwohner        Einwohner der Rasterzelle (Zensus 2022, Summe der 100-m-Zellen), falls
+                   daten/dortmund-einwohner.csv vorhanden ist.
 
 Alle Zeiten in Minuten; `None` (in der Datei `null`) heißt: kein Weg in der Nähe des
 Rasterpunkts oder keine Verbindung gefunden.
@@ -59,6 +61,7 @@ from motis_einrichten import VERSION, fahrplan_zeitraum  # noqa: E402
 
 WURZEL = Path(__file__).resolve().parent.parent
 GRENZE = WURZEL / "daten" / "dortmund-grenze.geojson"
+EINWOHNER = WURZEL / "daten" / "dortmund-einwohner.csv"
 AUSGABE = WURZEL / "webdemo" / "daten" / "reisezeiten.json"
 
 # 127.0.0.1 statt localhost: Unter Windows probiert Python bei „localhost“ zuerst IPv6,
@@ -81,6 +84,8 @@ HALT_MAX_M = 1000                 # weiter weg: „keine Haltestelle in Gehweite
 CAMPUS_FUSS_MAX_MIN = 15          # höchstens so lange zu Fuß: „Campus in Gehweite“
 ZUSCHLAG_MIN = 5                  # Minuten für Parkplatzsuche und Fußweg zum Auto (Standard)
 VERHAELTNIS_GRENZEN = [1.5, 2, 2.5, 3, 4]   # Klassen des Verhältnisses ÖPNV zu Auto; ab 4 zusammengefasst
+EINWOHNER_QUELLE = ("Zensus 2022, © Statistische Ämter des Bundes und der Länder, 2024, dl-de/by-2-0; "
+                    "Summe der 100-m-Zellen je Rasterzelle")
 MAX_REISEZEIT_MIN = 180           # länger gilt als „keine Verbindung“ (etwa erst am Mittag)
 
 sitzung = requests.Session()      # hält die Verbindung zum Server offen
@@ -146,6 +151,29 @@ def zelle_in_grad(punkt, raster_m: int = 500):
     _, lat_s = her.transform(x, y - raster_m / 2)
     _, lat_n = her.transform(x, y + raster_m / 2)
     return [round(lon_o - lon_w, 6), round(lat_n - lat_s, 6)]
+
+
+def einwohner_je_zelle(punkte, raster_m: int = 500, datei: Path = EINWOHNER):
+    """Einwohner (Zensus 2022) in der Rasterzelle um jeden Punkt aus `raster_erzeugen`.
+
+    Jede 100-m-Zelle des Zensus zählt zu der Rasterzelle, in der ihr Mittelpunkt liegt. Das
+    Raster liegt wie in `raster_erzeugen` auf Vielfachen von `raster_m` (UTM, EPSG:25832).
+    """
+    import csv
+    nach_utm = Transformer.from_crs(3035, UTM, always_xy=True)
+    with open(datei, encoding="utf-8", newline="") as f:
+        zeilen = list(csv.DictReader(f))
+    x = np.array([float(z["x_3035"]) for z in zeilen])
+    y = np.array([float(z["y_3035"]) for z in zeilen])
+    ew = np.array([int(z["einwohner"]) for z in zeilen])
+    ux, uy = nach_utm.transform(x, y)
+    summe = {}
+    for i, j, e in zip(np.floor(ux / raster_m).astype(int), np.floor(uy / raster_m).astype(int), ew):
+        summe[(i, j)] = summe.get((i, j), 0) + int(e)
+    lon, lat = np.array([p[1] for p in punkte]), np.array([p[0] for p in punkte])
+    px, py = Transformer.from_crs(4326, UTM, always_xy=True).transform(lon, lat)
+    return [summe.get((int(i), int(j)), 0)
+            for i, j in zip(np.floor(px / raster_m), np.floor(py / raster_m))]
 
 
 def haltestellen_abstand(punkte, tag: date, von: str = "07:00", bis: str = "09:00"):
@@ -347,13 +375,21 @@ def oepnv_ueber_abfahrten(start, ziel, zeiten, fuss_min=None, server: str = SERV
 # ---------------------------------------------------------------- Raster berechnen
 
 def reisezeiten_berechnen(punkte, zeiten, ziel=ZIEL, ziel_auto=ZIEL_AUTO, server: str = SERVER,
-                          max_fussweg_s: int = 3600, parallel: int = 4) -> dict:
-    """Berechnet für alle Punkte die Reisezeiten zum Ziel. Liefert Listen gleicher Länge."""
+                          max_fussweg_s: int = 3600, parallel: int = 4, strassen: dict = None) -> dict:
+    """Berechnet für alle Punkte die Reisezeiten zum Ziel. Liefert Listen gleicher Länge.
+
+    `strassen` kann die Zeiten zu Fuß, mit dem Rad und dem Auto aus einer früheren Rechnung
+    mitbringen ({"fuss_min": [...], "rad_min": [...], "auto_min": [...]}, gleiche Punkte): Sie
+    hängen nicht vom Fahrplan ab, und so müssen sie für ein Szenario nicht neu berechnet werden.
+    """
     t0 = time.time()
-    fuss = strassenzeiten(punkte, ziel, "WALK", server)
-    rad = strassenzeiten(punkte, ziel, "BIKE", server)
-    auto = strassenzeiten(punkte, ziel_auto, "CAR", server)
-    print(f"Zu Fuß, Rad, Auto: {len(punkte)} Punkte in {time.time() - t0:.1f} s")
+    if strassen is None:
+        fuss = strassenzeiten(punkte, ziel, "WALK", server)
+        rad = strassenzeiten(punkte, ziel, "BIKE", server)
+        auto = strassenzeiten(punkte, ziel_auto, "CAR", server)
+        print(f"Zu Fuß, Rad, Auto: {len(punkte)} Punkte in {time.time() - t0:.1f} s")
+    else:
+        fuss, rad, auto = strassen["fuss_min"], strassen["rad_min"], strassen["auto_min"]
 
     fehler = 0
 
@@ -444,7 +480,19 @@ def main():
     parser.add_argument("--server", default=SERVER, help="Adresse des MOTIS-Servers")
     parser.add_argument("--grenze", type=Path, default=GRENZE, help="GeoJSON mit der Gebietsgrenze")
     parser.add_argument("--ausgabe", type=Path, default=AUSGABE, help="Zieldatei (JSON)")
+    parser.add_argument("--nur-einwohner", action="store_true",
+                        help="nur die Einwohner je Zelle in eine vorhandene Ergebnisdatei eintragen (ohne MOTIS)")
     args = parser.parse_args()
+
+    if args.nur_einwohner:
+        daten = json.loads(args.ausgabe.read_text(encoding="utf-8"))
+        Z = daten["zellen"]
+        Z["einwohner"] = einwohner_je_zelle(list(zip(Z["lat"], Z["lon"])), daten["raster_m"])
+        daten["einwohner_quelle"] = EINWOHNER_QUELLE
+        with open(args.ausgabe, "w", encoding="utf-8", newline="\n") as f:
+            f.write(json.dumps(daten, ensure_ascii=False, separators=(",", ":")) + "\n")
+        print(f"Einwohner eingetragen: {sum(Z['einwohner']):,} in {len(Z['lat'])} Zellen")
+        return
 
     t0 = time.time()
     werkzeug = server_pruefen(args.server)
@@ -466,6 +514,8 @@ def main():
     t1 = time.time()
     zellen["halt_m"] = haltestellen_abstand(punkte, zeiten[0].date())
     print(f"Abstand zur nächsten Haltestelle: {time.time() - t1:.0f} s")
+    if EINWOHNER.exists():
+        zellen["einwohner"] = einwohner_je_zelle(punkte, args.raster)
     daten = {
         "erzeugt": date.today().isoformat(),
         "ziel": {"name": ZIEL_NAME, "lat": ZIEL[0], "lon": ZIEL[1]},
@@ -476,6 +526,7 @@ def main():
         "zelle_grad": zelle_in_grad(ZIEL, args.raster),
         "fahrplan": {"gueltig_von": von.isoformat(), "gueltig_bis": bis.isoformat()},
         "werkzeug": werkzeug,
+        "einwohner_quelle": EINWOHNER_QUELLE if EINWOHNER.exists() else None,
         "darstellung": {"zuschlag_min": ZUSCHLAG_MIN, "halt_max_m": HALT_MAX_M,
                         "campus_fuss_max_min": CAMPUS_FUSS_MAX_MIN,
                         "verhaeltnis_grenzen": VERHAELTNIS_GRENZEN},
