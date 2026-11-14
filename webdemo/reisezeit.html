@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wo verliert der Nahverkehr gegen das Auto? – Informatik und Nachhaltigkeit</title>
+  <meta name="description" content="Karte für Dortmund: Wie viel länger dauert der Weg zum Campus Nord mit Bus und Bahn als mit dem Auto? Berechnet mit dem Routenplaner MOTIS aus offenen Fahrplan- und Kartendaten.">
+  <link rel="stylesheet" href="vendor/leaflet-1.9.4/leaflet.css">
+  <link rel="stylesheet" href="css/stil.css">
+</head>
+<body>
+  <header class="seitenkopf">
+    <div>
+      <h1>Wo verliert der Nahverkehr gegen das Auto?</h1>
+      <div class="untertitel">Informatik und Nachhaltigkeit · TU Dortmund · Reisezeiten zum Campus Nord</div>
+    </div>
+    <nav aria-label="Ansichten">
+      <a class="reiter" href="index.html#routen">Routen vergleichen</a>
+      <a class="reiter" href="algorithmen.html">Algorithmen</a>
+      <a class="reiter" href="index.html#pareto">Pareto-Front</a>
+      <a class="reiter" href="reisezeit.html" aria-current="page">Nahverkehr gegen Auto</a>
+    </nav>
+  </header>
+
+  <main class="arbeitsflaeche">
+    <section class="karten" aria-label="Karte">
+      <div class="karte" id="karte" role="application" aria-label="Karte von Dortmund mit einem Raster. Jede Zelle ist nach der gewählten Größe eingefärbt; dieselben Angaben stehen rechts in der Legende als Anteile."></div>
+    </section>
+
+    <aside class="seite">
+      <div id="meldung" class="hinweis" role="status" aria-live="polite">Die Reisezeiten werden geladen …</div>
+      <div id="inhalt" hidden>
+        <h2 id="frage"></h2>
+        <p class="leise" id="rahmen"></p>
+
+        <div class="zeile">
+          <label for="ansicht">Dargestellt</label>
+          <select id="ansicht"></select>
+        </div>
+        <div class="zeile">
+          <label for="oepnv-art">Zeit mit Bus und Bahn</label>
+          <select id="oepnv-art">
+            <option value="oepnv_min">Start um 7:30 Uhr, früheste Ankunft (mit Wartezeit)</option>
+            <option value="oepnv_dauer_min">schnellste Verbindung (ohne Wartezeit)</option>
+          </select>
+        </div>
+        <div class="zeile">
+          <label for="zuschlag">Zuschlag für das Auto</label>
+          <input type="range" id="zuschlag" min="0" max="15" step="1" value="0">
+          <output id="zuschlag-wert" for="zuschlag"></output>
+        </div>
+        <p class="leise">Die Autozeit aus OpenStreetMap ist ohne Stau und ohne Parkplatzsuche gerechnet. Mit dem Zuschlag können Sie Minuten für Parken und den Fußweg vom Parkplatz dazurechnen.</p>
+
+        <h3 id="legende-titel">Legende</h3>
+        <ul class="klassen" id="klassen" aria-labelledby="legende-titel"></ul>
+        <p id="kennzahl"></p>
+
+        <h3>Ausgewählte Zelle</h3>
+        <div id="zelle" class="leise">Klicken Sie auf eine Zelle der Karte.</div>
+
+        <details open>
+          <summary>Annahmen und Grenzen</summary>
+          <ul id="annahmen" class="leise" style="padding-left:1.1rem; margin:0.3rem 0"></ul>
+        </details>
+
+        <footer class="fuss">
+          <p><b>Nur ein Beispiel für die Lehre.</b> Die Karte zeigt einen einzigen Zeitpunkt und ein einziges Ziel. Wer kein Auto hat, für den ist der Vergleich ohnehin ein anderer.</p>
+          <p>Berechnet mit <a href="https://github.com/motis-project/motis">MOTIS</a>. Fahrplan: <a href="https://gtfs.de">gtfs.de</a>, Daten von DELFI e.V. (CC BY 4.0)<span id="stand-fahrplan"></span>. Wege und Karte: © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a> (ODbL). Kartendarstellung mit <a href="https://leafletjs.com">Leaflet</a>.</p>
+          <p>Wie die Karte entsteht, steht im <a href="https://github.com/ls11ae/iun-routenplanung">Repository</a> unter <code>nahverkehr/</code>.</p>
+        </footer>
+      </div>
+    </aside>
+  </main>
+
+  <script src="vendor/leaflet-1.9.4/leaflet.js"></script>
+  <script src="js/reisezeit.js"></script>
+</body>
+</html>
