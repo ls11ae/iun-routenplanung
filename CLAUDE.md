@@ -92,7 +92,8 @@ tests/                pytest; tests/js/routen.js für den Vergleich Python/JavaS
 - MOTIS: Download 52 MB, Import 44 s und 1,3 GB RAM, Server 0,1–0,3 GB, Raster (1.125 Zellen) 242 s
 - Reisezeit: Median ÖPNV 52 min, Auto 12,4 min, Verhältnis 4,3 (mit +5 min: 2,9)
 - Connection Scan: Tabelle der Verbindungen 7–8 s, eine Anfrage 0,3 s
-- Installation der Pakete: 609 s (erster Versuch, während Downloads liefen)
+- Installation aus `requirements.txt` in frischer Umgebung: 403 s, 630 MB; danach 18 Tests bestanden (48 s)
+- Notebooks vollständig ausgeführt (`jupyter nbconvert --execute`): Wegenetz 157 s, MOTIS 75 s, Fahrplan 23 s
 
 ## Stand
 
@@ -104,8 +105,9 @@ Stand 14.11.2026 (nichts gepusht, kein Release):
 - [x] A4 README (Grundfassung)
 - [x] B1 `wegenetz/`: Hilfsmodul, Datenqualität, Notebook (ausgeführt)
 - [x] B2 `nahverkehr/`: MOTIS-Skripte, Connection Scan mit Notebook (ausgeführt)
-- [ ] B2 Notebook `reisezeiten_motis.ipynb`
-- [ ] B3 requirements.txt, Installationsanleitung, pytest für Kriterien und Personas
+- [x] B2 Notebook `reisezeiten_motis.ipynb` (ausgeführt, braucht laufenden MOTIS-Server)
+- [x] B3 requirements.txt, Anleitungen (README je Ordner), pytest für Kriterien, Personas, Python/JS, Algorithmen
+- [ ] Nicht getestet: macOS, conda-Variante, Pfade mit Leerzeichen oder Umlauten, echtes Handy (nur Emulation in Edge)
 - [ ] Release mit Daten (vorher fragen); `herunterladen.py` funktioniert erst danach
 
 ## Offene Entscheidungen (Kevin)
