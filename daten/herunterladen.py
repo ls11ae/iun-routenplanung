@@ -2,12 +2,15 @@
 
 Aufruf im Wurzelverzeichnis des Repositorys:
 
-    python daten/herunterladen.py
+    python daten/herunterladen.py                     # das aktuelle Paket nach daten/
+    python daten/herunterladen.py --liste             # alle Pakete mit Gültigkeit des Fahrplans
+    python daten/herunterladen.py --release daten-2026-11 --ziel daten/vor-fahrplanwechsel
 
-Das Paket (etwa 45 MB) enthält den Fahrplan, die OSM-Auszüge und die Höhen für Dortmund.
-Welche Datei geladen wird und welche Prüfsumme sie haben muss, steht in daten/paket.json.
-Der Fahrplan gilt nur etwa einen Monat; nach `git pull` holt dieses Skript ein neueres
-Paket, sobald es eines gibt.
+Ein Paket (etwa 45 MB) enthält den Fahrplan, die OSM-Auszüge, die Höhen und (ab
+daten-2026-12) die Einwohnerzahlen für Dortmund. Welche Pakete es gibt und welche Prüfsumme
+sie haben müssen, steht in daten/paket.json. Der Fahrplan gilt nur etwa einen Monat; nach
+`git pull` holt dieses Skript ein neueres Paket, sobald es eines gibt. Ältere Pakete bleiben
+abrufbar, etwa um Fahrpläne vor und nach einem Fahrplanwechsel zu vergleichen.
 
 Ohne Internet: Paket von jemandem kopieren und mit --datei angeben:
 
@@ -36,6 +39,34 @@ def pruefsumme(datei: Path) -> str:
     return h.hexdigest()
 
 
+def pakete_lesen(datei: Path = ORDNER / "paket.json"):
+    """Liest paket.json; gibt (Name des aktuellen Pakets, dict Name -> Paket) zurück.
+    Versteht auch das ältere Format mit nur einem Paket."""
+    inhalt = json.loads(datei.read_text(encoding="utf-8"))
+    if "pakete" in inhalt:
+        return inhalt["aktuell"], inhalt["pakete"]
+    name = inhalt["name"].removesuffix(".zip")
+    return name, {name: inhalt}
+
+
+def paket_waehlen(release: str | None, datei: Path = ORDNER / "paket.json"):
+    """Das Paket `release` (ohne Angabe: das aktuelle) oder ein Fehler mit der Liste der Pakete."""
+    aktuell, pakete = pakete_lesen(datei)
+    name = (release or aktuell).removesuffix(".zip")
+    if name not in pakete:
+        raise SystemExit(f"Kein Paket {name}. Vorhanden: {', '.join(sorted(pakete))} "
+                         "(eventuell vorher git pull)")
+    return name, pakete[name]
+
+
+def gueltigkeit(paket) -> str:
+    g = paket.get("stand", {}).get("gtfs", {})
+    if not g:
+        return "unbekannt"
+    von, bis = (datetime.strptime(g[k], "%Y%m%d").date() for k in ("gueltig_von", "gueltig_bis"))
+    return f"{von:%d.%m.%Y} bis {bis:%d.%m.%Y}"
+
+
 def laden(url: str, ziel: Path):
     """Lädt `url` nach `ziel` und zeigt den Fortschritt."""
     teil = ziel.with_suffix(".teil")
@@ -53,20 +84,33 @@ def laden(url: str, ziel: Path):
 
 def hauptprogramm():
     p = argparse.ArgumentParser(description="Datenpaket herunterladen und prüfen")
+    p.add_argument("--release", help="bestimmtes Paket, z. B. daten-2026-11 (Voreinstellung: das aktuelle)")
+    p.add_argument("--ziel", type=Path, default=ORDNER, help="Ordner für die Daten (Voreinstellung: daten/)")
+    p.add_argument("--liste", action="store_true", help="vorhandene Pakete anzeigen")
     p.add_argument("--datei", type=Path, help="schon vorhandenes Paket benutzen (ohne Internet)")
     p.add_argument("--neu", action="store_true", help="auch laden, wenn die Daten schon da sind")
     a = p.parse_args()
 
-    paket = json.loads((ORDNER / "paket.json").read_text(encoding="utf-8"))
-    stand_datei = ORDNER / "stand.json"
+    if a.liste:
+        aktuell, pakete = pakete_lesen()
+        for name in sorted(pakete):
+            pk = pakete[name]
+            print(f"{name}{' (aktuell)' if name == aktuell else ''}: {pk['groesse'] / 1e6:.0f} MB, "
+                  f"Fahrplan gültig {gueltigkeit(pk)}")
+        return
+
+    name, paket = paket_waehlen(a.release)
+    ziel = a.ziel.resolve()
+    ziel.mkdir(parents=True, exist_ok=True)
+    stand_datei = ziel / "stand.json"
     if stand_datei.exists() and not a.neu and not a.datei:
         stand = json.loads(stand_datei.read_text(encoding="utf-8"))
-        vorhanden = all((ORDNER / name).exists() for name in paket["dateien"])
+        vorhanden = all((ziel / d).exists() for d in paket["dateien"])
         if vorhanden and stand.get("paket") == paket["name"]:
-            print(f"Das Datenpaket {paket['name']} ist schon vorhanden.")
+            print(f"Das Datenpaket {paket['name']} ist in {ziel} schon vorhanden.")
             return hinweis_fahrplan(stand)
 
-    zip_datei = a.datei or ORDNER / paket["name"]
+    zip_datei = a.datei or ziel / paket["name"]
     if not a.datei:
         print(f"Lade {paket['name']} ({paket['groesse'] / 1e6:.0f} MB) von\n  {paket['url']}")
         try:
@@ -79,16 +123,16 @@ def hauptprogramm():
         sys.exit(f"Die Prüfsumme von {zip_datei.name} stimmt nicht. Die Datei ist unvollständig "
                  "oder gehört zu einem anderen Stand (dann hilft: git pull). Bitte neu laden.")
     with zipfile.ZipFile(zip_datei) as z:
-        for name in z.namelist():
-            if Path(name).name != name:               # nur Dateien ohne Unterordner auspacken
-                sys.exit(f"Unerwarteter Pfad im Paket: {name}")
-        z.extractall(ORDNER)
+        for datei in z.namelist():
+            if Path(datei).name != datei:              # nur Dateien ohne Unterordner auspacken
+                sys.exit(f"Unerwarteter Pfad im Paket: {datei}")
+        z.extractall(ziel)
     stand = json.loads(stand_datei.read_text(encoding="utf-8"))
     stand["paket"] = paket["name"]
     stand_datei.write_text(json.dumps(stand, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     if not a.datei:
         zip_datei.unlink()
-    print(f"Fertig: {len(paket['dateien'])} Dateien in {ORDNER}")
+    print(f"Fertig: {name}, {len(paket['dateien'])} Dateien in {ziel}")
     hinweis_fahrplan(stand)
 
 

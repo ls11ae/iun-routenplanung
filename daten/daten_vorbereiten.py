@@ -8,6 +8,7 @@ Erzeugt aus den großen Rohdaten die kleinen Dateien, die Studierende mit
 - dortmund-sued-wege.osm.bz2  Wegenetz Dortmund-Süd für OSMnx
 - dortmund-sued-hoehen.tif    Geländehöhen für denselben Ausschnitt (5-m-Raster)
 - dortmund-grenze.geojson     Stadtgrenze Dortmund (für das Raster der Reisezeitkarte)
+- dortmund-einwohner.csv      Einwohner im 100-m-Gitter (Zensus 2022)
 - stand.json                  Quellen, Stand und Gültigkeit des Fahrplans
 
 Braucht nur Python-Pakete (pip install pandas osmium rasterio pyproj shapely), läuft
@@ -20,6 +21,8 @@ Rohdaten (in den Ordner --rohdaten legen):
 - GTFS Deutschland gesamt: https://download.gtfs.de/germany/free/latest.zip (CC BY 4.0)
 - OSM: https://download.geofabrik.de/europe/germany/nordrhein-westfalen.html (ODbL),
   Regierungsbezirke Arnsberg und Münster mit demselben Stand
+- Einwohner: Zensus2022_Bevoelkerungszahl.zip von https://www.zensus2022.de (Gitterzellen,
+  18 MB, dl-de/by-2-0), mit --zensus
 - Höhen: DGM1 von Geobasis NRW, wird mit --dgm1 kachelweise geladen (etwa 240 MB,
   Datenlizenz Deutschland Zero 2.0). Alternative: --dgm DATEI für ein fertiges Raster
   in geografischen Koordinaten, etwa Copernicus DEM GLO-30.
@@ -326,6 +329,48 @@ def hoehen_zuschneiden(dgm: Path, bbox, ziel: Path):
     print(f"Höhen: {ziel} ({ziel.stat().st_size / 1e3:.0f} kB)")
 
 
+# ---------------------------------------------------------------- Einwohner (Zensus 2022)
+
+ZENSUS_QUELLE = ("Zensus 2022, © Statistische Ämter des Bundes und der Länder, 2024, "
+                 "Datenlizenz Deutschland – Namensnennung – Version 2.0 (dl-de/by-2-0); "
+                 "auf das Gebiet zugeschnitten")
+
+
+def zensus_zuschneiden(zensus_zip: Path, bbox, ziel: Path):
+    """Einwohnerzahlen im 100-m-Gitter (Zensus 2022) für das Rechteck `bbox`.
+
+    Quelle: Zensus2022_Bevoelkerungszahl.zip von https://www.zensus2022.de (Gitterzellen).
+    Die Mittelpunkte der Zellen liegen in ETRS89-LAEA (EPSG:3035). Unbewohnte Zellen fehlen
+    in der Datei; die Werte sind zum Schutz der Geheimhaltung leicht verändert (Cell-Key-Methode).
+    Ergebnis: CSV mit x_3035, y_3035 (Mittelpunkt), lon, lat und einwohner.
+    """
+    from pyproj import Transformer
+    t0 = time.time()
+    nach_laea = Transformer.from_crs(4326, 3035, always_xy=True)
+    ecken = [nach_laea.transform(x, y) for x in (bbox[0], bbox[2]) for y in (bbox[1], bbox[3])]
+    x0, x1 = min(e[0] for e in ecken), max(e[0] for e in ecken)
+    y0, y1 = min(e[1] for e in ecken), max(e[1] for e in ecken)
+    with zipfile.ZipFile(zensus_zip) as z:
+        name = next(n for n in z.namelist() if "100m" in n and n.lower().endswith(".csv"))
+        teile = []
+        for teil in pd.read_csv(z.open(name), sep=";", dtype=str, chunksize=500_000, encoding="latin-1"):
+            x = teil.x_mp_100m.astype(int)
+            y = teil.y_mp_100m.astype(int)
+            teile.append(teil[(x >= x0) & (x <= x1) & (y >= y0) & (y <= y1)])
+    t = pd.concat(teile)
+    # Sonderzeichen statt Zahlen (siehe Datensatzbeschreibung) werden nicht mitgezählt
+    t = t.assign(einwohner=pd.to_numeric(t.Einwohner, errors="coerce")).dropna(subset=["einwohner"])
+    x, y = t.x_mp_100m.astype(int).to_numpy(), t.y_mp_100m.astype(int).to_numpy()
+    lon, lat = Transformer.from_crs(3035, 4326, always_xy=True).transform(x, y)
+    innen = (lon >= bbox[0]) & (lon <= bbox[2]) & (lat >= bbox[1]) & (lat <= bbox[3])
+    aus = pd.DataFrame({"x_3035": x, "y_3035": y, "lon": lon.round(6), "lat": lat.round(6),
+                        "einwohner": t.einwohner.astype(int).to_numpy()})[innen]
+    aus.to_csv(ziel, index=False, encoding="utf-8", lineterminator="\n")
+    print(f"Einwohner: {ziel} ({ziel.stat().st_size / 1e6:.1f} MB), {len(aus)} bewohnte Zellen, "
+          f"{aus.einwohner.sum():,} Einwohner im Rechteck, {time.time() - t0:.0f} s")
+    return {"zellen": int(len(aus)), "einwohner": int(aus.einwohner.sum())}
+
+
 # ---------------------------------------------------------------- Aufruf
 
 if __name__ == "__main__":
@@ -337,6 +382,7 @@ if __name__ == "__main__":
     p.add_argument("--dgm1", action="store_true",
                    help="Höhen aus dem DGM1 von Geobasis NRW (lädt fehlende Kacheln)")
     p.add_argument("--dgm", type=Path, help="stattdessen: fertiges Höhenraster (EPSG:4326)")
+    p.add_argument("--zensus", type=Path, help="Zensus2022_Bevoelkerungszahl.zip (Einwohner im Gitter)")
     p.add_argument("--bbox", default="7.15,51.38,7.70,51.62",
                    help="lon_min,lat_min,lon_max,lat_max (Dortmund und Umgebung)")
     p.add_argument("--sued-bbox", default="7.37,51.465,7.53,51.525",
@@ -369,6 +415,9 @@ if __name__ == "__main__":
     elif a.dgm:
         hoehen_zuschneiden(roh(a.dgm), rand, a.ziel / f"{a.name}-sued-hoehen.tif")
         stand["hoehen"] = {"quelle": a.dgm.name}
+    if a.zensus:
+        stand["einwohner"] = {"quelle": ZENSUS_QUELLE, "raster_m": 100,
+                              **zensus_zuschneiden(roh(a.zensus), bbox, a.ziel / f"{a.name}-einwohner.csv")}
     # Vorhandene Angaben behalten (das Skript kann in Teilen aufgerufen werden)
     stand_datei = a.ziel / "stand.json"
     if stand_datei.exists():

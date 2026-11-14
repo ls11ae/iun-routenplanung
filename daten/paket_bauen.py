@@ -4,8 +4,8 @@ Aufruf im Wurzelverzeichnis, nach daten/daten_vorbereiten.py:
 
     python daten/paket_bauen.py --name daten-2026-11
 
-Schreibt daten/<name>.zip und trägt Name, Adresse, Größe und Prüfsumme in
-daten/paket.json ein. Danach:
+Schreibt daten/<name>.zip und trägt Name, Adresse, Größe und Prüfsumme als neues, aktuelles
+Paket in daten/paket.json ein; ältere Pakete bleiben dort aufgeführt. Danach:
 1. auf GitHub ein Release mit dem Tag <name> anlegen und die Zip-Datei anhängen,
 2. daten/paket.json committen und pushen.
 Studierende holen das Paket dann mit daten/herunterladen.py.
@@ -16,11 +16,12 @@ import json
 import zipfile
 from pathlib import Path
 
-from herunterladen import pruefsumme
+from herunterladen import pakete_lesen, pruefsumme
 
 ORDNER = Path(__file__).resolve().parent
 DATEIEN = ["dortmund-gtfs.zip", "dortmund-wege.osm.pbf", "dortmund-sued-wege.osm.bz2",
-           "dortmund-sued-hoehen.tif", "dortmund-grenze.geojson", "stand.json"]
+           "dortmund-sued-hoehen.tif", "dortmund-grenze.geojson", "dortmund-einwohner.csv",
+           "stand.json"]
 ADRESSE = "https://github.com/ls11ae/iun-routenplanung/releases/download/{name}/{name}.zip"
 
 if __name__ == "__main__":
@@ -45,8 +46,11 @@ if __name__ == "__main__":
     paket = {"name": ziel.name, "url": ADRESSE.format(name=a.name),
              "groesse": ziel.stat().st_size, "sha256": pruefsumme(ziel),
              "dateien": DATEIEN, "stand": stand}
-    (ORDNER / "paket.json").write_text(json.dumps(paket, ensure_ascii=False, indent=2) + "\n",
-                                       encoding="utf-8")
+    liste = ORDNER / "paket.json"
+    pakete = pakete_lesen(liste)[1] if liste.exists() else {}
+    pakete[a.name] = paket
+    liste.write_text(json.dumps({"aktuell": a.name, "pakete": dict(sorted(pakete.items()))},
+                                ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"{ziel} ({ziel.stat().st_size / 1e6:.1f} MB)\nSHA-256: {paket['sha256']}\n"
           f"Jetzt ein Release mit dem Tag {a.name} anlegen, die Zip-Datei anhängen "
           "und daten/paket.json committen.")

@@ -5,7 +5,10 @@
 /daten/*.pbf
 /daten/*.osm.bz2
 /daten/*.tif
+/daten/*.csv
 /daten/_*
+# weitere Datenpakete, z. B. daten/vor-fahrplanwechsel/ (herunterladen.py --ziel)
+/daten/*/
 *.osm.pbf
 *.osm.bz2
 
