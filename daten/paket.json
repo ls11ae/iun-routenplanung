@@ -1,0 +1,50 @@
+{
+  "name": "daten-2026-11.zip",
+  "url": "https://github.com/ls11ae/iun-routenplanung/releases/download/daten-2026-11/daten-2026-11.zip",
+  "groesse": 46943748,
+  "sha256": "810335cd1cc39ab068bacea53378ba05045794efd338277b676bedb477ccd51e",
+  "dateien": [
+    "dortmund-gtfs.zip",
+    "dortmund-wege.osm.pbf",
+    "dortmund-sued-wege.osm.bz2",
+    "dortmund-sued-hoehen.tif",
+    "dortmund-grenze.geojson",
+    "stand.json"
+  ],
+  "stand": {
+    "erzeugt": "2026-11-14",
+    "bbox": [
+      7.15,
+      51.38,
+      7.7,
+      51.62
+    ],
+    "sued_bbox": [
+      7.37,
+      51.465,
+      7.53,
+      51.525
+    ],
+    "hoehen": {
+      "quelle": "DGM1, Geobasis NRW",
+      "raster_m": 5,
+      "lizenz": "Datenlizenz Deutschland Zero 2.0"
+    },
+    "gtfs": {
+      "quelle": "gtfs-de-free-261107.zip",
+      "lizenz": "gtfs.de / DELFI e.V., CC BY 4.0",
+      "halte": 10639,
+      "fahrten": 62511,
+      "halteereignisse": 1190160,
+      "gueltig_von": "20261107",
+      "gueltig_bis": "20261207"
+    },
+    "osm": {
+      "quelle": [
+        "arnsberg-regbez-261112.osm.pbf",
+        "muenster-regbez-261112.osm.pbf"
+      ],
+      "lizenz": "© OpenStreetMap-Mitwirkende, ODbL"
+    }
+  }
+}

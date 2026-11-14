@@ -11,6 +11,7 @@ verbessern und zu begründen ist Teil Ihres Projekts. Die Webdemo benutzt genau
 dieselben Kriterien (siehe export_webdemo.py).
 """
 
+import hashlib
 import json
 import math
 import pickle
@@ -95,7 +96,7 @@ def lade_netz(pfad=DATEN / "dortmund-sued-wege.osm.bz2", zwischenspeicher=True):
     """
     pfad = Path(pfad)
     ablage = pfad.with_name(pfad.name + ".netz.pickle")
-    stempel = (pfad.stat().st_mtime_ns, tuple(WEG_MERKMALE), tuple(KNOTEN_MERKMALE),
+    stempel = (hashlib.sha256(pfad.read_bytes()).hexdigest(), tuple(WEG_MERKMALE), tuple(KNOTEN_MERKMALE),
                tuple(VERGLEICHS_MERKMALE), tuple(KNOTEN_BEHALTEN), ox.__version__)
     if zwischenspeicher and ablage.exists():
         with open(ablage, "rb") as f:
@@ -254,6 +255,56 @@ def hoehen_ergaenzen(G, raster=DATEN / "dortmund-sued-hoehen.tif"):
         # sehr kurze Kanten: Höhenunterschiede unter einem halben Meter sind Rauschen
         d["steil"] = m * (abs(dh) >= 0.5 and abs(dh) / max(m, 0.1) > STEIL_AB)
     return G
+
+
+def datenqualitaet(G):
+    """Wie vollständig sind die Angaben in OpenStreetMap? Gibt zwei Tabellen zurück:
+    Anteil der Wegstücke mit Angabe je Merkmal und Angaben an den Querungen."""
+    import pandas as pd
+    kanten = [d for u, v, d in G.edges(data=True) if u < v]       # jede Strecke einmal
+    gesamt = sum(d["length"] for d in kanten)
+    merkmale = [("Belag", ["surface"]), ("Oberflächengüte", ["smoothness"]),
+                ("Breite", ["width"]), ("Steigung", ["incline"]), ("Beleuchtung", ["lit"]),
+                ("Tempolimit", ["maxspeed"]), ("für Rollstuhl geeignet", ["wheelchair"]),
+                ("Gehweg an der Straße", ["sidewalk", "sidewalk:left", "sidewalk:right",
+                                          "sidewalk:both"]),
+                ("Radweg an der Straße", ["cycleway", "cycleway:left", "cycleway:right",
+                                          "cycleway:both"]),
+                ("Bodenindikatoren am Weg", ["tactile_paving"])]
+    zeilen = []
+    for name, schluessel in merkmale:
+        mit = [d for d in kanten if any(d.get(s) is not None for s in schluessel)]
+        zeilen.append({"Merkmal": name, "OSM-Schlüssel": ", ".join(schluessel),
+                       "Anteil der Wegstücke": len(mit) / len(kanten),
+                       "Anteil der Länge": sum(d["length"] for d in mit) / gesamt})
+    wege = pd.DataFrame(zeilen).set_index("Merkmal")
+
+    querungen = [d for _, d in G.nodes(data=True) if querungsart(d)]
+    ampeln = [d for d in querungen if querungsart(d) != "ohne_ampel"]
+    def anteil(liste, schluessel, werte=None):
+        if not liste:
+            return 0.0
+        return sum(1 for d in liste if d.get(schluessel) is not None
+                   and (werte is None or d.get(schluessel) in werte)) / len(liste)
+    knoten = pd.DataFrame([
+        {"Angabe": "Art der Querung (crossing)", "bezogen auf": f"{len(querungen)} Querungen",
+         "Anteil mit Angabe": anteil(querungen, "crossing"), "davon ja": None},
+        {"Angabe": "Bodenindikatoren (tactile_paving)", "bezogen auf": f"{len(querungen)} Querungen",
+         "Anteil mit Angabe": anteil(querungen, "tactile_paving"),
+         "davon ja": anteil(querungen, "tactile_paving", {"yes"})},
+        {"Angabe": "Bordstein (kerb)", "bezogen auf": f"{len(querungen)} Querungen",
+         "Anteil mit Angabe": anteil(querungen, "kerb"), "davon ja": None},
+        {"Angabe": "akustisches Signal (traffic_signals:sound)", "bezogen auf": f"{len(ampeln)} Ampeln",
+         "Anteil mit Angabe": anteil(ampeln, "traffic_signals:sound"),
+         "davon ja": anteil(ampeln, "traffic_signals:sound", {"yes", "walk"})},
+        {"Angabe": "Vibration (traffic_signals:vibration)", "bezogen auf": f"{len(ampeln)} Ampeln",
+         "Anteil mit Angabe": anteil(ampeln, "traffic_signals:vibration"),
+         "davon ja": anteil(ampeln, "traffic_signals:vibration", {"yes"})},
+        {"Angabe": "Anforderungstaster (button_operated)", "bezogen auf": f"{len(ampeln)} Ampeln",
+         "Anteil mit Angabe": anteil(ampeln, "button_operated"),
+         "davon ja": anteil(ampeln, "button_operated", {"yes"})},
+    ]).set_index("Angabe")
+    return wege, knoten
 
 
 # ---------------------------------------------------------------- Personas
