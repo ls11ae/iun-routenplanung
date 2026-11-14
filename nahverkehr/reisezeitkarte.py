@@ -3,22 +3,27 @@
 Legt ein Raster (500 m) über das Stadtgebiet und fragt für jeden Rasterpunkt den lokalen
 MOTIS-Server: Wie lange dauert der Weg zum Ziel mit dem öffentlichen Verkehr (ÖPNV), mit
 dem Auto, mit dem Fahrrad und zu Fuß? Das Ergebnis steht in webdemo/daten/reisezeiten.json
-und wird von der Webdemo und für die Abbildungen gelesen.
+und wird von der Webdemo und für die Abbildung gelesen.
 
 Vorher den Server starten (nahverkehr/starten.bat bzw. starten.sh), dann im
 Wurzelverzeichnis des Repositorys:
 
     python nahverkehr/reisezeitkarte.py
-    python nahverkehr/reisezeitkarte.py --uhrzeit 22:00 --ausgabe abends.json
+    python nahverkehr/reisezeitkarte.py --von 21:00 --bis 22:00 --ausgabe abends.json
 
 Was gemessen wird:
 
-- oepnv_min        Man verlässt zur angegebenen Uhrzeit das Haus. Gezählt wird bis zur
-                   frühesten Ankunft am Ziel, die Wartezeit auf die erste Abfahrt zählt mit.
-                   Tür zu Tür mit Fußwegen. Ist man zu Fuß früher da, gilt die Gehzeit.
-- umstiege         Umstiege der Verbindung mit der frühesten Ankunft; -1 = zu Fuß schneller.
+- oepnv_min        Median der Reisezeit über die Abfahrten zwischen --von und --bis im Abstand
+                   von --schritt Minuten (Voreinstellung 7:00, 7:05, …, 8:00 Uhr). Für jede
+                   Abfahrt zählt die Zeit vom Verlassen des Hauses bis zur frühesten Ankunft,
+                   die Wartezeit auf die erste Abfahrt also mit. Tür zu Tür mit Fußwegen. Ist
+                   man zu Fuß früher da, gilt für diese Abfahrt die Gehzeit.
+- oepnv_beste_min, oepnv_schlechteste_min  kürzeste und längste dieser Reisezeiten.
+- umstiege         Umstiege der Verbindung, die den Median liefert; -1 = zu Fuß schneller.
 - zum_halt_min     Fußweg dieser Verbindung bis zur ersten Haltestelle.
-- oepnv_dauer_min  Kürzeste Verbindung mit Abfahrt in der folgenden Stunde, ohne Wartezeit.
+- oepnv_dauer_min  Kürzeste Verbindung mit Abfahrt im Zeitraum, ohne Wartezeit.
+- halt_m           Luftlinie zur nächsten Haltestelle, an der am Tag zwischen 7 und 9 Uhr
+                   ein Bus oder eine Bahn abfährt.
 - auto_min         Reine Fahrzeit nach OpenStreetMap: ohne Stau, ohne Parkplatzsuche.
 - rad_min, fuss_min  Fahrrad und zu Fuß nach OpenStreetMap.
 
@@ -28,8 +33,8 @@ Rasterpunkts oder keine Verbindung gefunden.
 Die Funktionen lassen sich auch einzeln verwenden, etwa in einem Notebook:
 
     import reisezeitkarte as rk
-    abfahrt = rk.zeitpunkt("2026-11-24", "07:30")
-    rk.oepnv_zeiten((51.4862, 7.5050), rk.ZIEL, abfahrt)       # Hörde -> Campus
+    zeiten = rk.abfahrten(rk.zeitpunkt("2026-11-24", "07:00"), rk.zeitpunkt("2026-11-24", "08:00"))
+    rk.oepnv_ueber_abfahrten((51.4862, 7.5050), rk.ZIEL, zeiten)       # Hörde -> Campus
     rk.strassenzeiten([(51.4862, 7.5050)], rk.ZIEL_AUTO, "CAR")
 """
 
@@ -70,6 +75,14 @@ ZIEL_AUTO = (51.4941, 7.4122)
 
 UTM = 25832                       # ETRS89 / UTM Zone 32N: Koordinaten in Metern
 MAX_WEGABSTAND_M = 250            # so weit darf der nächste Weg vom Punkt entfernt sein
+
+# Darstellung (Webdemo und Abbildung lesen diese Werte aus der Ergebnisdatei)
+HALT_MAX_M = 1000                 # weiter weg: „keine Haltestelle in Gehweite“
+CAMPUS_FUSS_MAX_MIN = 15          # höchstens so lange zu Fuß: „Campus in Gehweite“
+ZUSCHLAG_MIN = 5                  # Minuten für Parkplatzsuche und Fußweg zum Auto (Standard)
+VERHAELTNIS_GRENZEN = [2.5, 3, 3.5, 4]   # Klassen des Verhältnisses ÖPNV zu Auto; ab 4 zusammengefasst
+MAX_REISEZEIT_MIN = 180           # länger gilt als „keine Verbindung“ (etwa erst am Mittag)
+
 sitzung = requests.Session()      # hält die Verbindung zum Server offen
 
 
@@ -83,6 +96,15 @@ def zeitpunkt(datum: str, uhrzeit: str, zone: str = "Europe/Berlin") -> datetime
 def als_utc(zeit: datetime) -> str:
     """MOTIS erwartet Zeiten in Weltzeit (UTC), zum Beispiel 2026-11-24T06:30:00Z."""
     return zeit.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def abfahrten(von: datetime, bis: datetime, schritt_min: int = 5) -> list:
+    """Abfahrtszeiten von `von` bis einschließlich `bis` im Abstand von `schritt_min` Minuten."""
+    zeiten, t = [], von
+    while t <= bis:
+        zeiten.append(t)
+        t += timedelta(minutes=schritt_min)
+    return zeiten
 
 
 def grenze_laden(datei: Path = GRENZE):
@@ -124,6 +146,18 @@ def zelle_in_grad(punkt, raster_m: int = 500):
     _, lat_s = her.transform(x, y - raster_m / 2)
     _, lat_n = her.transform(x, y + raster_m / 2)
     return [round(lon_o - lon_w, 6), round(lat_n - lat_s, 6)]
+
+
+def haltestellen_abstand(punkte, tag: date, von: str = "07:00", bis: str = "09:00"):
+    """Luftlinie in Metern von jedem Punkt zur nächsten Haltestelle, an der am `tag` zwischen
+    `von` und `bis` Uhr ein Fahrzeug abfährt (aus dem Fahrplan in daten/dortmund-gtfs.zip)."""
+    import gtfs_hilfen as h
+    g = h.lade_gtfs()
+    c = h.verbindungen(g, tag, von, bis)
+    halte = set(c.ab_halt[c.einstieg_ok])
+    s = g["stops"][g["stops"].stop_id.isin(halte)]
+    lat, lon = s.stop_lat.to_numpy(), s.stop_lon.to_numpy()
+    return [int(round(float(h.entfernung_m(b, l, lat, lon).min()))) for b, l in punkte]
 
 
 # ---------------------------------------------------------------- Anfragen an MOTIS
@@ -207,17 +241,26 @@ def _zeit(text: str) -> datetime:
     return datetime.fromisoformat(text.replace("Z", "+00:00"))
 
 
+def _zum_halt(verbindung) -> float:
+    erster = verbindung["legs"][0]
+    return round(erster["duration"] / 60, 1) if erster["mode"] == "WALK" else 0.0
+
+
+def _frueheste(liste):
+    """Die Verbindung mit der frühesten Ankunft (bei Gleichstand die mit weniger Umstiegen)."""
+    return min(liste, key=lambda v: (_zeit(v["endTime"]), v["transfers"]))
+
+
 KEINE_VERBINDUNG = {"min": None, "umstiege": None, "dauer_min": None, "zum_halt_min": None}
 
 
 def oepnv_zeiten(start, ziel, abfahrt: datetime, server: str = SERVER, max_fussweg_s: int = 3600,
                  fenster_s: int = 3600) -> dict:
-    """ÖPNV-Reisezeit für jemanden, der zur Zeit `abfahrt` das Haus verlässt.
+    """ÖPNV-Reisezeit für jemanden, der zu genau einer Zeit `abfahrt` das Haus verlässt.
 
     Zwei Anfragen:
     1. timetableView=false: MOTIS sucht die früheste Ankunft; Warten auf die erste Abfahrt
-       ist Reisezeit. Geliefert werden die Verbindungen, die bei Ankunft oder Zahl der
-       Umstiege unschlagbar sind – wir nehmen die mit der frühesten Ankunft.
+       ist Reisezeit.
     2. Fahrplanansicht mit searchWindow: alle sinnvollen Verbindungen, die im Zeitfenster
        abfahren. Daraus die kürzeste reine Dauer (wer passend losgeht, wartet nicht).
 
@@ -230,8 +273,7 @@ def oepnv_zeiten(start, ziel, abfahrt: datetime, server: str = SERVER, max_fussw
     fruehe = verbindungen(start, ziel, abfahrt, server, max_fussweg_s, timetableView="false")
     if not fruehe:
         return dict(KEINE_VERBINDUNG)
-    beste = min(fruehe, key=lambda v: (_zeit(v["endTime"]), v["transfers"]))
-    erster = beste["legs"][0]
+    beste = _frueheste(fruehe)
     # Findet MOTIS im Fenster nichts, sucht es von sich aus weiter – auch vor der Abfahrt
     # oder Stunden später. Deshalb hier auf das Fenster beschränken.
     fenster = [v for v in verbindungen(start, ziel, abfahrt, server, max_fussweg_s,
@@ -239,15 +281,73 @@ def oepnv_zeiten(start, ziel, abfahrt: datetime, server: str = SERVER, max_fussw
                if abfahrt <= _zeit(v["startTime"]) <= abfahrt + timedelta(seconds=fenster_s)]
     return {"min": round((_zeit(beste["endTime"]) - abfahrt).total_seconds() / 60, 1),
             "umstiege": beste["transfers"],
-            "zum_halt_min": round(erster["duration"] / 60, 1) if erster["mode"] == "WALK" else 0.0,
+            "zum_halt_min": _zum_halt(beste),
             "dauer_min": round(min(v["duration"] for v in fruehe + fenster) / 60, 1)}
+
+
+def oepnv_ueber_abfahrten(start, ziel, zeiten, fuss_min=None, server: str = SERVER,
+                          max_fussweg_s: int = 3600, puffer_s: int = 5400,
+                          max_reisezeit_min: float = MAX_REISEZEIT_MIN) -> dict:
+    """ÖPNV-Reisezeit für mehrere Abfahrtszeiten `zeiten` und ihr Median.
+
+    Eine einzige Anfrage in der Fahrplanansicht liefert alle sinnvollen Verbindungen, die
+    zwischen der ersten Abfahrtszeit und der letzten plus `puffer_s` abfahren. Für jede
+    Abfahrtszeit t gilt dann: Reisezeit = früheste Ankunft unter den Verbindungen, die
+    frühestens um t starten, minus t (die Wartezeit zählt mit). Fehlt eine solche
+    Verbindung, wird für t eigens nachgefragt. Reisezeiten über `max_reisezeit_min` gelten
+    als keine Verbindung (MOTIS findet sonst etwa einen Bus am Mittag oder am nächsten Tag).
+    Ist man zu Fuß (`fuss_min`) früher da, gilt für diese Abfahrt die Gehzeit.
+
+    Ergebnis (Minuten; None, wenn es für weniger als die Hälfte der Abfahrten einen Wert gibt):
+    min                 Median über die Abfahrten
+    beste_min, schlechteste_min   kürzeste und längste Reisezeit
+    je_abfahrt          Liste der Reisezeiten in der Reihenfolge von `zeiten`
+    umstiege, zum_halt_min        der Verbindung, die den Median liefert (-1 / None: zu Fuß)
+    dauer_min           kürzeste reine Dauer einer Verbindung mit Abfahrt im Zeitraum
+    """
+    von, bis = zeiten[0], zeiten[-1]
+    fenster_s = int((bis - von).total_seconds()) + puffer_s
+    alle = verbindungen(start, ziel, von, server, max_fussweg_s, searchWindow=fenster_s,
+                        numItineraries=1)
+    alle = [(_zeit(v["startTime"]), v) for v in alle]
+    je_abfahrt = []                       # (Minuten, Verbindung oder None für zu Fuß)
+    for t in zeiten:
+        moeglich = [v for s, v in alle if s >= t]
+        if not moeglich:                  # nichts im Fenster: früheste Ankunft eigens erfragen
+            moeglich = verbindungen(start, ziel, t, server, max_fussweg_s, timetableView="false")
+        oepnv = None
+        if moeglich:
+            v = _frueheste(moeglich)
+            oepnv = round((_zeit(v["endTime"]) - t).total_seconds() / 60, 1)
+            if oepnv > max_reisezeit_min:
+                oepnv = None
+        if fuss_min is not None and (oepnv is None or fuss_min <= oepnv):
+            je_abfahrt.append((fuss_min, None))
+        elif oepnv is not None:
+            je_abfahrt.append((oepnv, v))
+        else:
+            je_abfahrt.append((None, None))
+    werte = [m for m, _ in je_abfahrt if m is not None]
+    if 2 * len(werte) < len(zeiten):
+        return {"min": None, "beste_min": None, "schlechteste_min": None, "je_abfahrt": [m for m, _ in je_abfahrt],
+                "umstiege": None, "zum_halt_min": None, "dauer_min": None}
+    mitte = sorted((m, i) for i, (m, _) in enumerate(je_abfahrt) if m is not None)[(len(werte) - 1) // 2]
+    vertreter = je_abfahrt[mitte[1]][1]
+    dauern = [v["duration"] / 60 for s, v in alle if von <= s <= bis]
+    if fuss_min is not None:
+        dauern.append(fuss_min)
+    return {"min": round(statistics.median(werte), 1),
+            "beste_min": min(werte), "schlechteste_min": max(werte),
+            "je_abfahrt": [m for m, _ in je_abfahrt],
+            "umstiege": -1 if vertreter is None else vertreter["transfers"],
+            "zum_halt_min": None if vertreter is None else _zum_halt(vertreter),
+            "dauer_min": round(min(dauern), 1) if dauern else None}
 
 
 # ---------------------------------------------------------------- Raster berechnen
 
-def reisezeiten_berechnen(punkte, ziel=ZIEL, ziel_auto=ZIEL_AUTO, abfahrt: datetime = None,
-                          server: str = SERVER, max_fussweg_s: int = 3600, fenster_s: int = 3600,
-                          parallel: int = 4) -> dict:
+def reisezeiten_berechnen(punkte, zeiten, ziel=ZIEL, ziel_auto=ZIEL_AUTO, server: str = SERVER,
+                          max_fussweg_s: int = 3600, parallel: int = 4) -> dict:
     """Berechnet für alle Punkte die Reisezeiten zum Ziel. Liefert Listen gleicher Länge."""
     t0 = time.time()
     fuss = strassenzeiten(punkte, ziel, "WALK", server)
@@ -257,40 +357,33 @@ def reisezeiten_berechnen(punkte, ziel=ZIEL, ziel_auto=ZIEL_AUTO, abfahrt: datet
 
     fehler = 0
 
-    def eine_zelle(punkt):
+    def eine_zelle(i):
         try:
-            return oepnv_zeiten(punkt, ziel, abfahrt, server, max_fussweg_s, fenster_s)
+            return oepnv_ueber_abfahrten(punkte[i], ziel, zeiten, fuss[i], server, max_fussweg_s)
         except (requests.RequestException, ValueError, KeyError) as e:
             return e
 
     t1 = time.time()
     oepnv = []
     with ThreadPoolExecutor(max_workers=parallel) as helfer:   # mehrere Anfragen gleichzeitig
-        for i, ergebnis in enumerate(helfer.map(eine_zelle, punkte), start=1):
+        for i, ergebnis in enumerate(helfer.map(eine_zelle, range(len(punkte))), start=1):
             if isinstance(ergebnis, Exception):
                 fehler += 1
                 print(f"  Fehler bei Punkt {punkte[i - 1]}: {ergebnis}")
-                ergebnis = dict(KEINE_VERBINDUNG)
+                ergebnis = {"min": None, "beste_min": None, "schlechteste_min": None,
+                            "umstiege": None, "zum_halt_min": None, "dauer_min": None}
             oepnv.append(ergebnis)
             if i % 100 == 0 or i == len(punkte):
                 print(f"  ÖPNV: {i:5d} von {len(punkte)} Punkten, {time.time() - t1:5.0f} s", flush=True)
-    dauer = time.time() - t1
-    print(f"ÖPNV: {len(punkte)} Punkte in {dauer:.0f} s "
-          f"({2 * len(punkte) / dauer:.0f} Anfragen je Sekunde), Fehler: {fehler}")
+    print(f"ÖPNV: {len(punkte)} Punkte in {time.time() - t1:.0f} s, Fehler: {fehler}")
 
-    # Zu Fuß früher da als mit jeder ÖPNV-Verbindung (oder gar keine gefunden): Gehzeit gilt.
-    oepnv_min, oepnv_dauer, umstiege, zum_halt = [], [], [], []
-    for o, f in zip(oepnv, fuss):
-        zu_fuss = f is not None and (o["min"] is None or f <= o["min"])
-        oepnv_min.append(f if zu_fuss else o["min"])
-        umstiege.append(-1 if zu_fuss else o["umstiege"])
-        zum_halt.append(None if zu_fuss else o["zum_halt_min"])
-        zeiten = [t for t in (o["dauer_min"], f) if t is not None]
-        oepnv_dauer.append(min(zeiten) if zeiten else None)
-
+    spalte = lambda name: [o[name] for o in oepnv]
     return {"lat": [p[0] for p in punkte], "lon": [p[1] for p in punkte],
-            "oepnv_min": oepnv_min, "oepnv_dauer_min": oepnv_dauer, "umstiege": umstiege,
-            "zum_halt_min": zum_halt, "auto_min": auto, "rad_min": rad, "fuss_min": fuss}
+            "oepnv_min": spalte("min"), "oepnv_beste_min": spalte("beste_min"),
+            "oepnv_schlechteste_min": spalte("schlechteste_min"),
+            "oepnv_dauer_min": spalte("dauer_min"), "umstiege": spalte("umstiege"),
+            "zum_halt_min": spalte("zum_halt_min"),
+            "auto_min": auto, "rad_min": rad, "fuss_min": fuss}
 
 
 def _gerundet(koordinaten, stellen: int = 5):
@@ -299,38 +392,53 @@ def _gerundet(koordinaten, stellen: int = 5):
     return [_gerundet(k, stellen) for k in koordinaten]
 
 
-def zusammenfassung(zellen: dict):
-    """Gibt für jede Spalte aus, wie viele Werte fehlen und wie die Zeiten verteilt sind."""
+def kategorie(zellen: dict, i: int, zuschlag_min: float = ZUSCHLAG_MIN, halt_max_m: int = HALT_MAX_M,
+              campus_fuss_max_min: float = CAMPUS_FUSS_MAX_MIN, grenzen=VERHAELTNIS_GRENZEN):
+    """Kategorie einer Zelle für die Karte „ÖPNV gegen Auto“: "campus" (zu Fuß in Gehweite),
+    "kein_halt" (keine Haltestelle in Gehweite), "kein_wert" oder die Nummer der Klasse des
+    Verhältnisses ÖPNV / (Auto + Zuschlag), 0 = günstigste Klasse."""
+    fuss = zellen["fuss_min"][i]
+    if fuss is not None and fuss <= campus_fuss_max_min:
+        return "campus"
+    if zellen.get("halt_m") and zellen["halt_m"][i] is not None and zellen["halt_m"][i] > halt_max_m:
+        return "kein_halt"
+    o, a = zellen["oepnv_min"][i], zellen["auto_min"][i]
+    if o is None or a is None:
+        return "kein_wert"
+    return sum(o / (a + zuschlag_min) > g for g in grenzen)
+
+
+def zusammenfassung(zellen: dict, zuschlag_min: float = ZUSCHLAG_MIN):
+    """Gibt für jede Spalte aus, wie viele Werte fehlen und wie die Zeiten verteilt sind,
+    und zählt die Zellen je Kategorie der Karte."""
     n = len(zellen["lat"])
-    for spalte in ("oepnv_min", "oepnv_dauer_min", "zum_halt_min", "auto_min", "rad_min", "fuss_min"):
-        werte = sorted(w for w in zellen[spalte] if w is not None)
+    for spalte in ("oepnv_min", "oepnv_beste_min", "oepnv_schlechteste_min", "oepnv_dauer_min",
+                   "zum_halt_min", "halt_m", "auto_min", "rad_min", "fuss_min"):
+        werte = sorted(w for w in zellen.get(spalte, []) if w is not None)
         if not werte:
-            print(f"  {spalte:16s} keine Werte")
             continue
         q = statistics.quantiles(werte, n=4)
-        print(f"  {spalte:16s} ohne Wert {n - len(werte):4d} ({(n - len(werte)) / n:4.0%})   "
-              f"min {werte[0]:5.1f}  25 % {q[0]:5.1f}  Median {q[1]:5.1f}  75 % {q[2]:5.1f}  "
-              f"max {werte[-1]:5.1f}")
-    paare = [(o, a) for o, a in zip(zellen["oepnv_min"], zellen["auto_min"])
-             if o is not None and a]
-    if paare:
-        print(f"  ÖPNV/Auto: Median des Verhältnisses {statistics.median(o / a for o, a in paare):.2f} "
-              f"({len(paare)} Zellen mit beiden Werten)")
-    print(f"  zu Fuß schneller als ÖPNV: {sum(u == -1 for u in zellen['umstiege'])} Zellen")
-    weit = sum(w is not None and w > 20 for w in zellen["zum_halt_min"])
-    print(f"  Fußweg zur ersten Haltestelle über 20 Minuten: {weit} Zellen")
+        print(f"  {spalte:22s} ohne Wert {n - len(werte):4d}   min {werte[0]:6.1f}  25 % {q[0]:6.1f}  "
+              f"Median {q[1]:6.1f}  75 % {q[2]:6.1f}  max {werte[-1]:6.1f}")
+    kat = [kategorie(zellen, i, zuschlag_min) for i in range(n)]
+    print("  Kategorien:", {k: kat.count(k) for k in sorted(set(kat), key=str)})
+    for z in (0, zuschlag_min):
+        v = [zellen["oepnv_min"][i] / (zellen["auto_min"][i] + z) for i in range(n)
+             if isinstance(kategorie(zellen, i, z), int)]
+        if v:
+            print(f"  ÖPNV / (Auto + {z} min): Median {statistics.median(v):.2f} über {len(v)} Zellen")
 
 
 def main():
     parser = argparse.ArgumentParser(description="Reisezeiten von einem Raster zum Ziel mit MOTIS berechnen")
     parser.add_argument("--datum", default="2026-11-24", help="Tag im Fahrplan (JJJJ-MM-TT)")
-    parser.add_argument("--uhrzeit", default="07:30", help="Ortszeit, zu der man das Haus verlässt")
+    parser.add_argument("--von", default="07:00", help="erste Abfahrt (Ortszeit)")
+    parser.add_argument("--bis", default="08:00", help="letzte Abfahrt (Ortszeit)")
+    parser.add_argument("--schritt", type=int, default=5, help="Abstand der Abfahrten in Minuten")
     parser.add_argument("--raster", type=int, default=500, help="Maschenweite in Metern")
     parser.add_argument("--max-fussweg", type=int, default=60,
                         help="Grenze für den Fußweg zur ersten und von der letzten Haltestelle in "
                              "Minuten (Wegkosten von MOTIS, höchstens 60)")
-    parser.add_argument("--fenster", type=int, default=60,
-                        help="Zeitfenster in Minuten für die kürzeste Verbindung (oepnv_dauer_min)")
     parser.add_argument("--parallel", type=int, default=4, help="gleichzeitige Anfragen")
     parser.add_argument("--stichprobe", type=int, help="nur so viele zufällige Rasterpunkte (zum Ausprobieren)")
     parser.add_argument("--server", default=SERVER, help="Adresse des MOTIS-Servers")
@@ -340,50 +448,58 @@ def main():
 
     t0 = time.time()
     werkzeug = server_pruefen(args.server)
-    abfahrt = zeitpunkt(args.datum, args.uhrzeit)
+    zeiten = abfahrten(zeitpunkt(args.datum, args.von), zeitpunkt(args.datum, args.bis), args.schritt)
     von, bis = fahrplan_zeitraum()
-    if not von <= abfahrt.date() <= bis:
-        print(f"Achtung: Der {abfahrt:%d.%m.%Y} liegt außerhalb des Fahrplans "
+    if not von <= zeiten[0].date() <= bis:
+        print(f"Achtung: Der {zeiten[0]:%d.%m.%Y} liegt außerhalb des Fahrplans "
               f"({von:%d.%m.%Y} bis {bis:%d.%m.%Y}); es wird keine ÖPNV-Verbindung geben.")
 
     grenze = grenze_laden(args.grenze)
     punkte = raster_erzeugen(grenze, args.raster)
     if args.stichprobe:
         punkte = sorted(random.Random(1).sample(punkte, args.stichprobe), key=lambda p: (-p[0], p[1]))
-    print(f"{werkzeug}, Abfahrt {abfahrt:%d.%m.%Y %H:%M} ({als_utc(abfahrt)}), {len(punkte)} Rasterpunkte")
+    print(f"{werkzeug}, {len(zeiten)} Abfahrten {zeiten[0]:%d.%m.%Y %H:%M} bis {zeiten[-1]:%H:%M}, "
+          f"{len(punkte)} Rasterpunkte")
 
-    zellen = reisezeiten_berechnen(punkte, abfahrt=abfahrt, server=args.server,
-                                   max_fussweg_s=args.max_fussweg * 60,
-                                   fenster_s=args.fenster * 60, parallel=args.parallel)
-    ende = abfahrt + timedelta(minutes=args.fenster)
+    zellen = reisezeiten_berechnen(punkte, zeiten, server=args.server,
+                                   max_fussweg_s=args.max_fussweg * 60, parallel=args.parallel)
+    t1 = time.time()
+    zellen["halt_m"] = haltestellen_abstand(punkte, zeiten[0].date())
+    print(f"Abstand zur nächsten Haltestelle: {time.time() - t1:.0f} s")
     daten = {
         "erzeugt": date.today().isoformat(),
         "ziel": {"name": ZIEL_NAME, "lat": ZIEL[0], "lon": ZIEL[1]},
         "ziel_auto": {"name": ZIEL_AUTO_NAME, "lat": ZIEL_AUTO[0], "lon": ZIEL_AUTO[1]},
-        "zeitpunkt": abfahrt.isoformat(),
+        "abfahrten": {"von": zeiten[0].isoformat(), "bis": zeiten[-1].isoformat(),
+                      "schritt_min": args.schritt, "anzahl": len(zeiten)},
         "raster_m": args.raster,
         "zelle_grad": zelle_in_grad(ZIEL, args.raster),
         "fahrplan": {"gueltig_von": von.isoformat(), "gueltig_bis": bis.isoformat()},
         "werkzeug": werkzeug,
+        "darstellung": {"zuschlag_min": ZUSCHLAG_MIN, "halt_max_m": HALT_MAX_M,
+                        "campus_fuss_max_min": CAMPUS_FUSS_MAX_MIN,
+                        "verhaeltnis_grenzen": VERHAELTNIS_GRENZEN},
         "annahmen": [
-            f"ÖPNV: Man verlässt um {abfahrt:%H:%M} Uhr das Haus. Gezählt wird bis zur frühesten "
-            "Ankunft am Ziel; die Wartezeit auf die erste Abfahrt zählt mit.",
-            "Tür zu Tür mit Fußwegen. Welche Haltestelle man nimmt, entscheidet allein die "
-            "früheste Ankunft; der Fußweg dorthin kann lang sein (zum_halt_min, technische "
-            f"Grenze {args.max_fussweg} Minuten).",
-            "Ist man zu Fuß früher da als mit jeder ÖPNV-Verbindung, gilt die Gehzeit (umstiege = -1).",
-            f"oepnv_dauer_min: kürzeste Verbindung mit Abfahrt zwischen {abfahrt:%H:%M} und "
-            f"{ende:%H:%M} Uhr, ohne Wartezeit.",
+            f"Bus und Bahn: Median der Reisezeit über {len(zeiten)} Abfahrten von {zeiten[0]:%H:%M} "
+            f"bis {zeiten[-1]:%H:%M} Uhr im Abstand von {args.schritt} Minuten. Je Abfahrt zählt die "
+            "Zeit vom Verlassen des Hauses bis zur frühesten Ankunft, die Wartezeit also mit.",
+            "Tür zu Tür mit Fußwegen; welche Haltestelle man nimmt, entscheidet die früheste "
+            f"Ankunft (technische Grenze für den Fußweg {args.max_fussweg} Minuten). Ist man zu "
+            f"Fuß früher da, gilt die Gehzeit. Reisezeiten über {MAX_REISEZEIT_MIN // 60} Stunden "
+            "gelten als keine Verbindung.",
+            f"Keine Haltestelle in Gehweite: Im Umkreis von {HALT_MAX_M} m (Luftlinie) fährt "
+            "zwischen 7 und 9 Uhr kein Bus und keine Bahn ab.",
+            f"Campus in Gehweite: zu Fuß in höchstens {CAMPUS_FUSS_MAX_MIN} Minuten am Ziel.",
+            "Auto: Fahrzeit nach OpenStreetMap ohne Stau; die Karte rechnet standardmäßig "
+            f"{ZUSCHLAG_MIN} Minuten für Parkplatzsuche und Fußweg dazu. Die Fahrt endet an der "
+            f"Stelle „{ZIEL_AUTO_NAME}“, weil der Campus autofrei ist.",
             "Fahrplan nach Plan: ohne Verspätungen und Ausfälle. Umsteigen mit der Voreinstellung "
             "von MOTIS, in der Regel 2 Minuten.",
-            "Auto: reine Fahrzeit nach OpenStreetMap, ohne Stau, ohne Parkplatzsuche und ohne "
-            f"Fußweg vom Parkplatz. Die Fahrt endet an der Stelle „{ZIEL_AUTO_NAME}“, "
-            "weil der Campus autofrei ist.",
             "Fahrrad und zu Fuß: Zeiten nach OpenStreetMap mit den Standardgeschwindigkeiten "
             "von MOTIS, ohne Steigungen.",
-            f"Start ist der Mittelpunkt der Rasterzelle. Liegt im Umkreis von {MAX_WEGABSTAND_M} m "
-            "kein passender Weg, der zum Ziel führt, oder gibt es keine Verbindung, bleibt der "
-            "Wert leer (null).",
+            f"Start ist der Mittelpunkt der Rasterzelle ({args.raster} m). Liegt im Umkreis von "
+            f"{MAX_WEGABSTAND_M} m kein passender Weg oder gibt es keine Verbindung, bleibt der "
+            "Wert leer.",
         ],
         "grenze": {"type": grenze.geom_type,
                    "coordinates": _gerundet(shapely.geometry.mapping(grenze)["coordinates"])},

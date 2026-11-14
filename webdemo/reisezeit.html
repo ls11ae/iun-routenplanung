@@ -24,7 +24,7 @@
 
   <main class="arbeitsflaeche">
     <section class="karten" aria-label="Karte">
-      <div class="karte" id="karte" role="application" aria-label="Karte von Dortmund mit einem Raster. Jede Zelle ist nach der gewählten Größe eingefärbt; dieselben Angaben stehen rechts in der Legende als Anteile."></div>
+      <div class="karte" id="karte" role="application" aria-label="Karte von Dortmund mit einem Raster. Jede Zelle ist nach der gewählten Größe eingefärbt; die Legende auf der Karte nennt die Klassen mit ihren Anteilen und die Annahmen. Eine Zelle anklicken zeigt rechts ihre Werte."></div>
     </section>
 
     <aside class="seite">
@@ -39,20 +39,14 @@
         </div>
         <div class="zeile">
           <label for="oepnv-art">Zeit mit Bus und Bahn</label>
-          <select id="oepnv-art">
-            <option value="oepnv_min">Start um 7:30 Uhr, früheste Ankunft (mit Wartezeit)</option>
-            <option value="oepnv_dauer_min">schnellste Verbindung (ohne Wartezeit)</option>
-          </select>
+          <select id="oepnv-art"></select>
         </div>
         <div class="zeile">
           <label for="zuschlag">Zuschlag für das Auto</label>
-          <input type="range" id="zuschlag" min="0" max="15" step="1" value="0">
+          <input type="range" id="zuschlag" min="0" max="15" step="1" value="5">
           <output id="zuschlag-wert" for="zuschlag"></output>
         </div>
-        <p class="leise">Die Autozeit aus OpenStreetMap ist ohne Stau und ohne Parkplatzsuche gerechnet. Mit dem Zuschlag können Sie Minuten für Parken und den Fußweg vom Parkplatz dazurechnen.</p>
-
-        <h3 id="legende-titel">Legende</h3>
-        <ul class="klassen" id="klassen" aria-labelledby="legende-titel"></ul>
+        <p class="leise">Die Autozeit aus OpenStreetMap ist ohne Stau gerechnet. Der Zuschlag (Standard 5 Minuten) steht für Parkplatzsuche und den Fußweg vom Parkplatz; mit 0 sehen Sie die reine Fahrzeit.</p>
         <p id="kennzahl"></p>
 
         <h3>Ausgewählte Zelle</h3>
@@ -64,15 +58,17 @@
         </details>
 
         <footer class="fuss">
-          <p><b>Nur ein Beispiel für die Lehre.</b> Die Karte zeigt einen einzigen Zeitpunkt und ein einziges Ziel. Wer kein Auto hat, für den ist der Vergleich ohnehin ein anderer.</p>
-          <p>Berechnet mit <a href="https://github.com/motis-project/motis">MOTIS</a>. Fahrplan: <a href="https://gtfs.de">gtfs.de</a>, Daten von DELFI e.V. (CC BY 4.0)<span id="stand-fahrplan"></span>. Wege und Karte: © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a> (ODbL). Kartendarstellung mit <a href="https://leafletjs.com">Leaflet</a>.</p>
+          <p><b>Nur ein Beispiel für die Lehre.</b> Die Karte zeigt eine Morgenstunde an einem Tag und ein einziges Ziel. Wer kein Auto hat, für den ist der Vergleich ohnehin ein anderer.</p>
+          <p>Berechnet mit <a href="https://github.com/motis-project/motis">MOTIS</a>. Fahrplan: <a href="https://gtfs.de">gtfs.de</a>, Daten von DELFI e.V. (CC BY 4.0)<span id="stand-fahrplan"></span>. Wege und Grundkarte: © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a> (ODbL). Kartendarstellung mit <a href="https://leafletjs.com">Leaflet</a>.</p>
           <p>Wie die Karte entsteht, steht im <a href="https://github.com/ls11ae/iun-routenplanung">Repository</a> unter <code>nahverkehr/</code>.</p>
+          <p class="rechtliches"><a href="https://ae.cs.tu-dortmund.de/imprint/">Impressum</a> · <a href="https://ae.cs.tu-dortmund.de/privacy/">Datenschutz</a> · Die Seite wird über GitHub Pages ausgeliefert und lädt nichts von anderen Servern.</p>
         </footer>
       </div>
     </aside>
   </main>
 
   <script src="vendor/leaflet-1.9.4/leaflet.js"></script>
+  <script src="js/grundkarte.js"></script>
   <script src="js/reisezeit.js"></script>
 </body>
 </html>

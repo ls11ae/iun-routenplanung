@@ -23,7 +23,7 @@ fertiges Programm.
 | Datei | Zweck |
 |---|---|
 | `reisezeiten_motis.ipynb` | Starter-Notebook: eine Anfrage, viele Startpunkte, Karte des Verhältnisses Bus und Bahn zu Auto |
-| `reisezeitkarte.py` | Funktionen für die Abfragen; als Skript berechnet es das Raster der Webdemo (500 m, etwa vier Minuten) |
+| `reisezeitkarte.py` | Funktionen für die Abfragen; als Skript berechnet es das Raster der Webdemo (500 m, Median über 13 Abfahrten 7:00–8:00 Uhr, etwa fünf Minuten) |
 | `abbildung_reisezeit.py` | zeichnet daraus die Abbildung in `abbildungen/` |
 | `motis_einrichten.py`, `starten.bat`, `starten.sh` | MOTIS laden, einrichten und starten |
 | `fahrplan_selbst_rechnen.ipynb`, `gtfs_hilfen.py`, `csa.py` | optional: den Fahrplan selbst lesen, mit dem Connection Scan durchrechnen und verändern |
@@ -39,6 +39,12 @@ fertiges Programm.
   Anfrage zwei Sekunden.
 - **Autozeiten sind optimistisch:** freie Fahrt nach OpenStreetMap, ohne Stau und ohne
   Parkplatzsuche. Der Campus ist autofrei; das Auto fährt bis zur Emil-Figge-Straße.
+- **Reisezeit mit Bus und Bahn:** Median über die Abfahrten 7:00, 7:05, …, 8:00 Uhr; je
+  Abfahrt zählt die Wartezeit mit. Eine einzige Anfrage über das ganze Zeitfenster genügt
+  (`oepnv_ueber_abfahrten`); sie liefert dieselben Werte wie 13 Einzelanfragen.
+- **Sonderfälle der Karte:** Zellen, von denen der Campus zu Fuß in höchstens 15 Minuten
+  erreichbar ist, und Zellen ohne Haltestelle mit Abfahrt zwischen 7 und 9 Uhr im Umkreis von
+  1 km (Luftlinie) sind eigene Kategorien. Reisezeiten über 3 Stunden gelten als keine Verbindung.
 - **Fußweg zum Halt:** erlaubt sind bis zu 60 Minuten, die früheste Ankunft entscheidet.
   Kleinere Grenzen schneiden in MOTIS manchmal Haltestellen ab, ohne dass man es merkt
   (`--max-fussweg` in `reisezeitkarte.py`).

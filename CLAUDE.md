@@ -33,6 +33,7 @@ Diese Datei beschreibt Aufbau, Konventionen, Datenquellen und Tests für die Arb
 ```
 webdemo/              statische Seite für GitHub Pages, kein Build-Schritt
   index.html          Routen je Persona (Leaflet) und Pareto-Front      js/app.js, pareto.js, karte.js
+  js/grundkarte.js    eigene Grundkarte aus daten/grundkarte.json (keine fremden Kacheln)
   algorithmen.html    Dijkstra, bidirektional, A*, ALT, CH mit Statistik   js/algorithmen.js
   reisezeit.html      Karte Nahverkehr gegen Auto                       js/reisezeit.js
   js/routing.js       die Routing-Bibliothek (aus AuS, erweitert); auch von kern.js benutzt
@@ -45,7 +46,7 @@ wegenetz/             routen_hilfen.py (Kriterien, Personas, Routen), routen_sta
 nahverkehr/           motis_einrichten.py, starten.bat/.sh, reisezeitkarte.py, abbildung_reisezeit.py,
                       reisezeiten_motis.ipynb; optional gtfs_hilfen.py, csa.py, fahrplan_selbst_rechnen.ipynb
 daten/                daten_vorbereiten.py, paket_bauen.py (Lehrende), herunterladen.py (Studierende), paket.json
-werkzeuge/            make_routing_demo.py, routing_prep.mjs (Radnetz und CH neu erzeugen)
+werkzeuge/            make_routing_demo.py, routing_prep.mjs (Radnetz und CH), grundkarte.py
 abbildungen/          Abbildung für die Folien
 tests/                pytest; tests/js/ rechnet mit dem JavaScript-Kern in Node
 .github/workflows/pages.yml   veröffentlicht webdemo/ über GitHub Pages
@@ -64,11 +65,11 @@ tests/                pytest; tests/js/ rechnet mit dem JavaScript-Kern in Node
 | Querungen | zählen an der Kante, die über einen Fußweg in einen Knoten `highway=crossing` führt | additiv, bewusst einfach |
 | Höhen | DGM1 Geobasis NRW auf 5 m gemittelt; `anstieg = max(0, h(v) − h(u))` je Kante | additiv für Gewichte und Pareto; mit Hysterese 3 m etwa 10–20 % weniger |
 | Einbahnstraßen | im Wegenetz Dortmund-Süd ignoriert; das Radnetz beachtet sie | Vereinfachung, im README genannt |
-| Karte | Leaflet 1.9.4 in `webdemo/vendor/`, OSM-Kacheln mit Namensnennung; ohne Netz das eigene Wegenetz als Hintergrund; Algorithmen-Ansicht zeichnet selbst auf Canvas | läuft auch ohne Internet |
+| Karte | Leaflet 1.9.4 in `webdemo/vendor/`; eigene Grundkarte (`werkzeuge/grundkarte.py`) statt OSM-Kacheln; Algorithmen-Ansicht zeichnet selbst auf Canvas | nichts von fremden Servern laden (Datenschutz); OSM erlaubt keinen Massen-Download von Kacheln |
 | Pareto | exakter Label-Setting-Algorithmus in `kern.js` mit unteren Schranken aus Rückwärtssuchen; Ausdünnen mit `relevante` | Netz klein genug |
 | Pages | Workflow `.github/workflows/pages.yml`, Quelle „GitHub Actions“ | ohne Actions nur `/` oder `/docs` |
 | MOTIS | 2.11.4, `timetable.first_day` fest auf den Fahrplanbeginn, Server nur an 127.0.0.1:8080 | sonst liefern vergangene Tage nichts; keine Firewall-Nachfrage |
-| Reisezeitkarte | Di 24.11.2026, 7:30 Uhr, Ziel Campus Nord (Auto: Emil-Figge-Straße, 180 m, weil der Campus autofrei ist), Raster 500 m, ÖPNV = früheste Ankunft bei Start 7:30, Fußweg zum Halt bis 60 min | kleinere Grenzen schneiden in MOTIS stillschweigend Halte ab |
+| Reisezeitkarte | Di 24.11.2026, Ziel Campus Nord (Auto: Emil-Figge-Straße, 180 m, weil der Campus autofrei ist), Raster 500 m; ÖPNV = Median über 13 Abfahrten 7:00–8:00 (je Abfahrt früheste Ankunft, Wartezeit zählt); über 3 h = keine Verbindung; Auto standardmäßig + 5 min; Klassen des Verhältnisses 2,5 / 3 / 3,5 / 4, ab 4 zusammengefasst; eigene Kategorien „Campus zu Fuß ≤ 15 min“ und „keine Haltestelle (Abfahrt 7–9 Uhr) im Umkreis von 1 km“; Fußweg zum Halt bis 60 min | eine feste Abfahrt hängt vom Zufall der Abfahrtsminute ab; kleinere Fußweg-Grenzen schneiden in MOTIS stillschweigend Halte ab |
 
 ## Datenquellen und Lizenzen
 
@@ -100,6 +101,8 @@ cd webdemo && python -m http.server        # Webdemo lokal unter http://localhos
 
 - `tests/test_python_js.py`: Python und JavaScript liefern dieselben Kosten und Kriterien.
 - `tests/test_algorithmen.py`: Dijkstra, bidirektional, A*, ALT und CH liefern dieselben Distanzen.
+- `tests/test_webdemo.py`: keine fremden Ladequellen (Skripte, Stylesheets, Kacheln, Daten) und
+  stimmige Reisezeitdaten. Links auf Impressum und Datenschutz (Lehrstuhlseite) sind erlaubt.
 - `nahverkehr/reisezeiten_motis.ipynb` braucht einen laufenden MOTIS-Server.
 - Die Webdemo muss auch bei 390 px Breite ohne waagerechtes Scrollen funktionieren.
 
