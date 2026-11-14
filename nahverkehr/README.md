@@ -17,6 +17,10 @@ erreichen) und was sie kostet (Fahrzeugkilometer, Emissionen).
    Das Fenster offen lassen; beenden mit Strg+C.
 3. Unter <http://localhost:8080> hat MOTIS eine eigene Oberfläche zum Ausprobieren.
 4. [`reisezeiten_motis.ipynb`](reisezeiten_motis.ipynb) öffnen und ausführen.
+5. [`szenario_beispiel.ipynb`](szenario_beispiel.ipynb): ein Szenario von Anfang bis Ende
+   (die X13 zwischen 6 und 9 Uhr alle 15 statt alle 30 Minuten), mit Karten vorher und
+   nachher, Kennzahlen, Kosten und einer Vorlage für die Klimabilanz. Ihre eigenen Szenarien
+   bauen Sie genauso.
 
 MOTIS gibt es für Windows, Linux und macOS mit Apple-Chip; für Intel-Macs gibt es kein
 fertiges Programm.
@@ -26,6 +30,8 @@ fertiges Programm.
 | Datei | Zweck |
 |---|---|
 | `reisezeiten_motis.ipynb` | Starter-Notebook: eine Anfrage, viele Startpunkte, Karte des Verhältnisses Bus und Bahn zu Auto |
+| `szenario_beispiel.ipynb` | Beispiel-Szenario: Fahrplan ändern, mit MOTIS rechnen, Wirkung und Kosten messen |
+| `szenarien.py` | Funktionen dafür: Fahrplan laden und als Kopie schreiben, Takt verdoppeln, Linien entfernen, Fahrleistung, Szenario mit MOTIS rechnen, vorher und nachher vergleichen, Karten |
 | `reisezeitkarte.py` | Funktionen für die Abfragen; als Skript berechnet es das Raster der Webdemo (500 m, Median über 13 Abfahrten 7:00–8:00 Uhr, etwa fünf Minuten) |
 | `abbildung_reisezeit.py` | zeichnet daraus die Abbildung in `abbildungen/` |
 | `motis_einrichten.py`, `starten.bat`, `starten.sh` | MOTIS laden, einrichten und starten |
@@ -52,5 +58,26 @@ fertiges Programm.
   Kleinere Grenzen schneiden in MOTIS manchmal Haltestellen ab, ohne dass man es merkt
   (`--max-fussweg` in `reisezeitkarte.py`).
 
+## Szenarien rechnen
+
+- **Das Original bleibt unberührt.** `szenarien.gtfs_schreiben` weigert sich, den Fahrplan in
+  `daten/` zu überschreiben; jedes Szenario bekommt eine eigene Datei, am besten in seinem
+  Ordner `motis/szenarien/<name>/`.
+- **Jedes Szenario hat einen eigenen MOTIS-Ordner** (`motis/szenarien/<name>/`, nicht im Git).
+  `motis_rechnen` kopiert dorthin die Daten des Hauptimports, importiert nur den geänderten
+  Fahrplan (5 bis 10 Sekunden), startet einen eigenen Server auf Port 8090, rechnet alle
+  Zellen und beendet den Server wieder. Die Kopie der Daten (150 MB) wird danach gelöscht;
+  das Ergebnis bleibt als `reisezeiten-500m.json` liegen und wird beim nächsten Aufruf mit
+  demselben Fahrplan wiederverwendet. Der Hauptserver auf Port 8080 darf dabei laufen.
+- **Rechenzeit** (Windows 11, 8 Kerne): etwa 2,5 Minuten je Szenario für ganz Dortmund
+  (1.125 Zellen), mit `raster_m=1000` etwa 45 Sekunden (283 Zellen). Beim allerersten Mal
+  kommen das Laden von MOTIS und der Hauptimport dazu (etwa zwei Minuten).
+- **Einwohner:** Zensus 2022 im 100-m-Gitter, auf die Rasterzellen summiert. Die Datei
+  `daten/dortmund-einwohner.csv` kommt mit dem Datenpaket `daten-2026-12`; bis dahin nimmt
+  `szenarien.einwohner` die Summen je 500-m-Zelle aus `webdemo/daten/reisezeiten.json`.
+- **Fahrleistung:** Kilometer als Luftlinie zwischen den Halten (zu wenig), Stunden ohne
+  Wende- und Pausenzeiten.
+
 Quellen: Fahrplan [gtfs.de](https://gtfs.de) / DELFI e.V. (CC BY 4.0), Wege
-© OpenStreetMap-Mitwirkende (ODbL).
+© OpenStreetMap-Mitwirkende (ODbL), Einwohner: Zensus 2022, © Statistische Ämter des Bundes
+und der Länder, 2024 (dl-de/by-2-0).

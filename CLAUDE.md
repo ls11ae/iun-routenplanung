@@ -42,10 +42,11 @@ webdemo/              statische Seite für GitHub Pages, kein Build-Schritt
   personas.json       EINE Datei für Python und JavaScript (Kriterien, Gewichte, Sperren, Tempo)
   daten/netz.json     Wegenetz Dortmund-Süd mit Kriterien (aus wegenetz/export_webdemo.py), 3 MB
   daten/dortmund-graph.json.gz, dortmund-ch.json.gz, radnetz-stats.json   Radnetz ganz Dortmund, 8 MB
-  daten/reisezeiten.json   Raster aus nahverkehr/reisezeitkarte.py
+  daten/reisezeiten.json   Raster aus nahverkehr/reisezeitkarte.py (mit Einwohnern je Zelle)
 wegenetz/             routen_hilfen.py (Kriterien, Personas, Routen), routen_start.ipynb, export_webdemo.py
 nahverkehr/           motis_einrichten.py, starten.bat/.sh, reisezeitkarte.py, abbildung_reisezeit.py,
-                      reisezeiten_motis.ipynb; optional gtfs_hilfen.py, csa.py, fahrplan_selbst_rechnen.ipynb
+                      reisezeiten_motis.ipynb; szenarien.py, szenario_beispiel.ipynb (Projekt 1);
+                      optional gtfs_hilfen.py, csa.py, fahrplan_selbst_rechnen.ipynb
 daten/                daten_vorbereiten.py, paket_bauen.py (Lehrende), herunterladen.py (Studierende), paket.json
 werkzeuge/            make_routing_demo.py, routing_prep.mjs (Radnetz und CH), grundkarte.py
 abbildungen/          Abbildung für die Folien
@@ -70,6 +71,8 @@ tests/                pytest; tests/js/ rechnet mit dem JavaScript-Kern in Node
 | Pareto | exakter Label-Setting-Algorithmus in `kern.js` mit unteren Schranken aus Rückwärtssuchen; Ausdünnen mit `relevante` | Netz klein genug |
 | Pages | Workflow `.github/workflows/pages.yml`, Quelle „GitHub Actions“ | ohne Actions nur `/` oder `/docs` |
 | MOTIS | 2.11.4, `timetable.first_day` fest auf den Fahrplanbeginn, Server nur an 127.0.0.1:8080 | sonst liefern vergangene Tage nichts; keine Firewall-Nachfrage |
+| Szenarien | geänderte GTFS-Kopie je Szenario; `motis_rechnen` kopiert `nahverkehr/motis/data` ohne Kacheln nach `motis/szenarien/<name>/`, importiert nur Fahrplan und Zuordnung (5–10 s), eigener Server auf Port 8090, gleiche Anfragen wie die Reisezeitkarte; Datenkopie wird danach gelöscht, Ergebnis mit Prüfsumme des Fahrplans zwischengespeichert; Fahrzeug-km als Luftlinie zwischen Halten | ein ganzes Raster in 2,5 min statt eigenem Hauptimport (1,5 min) je Szenario; Original nie überschreiben |
+| Einwohner | Zensus 2022, 100-m-Gitter (dl-de/by-2-0) in `daten/dortmund-einwohner.csv` ab Paket `daten-2026-12`; Summe je 500-m-Zelle auch in `webdemo/daten/reisezeiten.json` | Szenario-Notebook funktioniert schon mit dem Paket `daten-2026-11` |
 | Reisezeitkarte | Di 24.11.2026, Ziel Campus Nord (Auto: Emil-Figge-Straße, 180 m, weil der Campus autofrei ist), Raster 500 m; ÖPNV = Median über 13 Abfahrten 7:00–8:00 (je Abfahrt früheste Ankunft, Wartezeit zählt); über 3 h = keine Verbindung; Auto standardmäßig + 5 min; Klassen des Verhältnisses 1,5 / 2 / 2,5 / 3 / 4, ab 4 zusammengefasst; eigene Kategorien „Campus zu Fuß ≤ 15 min“ und „keine Haltestelle (Abfahrt 7–9 Uhr) im Umkreis von 1 km“; Fußweg zum Halt bis 60 min | eine feste Abfahrt hängt vom Zufall der Abfahrtsminute ab; kleinere Fußweg-Grenzen schneiden in MOTIS stillschweigend Halte ab |
 
 ## Datenquellen und Lizenzen
@@ -78,14 +81,18 @@ tests/                pytest; tests/js/ rechnet mit dem JavaScript-Kern in Node
   Münster; Radnetz der Algorithmen-Ansicht aus der Overpass-API)
 - Fahrplan: gtfs.de, Daten von DELFI e.V., CC BY 4.0 (gilt nur etwa einen Monat)
 - Höhen: DGM1, Geobasis NRW, Datenlizenz Deutschland Zero 2.0
+- Einwohner: Zensus 2022 (Gitterzellen), © Statistische Ämter des Bundes und der Länder, 2024,
+  Datenlizenz Deutschland – Namensnennung – Version 2.0
 - Leaflet (BSD-2-Clause) in `webdemo/vendor/`; MOTIS (MIT) wird zur Laufzeit geladen
-- Daten kommen als Release-Datei (`daten-JJJJ-MM.zip`); `daten/paket.json` nennt Adresse und Prüfsumme
+- Daten kommen als Release-Datei (`daten-JJJJ-MM.zip`); `daten/paket.json` nennt das aktuelle
+  Paket und alle älteren mit Adresse und Prüfsumme (`herunterladen.py --liste`, `--release`, `--ziel`).
+  Ältere Releases nicht löschen (Vergleich vor und nach dem Fahrplanwechsel).
 
 ## Daten erneuern (etwa monatlich und nach jedem Fahrplanwechsel)
 
 ```
 python -m pip install -r daten/requirements-lehrende.txt
-python daten/daten_vorbereiten.py --rohdaten ROHDATEN --gtfs GTFS.zip --osm ARNSBERG.osm.pbf MUENSTER.osm.pbf --dgm1
+python daten/daten_vorbereiten.py --rohdaten ROHDATEN --gtfs GTFS.zip --osm ARNSBERG.osm.pbf MUENSTER.osm.pbf --dgm1 --zensus Zensus2022_Bevoelkerungszahl.zip
 python wegenetz/export_webdemo.py          # nur wenn sich das Wegenetz oder die Kriterien geändert haben
 python daten/paket_bauen.py --name daten-JJJJ-MM   # danach Release anlegen, paket.json committen
 python nahverkehr/motis_einrichten.py --server    # dann in zweitem Fenster:
@@ -95,7 +102,7 @@ python nahverkehr/reisezeitkarte.py --datum JJJJ-MM-TT && python nahverkehr/abbi
 ## Testen
 
 ```
-python -m pytest tests                     # Kriterien, Personas; mit Node.js auch Python gegen JS und alle Algorithmen
+python -m pytest tests                     # Kriterien, Personas, Szenarien; mit Node.js auch Python gegen JS und alle Algorithmen
 jupyter nbconvert --to notebook --execute --inplace wegenetz/routen_start.ipynb
 cd webdemo && python -m http.server        # Webdemo lokal unter http://localhost:8000
 ```
@@ -104,7 +111,10 @@ cd webdemo && python -m http.server        # Webdemo lokal unter http://localhos
 - `tests/test_algorithmen.py`: Dijkstra, bidirektional, A*, ALT und CH liefern dieselben Distanzen.
 - `tests/test_webdemo.py`: keine fremden Ladequellen (Skripte, Stylesheets, Kacheln, Daten) und
   stimmige Reisezeitdaten. Links auf Impressum und Datenschutz (Lehrstuhlseite) sind erlaubt.
-- `nahverkehr/reisezeiten_motis.ipynb` braucht einen laufenden MOTIS-Server.
+- `tests/test_szenarien.py`: Takt verdoppeln, Schreiben ohne das Original anzutasten, Fahrleistung,
+  Vergleich, Einwohner je Zelle, Auswahl des Datenpakets (kleiner Beispielfahrplan, ohne MOTIS).
+- `nahverkehr/reisezeiten_motis.ipynb` braucht einen laufenden MOTIS-Server;
+  `nahverkehr/szenario_beispiel.ipynb` startet seine Server selbst (Port 8090).
 - Die Webdemo muss auch bei 390 px Breite ohne waagerechtes Scrollen funktionieren.
 
 ## Bekannte Stolpersteine

@@ -80,15 +80,18 @@ jupyter notebook
 
 Im Browser öffnen Sie dann [`wegenetz/routen_start.ipynb`](wegenetz/routen_start.ipynb)
 (Projekte 2 bis 4) oder [`nahverkehr/reisezeiten_motis.ipynb`](nahverkehr/reisezeiten_motis.ipynb)
-(Projekt 1; dafür vorher MOTIS starten, siehe [`nahverkehr/`](nahverkehr/)).
+(Projekt 1; dafür vorher MOTIS starten, siehe [`nahverkehr/`](nahverkehr/)). Für Projekt 1
+zeigt danach [`nahverkehr/szenario_beispiel.ipynb`](nahverkehr/szenario_beispiel.ipynb) an
+einem Beispiel, wie man den Fahrplan ändert und die Wirkung misst.
 
 Alle Notebooks liegen mit ihren Ergebnissen im Repository. Sie können also erst lesen und
 dann ausführen. Gemessen unter Windows 11 (8 Kerne, 16 GB): Wegenetz-Notebook etwa
-2,5 Minuten beim ersten Mal, MOTIS-Notebook 1,5 Minuten, Fahrplan-Notebook unter einer Minute.
+2,5 Minuten beim ersten Mal, MOTIS-Notebook 1,5 Minuten, Szenario-Notebook gut 5 Minuten
+beim ersten Mal (danach Sekunden), Fahrplan-Notebook unter einer Minute.
 
 **Der Fahrplan veraltet:** Er gilt vom 07.11. bis 07.12.2026. Die Notebooks zeigen den
 Zeitraum an und warnen. Ein neues Datenpaket holen Sie mit `git pull` und danach erneut
-`python daten/herunterladen.py`.
+`python daten/herunterladen.py`. Ältere Pakete bleiben abrufbar (siehe [`daten/`](daten/)).
 
 ## Die Webdemo auf dem eigenen Rechner
 
@@ -111,7 +114,8 @@ im Ordner. Sie funktioniert deshalb auch ohne Internet.
 python -m pytest tests
 ```
 
-Geprüft werden die Kriterien und Personas an einem kleinen Beispielnetz und, wenn
+Geprüft werden die Kriterien und Personas an einem kleinen Beispielnetz, die Funktionen für
+Fahrplan-Szenarien an einem kleinen Beispielfahrplan und, wenn
 [Node.js](https://nodejs.org) installiert ist, dass Python und JavaScript dieselben Routen
 liefern und dass alle Algorithmen der Webdemo dieselben Distanzen berechnen.
 
@@ -131,6 +135,11 @@ Parkplatzsuche gerechnet.
   Algorithmen-Ansicht mit Stand 09.11.2026
 - Fahrplan: [gtfs.de](https://gtfs.de), Daten von DELFI e.V., CC BY 4.0
 - Höhen: Digitales Geländemodell DGM1, Geobasis NRW, Datenlizenz Deutschland Zero 2.0
+- Einwohner: Zensus 2022, Bevölkerung im 100-m-Gitter, © Statistische Ämter des Bundes und der
+  Länder, 2024, [Datenlizenz Deutschland – Namensnennung – Version 2.0](https://www.govdata.de/dl-de/by-2-0);
+  auf Dortmund zugeschnitten und in `webdemo/daten/reisezeiten.json` je 500-m-Zelle summiert
+- Emissionsfaktoren im Szenario-Notebook: Umweltbundesamt, Emissionsdaten Personenverkehr,
+  Bezugsjahr 2024 (TREMOD)
 - Kartendarstellung: [Leaflet](https://leafletjs.com) (BSD-2-Clause); Grundkarte der Webdemo
   aus OpenStreetMap-Daten (ODbL)
 - Routenplaner: [MOTIS](https://github.com/motis-project/motis) (MIT)

@@ -156,13 +156,13 @@ def motis_laden(ordner: Path = ORDNER) -> Path:
 def fahrplan_zeitraum(stand: Path = STAND, gtfs: Path = GTFS):
     """Erster und letzter Tag des Fahrplans als date.
 
-    Steht in daten/stand.json; fehlt die Datei, wird im GTFS-Paket nachgesehen
-    (calendar.txt und calendar_dates.txt).
+    Steht in daten/stand.json; fehlt die Datei (oder ist `stand` None), wird im GTFS-Paket
+    nachgesehen (calendar.txt und calendar_dates.txt).
     """
     def tag(text):
         return datetime.strptime(text, "%Y%m%d").date()
 
-    if stand.exists():
+    if stand is not None and stand.exists():
         g = json.loads(stand.read_text(encoding="utf-8"))["gtfs"]
         return tag(g["gueltig_von"]), tag(g["gueltig_bis"])
 
