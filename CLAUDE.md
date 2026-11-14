@@ -69,7 +69,7 @@ tests/                pytest; tests/js/ rechnet mit dem JavaScript-Kern in Node
 | Pareto | exakter Label-Setting-Algorithmus in `kern.js` mit unteren Schranken aus Rückwärtssuchen; Ausdünnen mit `relevante` | Netz klein genug |
 | Pages | Workflow `.github/workflows/pages.yml`, Quelle „GitHub Actions“ | ohne Actions nur `/` oder `/docs` |
 | MOTIS | 2.11.4, `timetable.first_day` fest auf den Fahrplanbeginn, Server nur an 127.0.0.1:8080 | sonst liefern vergangene Tage nichts; keine Firewall-Nachfrage |
-| Reisezeitkarte | Di 24.11.2026, Ziel Campus Nord (Auto: Emil-Figge-Straße, 180 m, weil der Campus autofrei ist), Raster 500 m; ÖPNV = Median über 13 Abfahrten 7:00–8:00 (je Abfahrt früheste Ankunft, Wartezeit zählt); über 3 h = keine Verbindung; Auto standardmäßig + 5 min; Klassen des Verhältnisses 2,5 / 3 / 3,5 / 4, ab 4 zusammengefasst; eigene Kategorien „Campus zu Fuß ≤ 15 min“ und „keine Haltestelle (Abfahrt 7–9 Uhr) im Umkreis von 1 km“; Fußweg zum Halt bis 60 min | eine feste Abfahrt hängt vom Zufall der Abfahrtsminute ab; kleinere Fußweg-Grenzen schneiden in MOTIS stillschweigend Halte ab |
+| Reisezeitkarte | Di 24.11.2026, Ziel Campus Nord (Auto: Emil-Figge-Straße, 180 m, weil der Campus autofrei ist), Raster 500 m; ÖPNV = Median über 13 Abfahrten 7:00–8:00 (je Abfahrt früheste Ankunft, Wartezeit zählt); über 3 h = keine Verbindung; Auto standardmäßig + 5 min; Klassen des Verhältnisses 1,5 / 2 / 2,5 / 3 / 4, ab 4 zusammengefasst; eigene Kategorien „Campus zu Fuß ≤ 15 min“ und „keine Haltestelle (Abfahrt 7–9 Uhr) im Umkreis von 1 km“; Fußweg zum Halt bis 60 min | eine feste Abfahrt hängt vom Zufall der Abfahrtsminute ab; kleinere Fußweg-Grenzen schneiden in MOTIS stillschweigend Halte ab |
 
 ## Datenquellen und Lizenzen
 

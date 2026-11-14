@@ -9,7 +9,11 @@
   const mal = (v) => de(v, 1).replace(",0", "");
 
   // Eine Farbe, von hell nach dunkel: Die Helligkeit trägt die Reihenfolge, die Legende die Werte.
-  const RAMPEN = { 4: ["#deebf7", "#9ecae1", "#4292c6", "#08519c"], 5: ["#eff3ff", "#bdd7e7", "#6baed6", "#3182bd", "#08519c"] };
+  const RAMPEN = {
+    4: ["#deebf7", "#9ecae1", "#4292c6", "#08519c"],
+    5: ["#eff3ff", "#bdd7e7", "#6baed6", "#3182bd", "#08519c"],
+    6: ["#eff3ff", "#c6dbef", "#9ecae1", "#6baed6", "#3182bd", "#08519c"],
+  };
   const rampe = (a) => RAMPEN[a.grenzen.length + 1];
   // Sonderfälle: eigene Farbe UND eigene Randlinie, damit sie nicht nur an der Farbe erkennbar sind
   const SONDER = {

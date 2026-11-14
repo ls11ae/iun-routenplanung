@@ -80,7 +80,7 @@ MAX_WEGABSTAND_M = 250            # so weit darf der nächste Weg vom Punkt entf
 HALT_MAX_M = 1000                 # weiter weg: „keine Haltestelle in Gehweite“
 CAMPUS_FUSS_MAX_MIN = 15          # höchstens so lange zu Fuß: „Campus in Gehweite“
 ZUSCHLAG_MIN = 5                  # Minuten für Parkplatzsuche und Fußweg zum Auto (Standard)
-VERHAELTNIS_GRENZEN = [2.5, 3, 3.5, 4]   # Klassen des Verhältnisses ÖPNV zu Auto; ab 4 zusammengefasst
+VERHAELTNIS_GRENZEN = [1.5, 2, 2.5, 3, 4]   # Klassen des Verhältnisses ÖPNV zu Auto; ab 4 zusammengefasst
 MAX_REISEZEIT_MIN = 180           # länger gilt als „keine Verbindung“ (etwa erst am Mittag)
 
 sitzung = requests.Session()      # hält die Verbindung zum Server offen

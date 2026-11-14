@@ -21,12 +21,15 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Patch, Rectangle
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from reisezeitkarte import kategorie  # noqa: E402
+from reisezeitkarte import VERHAELTNIS_GRENZEN, kategorie  # noqa: E402
 
 WURZEL = Path(__file__).resolve().parent.parent
 GRUNDKARTE = WURZEL / "webdemo" / "daten" / "grundkarte.json"
 # eine Farbe von hell nach dunkel (wie in der Webdemo): Die Helligkeit trägt die Reihenfolge
-RAMPE = ["#eff3ff", "#bdd7e7", "#6baed6", "#3182bd", "#08519c"]
+RAMPEN = {4: ["#deebf7", "#9ecae1", "#4292c6", "#08519c"],
+          5: ["#eff3ff", "#bdd7e7", "#6baed6", "#3182bd", "#08519c"],
+          6: ["#eff3ff", "#c6dbef", "#9ecae1", "#6baed6", "#3182bd", "#08519c"]}
+RAMPE = RAMPEN[len(VERHAELTNIS_GRENZEN) + 1]     # eine Farbe je Klasse
 # Sonderfälle: eigene Farbe UND eigene Schraffur
 SONDER = {
     "campus": dict(facecolor="#7fcdb6", edgecolor="#00513b", hatch="...", linewidth=0.6),
@@ -74,6 +77,7 @@ def karte(ax, D, zuschlag):
     """Zeichnet das Raster; gibt (Anzahl je Kategorie, Verhältnisse) zurück."""
     Z, (dx, dy), P = D["zellen"], D["zelle_grad"], D["darstellung"]
     grenzen = P["verhaeltnis_grenzen"]
+    rampe = RAMPEN[len(grenzen) + 1]
     anzahl, werte = {}, []
     for i, (lat, lon) in enumerate(zip(Z["lat"], Z["lon"])):
         k = kategorie(Z, i, zuschlag, P["halt_max_m"], P["campus_fuss_max_min"], grenzen)
@@ -81,7 +85,7 @@ def karte(ax, D, zuschlag):
         ecke = (lon - dx / 2, lat - dy / 2)
         if isinstance(k, int):
             werte.append(Z["oepnv_min"][i] / (Z["auto_min"][i] + zuschlag))
-            ax.add_patch(Rectangle(ecke, dx, dy, facecolor=RAMPE[k], edgecolor="white", linewidth=0.3))
+            ax.add_patch(Rectangle(ecke, dx, dy, facecolor=rampe[k], edgecolor="white", linewidth=0.3))
         else:
             ax.add_patch(Rectangle(ecke, dx, dy, **SONDER[k]))
     # Orientierung: Autobahnen, Bahnstrecken und Flüsse aus der Grundkarte, dünn darüber
@@ -145,7 +149,7 @@ if __name__ == "__main__":
     lx = 0.655
     namen = klassennamen(P["verhaeltnis_grenzen"])
     eintraege = [Patch(facecolor=f, edgecolor="#777777", label=f"{n}  ({zahl(100 * anzahl.get(k, 0) / mit, 0)} %)")
-                 for k, (f, n) in enumerate(zip(RAMPE, namen))]
+                 for k, (f, n) in enumerate(zip(RAMPEN[len(P["verhaeltnis_grenzen"]) + 1], namen))]
     sonder = sondernamen(P)
     eintraege += [Patch(**SONDER[k], label=f"{sonder[k]}  ({anzahl.get(k, 0)} Zellen)") for k in SONDER]
     fig.legend(handles=eintraege, loc="upper left", bbox_to_anchor=(lx, 0.86), frameon=False, fontsize=10.5,
@@ -173,5 +177,5 @@ if __name__ == "__main__":
         fig.savefig(datei, dpi=200, facecolor="white", metadata={"Date": None} if endung == "svg" else None)
         print(datei, f"({datei.stat().st_size / 1e3:.0f} kB)")
     print(f"Zuschlag {zuschlag:g} min: Median {statistics.median(werte):.2f} über {mit} Zellen; ohne Zuschlag "
-          f"{statistics.median(ohne):.2f}; Anteile {[round(100 * anzahl.get(k, 0) / mit) for k in range(len(RAMPE))]} %; "
+          f"{statistics.median(ohne):.2f}; Anteile {[round(100 * anzahl.get(k, 0) / mit) for k in range(len(P['verhaeltnis_grenzen']) + 1)]} %; "
           f"Sonderfälle {[(k, anzahl.get(k, 0)) for k in SONDER]}")
