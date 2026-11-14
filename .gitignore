@@ -32,5 +32,6 @@ Thumbs.db
 /daten/*.geojson
 *.netz.pickle
 
-# lokale Werkzeug-Einstellungen
+# lokale Werkzeug-Einstellungen und interne Notizen
 .claude/
+CLAUDE.local.md
