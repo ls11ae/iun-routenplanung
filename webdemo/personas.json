@@ -20,7 +20,7 @@
     {"id": "fuss_verboten", "name": "Für Fußgänger gesperrt", "einheit": "m", "gewicht_einheit": "s je m", "max": 20, "schritt": 0.5, "nur_sperre": true, "beschreibung": "Meter auf Wegen, die zu Fuß nicht benutzt werden dürfen (foot=no, Kraftfahrstraße, access=private)."},
     {"id": "rad_verboten", "name": "Für Fahrräder gesperrt", "einheit": "m", "gewicht_einheit": "s je m", "max": 20, "schritt": 0.5, "nur_sperre": true, "beschreibung": "Meter auf Wegen, auf denen das Rad weder gefahren noch geschoben werden darf."}
   ],
-  "kennzahlen": ["laenge", "zeit", "hauptstrasse", "treppe", "querung_ohne_ampel", "querung_akustisch", "anstieg"],
+  "kennzahlen": ["laenge", "zeit", "hauptstrasse", "treppe", "querung_ohne_ampel", "querung_ampel_stumm", "querung_ohne_bodenindikator", "anstieg"],
   "personas": [
     {
       "id": "fuss",

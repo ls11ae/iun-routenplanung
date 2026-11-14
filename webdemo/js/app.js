@@ -162,7 +162,7 @@
       <thead><tr><th scope="col"><span class="nur-vorleser">Kennzahl</span></th>${ergebnisse.map(({ p }) =>
         `<th scope="col">${A.strichprobe(p, 40)}${p.name.replace(" (Standard)", "")}</th>`).join("")}</tr></thead>
       <tbody>${zeilen.map((id) => `<tr><th scope="row" title="${id === "zeit" || id === "kosten" ? "" : A.kriterium(id).beschreibung}">${A.name(id)}</th>${
-        ergebnisse.map(({ r }) => `<td>${r.kanten ? A.format(id, r.kennzahlen[id]) : "–"}</td>`).join("")}</tr>`).join("")}</tbody>`;
+        ergebnisse.map(({ p, r }) => `<td>${r.kanten && (id !== "rad_schieben" || p.tempo_schieben) ? A.format(id, r.kennzahlen[id]) : "–"}</td>`).join("")}</tr>`).join("")}</tbody>`;
     const hinweise = [];
     for (const { p, r } of ergebnisse) {
       if (!r.kanten) { hinweise.push(`<b>${p.name}:</b> keine Route gefunden.`); continue; }
