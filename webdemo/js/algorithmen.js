@@ -418,12 +418,12 @@
         const z = messen(() => lauf(algo, metric, s, t));
         if (!basis) basis = { dist: r.dist, ms: z.ms, settled: r.settled };
         zeilen.push(`<tr><th scope="row" title="${vorberechnung(algo, metric)}">${KURZ[algo]}</th><td>${zahl(r.settled)}</td><td>${zahl(r.relaxed)}</td>` +
-          `<td>${zahl(z.ms, z.ms < 10 ? 2 : 1)}</td><td>${zahl(basis.ms / z.ms, 1)}-mal</td><td>${r.dist === basis.dist ? '✓ gleich' : '✗ ' + r.dist}</td></tr>`);
+          `<td>${zahl(basis.settled / r.settled, 1)}-mal</td><td>${zahl(z.ms, z.ms < 10 ? 2 : 1)}</td><td>${zahl(basis.ms / z.ms, 1)}-mal</td><td>${r.dist === basis.dist ? '✓ gleich' : '✗ ' + r.dist}</td></tr>`);
       }
       const ort = (v) => nameOf(v) || 'Knoten ' + v;
       $('vergleich').innerHTML = `<div class="tabellenrahmen"><table class="kennzahlen">
         <caption>${ort(s)} → ${ort(t)}, Gewicht ${metric === 'fast' ? 'schnell' : 'ruhig'}: Reisezeit ${zahl(basis.dist / 600, 1)} min</caption>
-        ${kopf(['Algorithmus', 'abgearbeitete Knoten', 'relaxierte Kanten', 'Laufzeit (ms)', 'schneller als Dijkstra', 'Distanz'])}
+        ${kopf(['Algorithmus', 'abgearbeitete Knoten', 'relaxierte Kanten', 'weniger Knoten als Dijkstra', 'Laufzeit (ms)', 'schneller als Dijkstra (Laufzeit)', 'Distanz'])}
         <tbody>${zeilen.join('')}</tbody></table></div>
         <p class="leise">Vorberechnung: ALT ${vorberechnung('alt', metric)}; CH ${vorberechnung('ch', metric)}.</p>`;
     }, 30);
@@ -457,9 +457,9 @@
       const d = summe.dijkstra;
       $('zufall-ergebnis').innerHTML = `<div class="tabellenrahmen"><table class="kennzahlen">
         <caption>${zahl(anzahl)} zufällige Paare, Gewicht ${metric === 'fast' ? 'schnell' : 'ruhig'}: Mittelwerte je Anfrage</caption>
-        ${kopf(['Algorithmus', 'abgearbeitete Knoten', 'relaxierte Kanten', 'Laufzeit (ms)', 'schneller als Dijkstra'])}
+        ${kopf(['Algorithmus', 'abgearbeitete Knoten', 'relaxierte Kanten', 'weniger Knoten als Dijkstra', 'Laufzeit (ms)', 'schneller als Dijkstra (Laufzeit)'])}
         <tbody>${algos.map((a) => `<tr><th scope="row">${KURZ[a]}</th><td>${zahl(summe[a].settled / anzahl)}</td><td>${zahl(summe[a].relaxed / anzahl)}</td>` +
-          `<td>${zahl(summe[a].ms / anzahl, 2)}</td><td>${zahl(d.ms / summe[a].ms, 1)}-mal</td></tr>`).join('')}</tbody></table></div>
+          `<td>${zahl(d.settled / summe[a].settled, 1)}-mal</td><td>${zahl(summe[a].ms / anzahl, 2)}</td><td>${zahl(d.ms / summe[a].ms, 1)}-mal</td></tr>`).join('')}</tbody></table></div>
         <p>${abweichungen === 0
           ? `<b>✓ Prüfung bestanden:</b> Alle ${algos.length} Algorithmen liefern für alle ${zahl(anzahl)} Paare dieselbe Distanz.`
           : `<b>✗ ${abweichungen} Abweichungen</b> zwischen den Algorithmen. Das dürfte nicht vorkommen.`}</p>
