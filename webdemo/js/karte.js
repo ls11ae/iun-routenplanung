@@ -166,13 +166,13 @@
     }
   };
 
-  /** Marke für Start ("S", rund) und Ziel ("Z", eckig): Buchstabe und Form, nicht nur Farbe. */
+  /** Marke für Start ("S", rund) und Ziel ("Z", englisch "D", eckig): Buchstabe und Form, nicht nur Farbe. */
   K.marke = function (art, latlng, ziehbar) {
-    const start = art === "start";
+    const start = art === "start", w = IUNSprache.w;
+    const name = start ? "Start" : w("Ziel", "Destination");
     return L.marker(latlng, {
-      draggable: !!ziehbar, keyboard: true, zIndexOffset: 1000,
-      title: start ? "Start" : "Ziel", alt: start ? "Start" : "Ziel",
-      icon: L.divIcon({ className: "", html: `<div class="marke ${start ? "marke-start" : "marke-ziel"}">${start ? "S" : "Z"}</div>`, iconSize: [28, 28], iconAnchor: [14, 14] }),
+      draggable: !!ziehbar, keyboard: true, zIndexOffset: 1000, title: name, alt: name,
+      icon: L.divIcon({ className: "", html: `<div class="marke ${start ? "marke-start" : "marke-ziel"}">${start ? "S" : w("Z", "D")}</div>`, iconSize: [28, 28], iconAnchor: [14, 14] }),
     });
   };
 

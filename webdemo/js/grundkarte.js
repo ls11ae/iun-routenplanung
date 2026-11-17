@@ -5,7 +5,8 @@
 (function () {
   "use strict";
   const G = (window.IUNGrundkarte = {});
-  G.NENNUNG = '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a> (ODbL)';
+  const w = window.IUNSprache ? window.IUNSprache.w : (de) => de;
+  G.NENNUNG = `© <a href="https://www.openstreetmap.org/copyright">${w("OpenStreetMap-Mitwirkende", "OpenStreetMap contributors")}</a> (ODbL)`;
 
   const STIL = {
     gruen: { stroke: false, fill: true, fillColor: "#dcead0", fillOpacity: 1 },

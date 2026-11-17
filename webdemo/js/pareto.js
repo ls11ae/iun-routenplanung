@@ -3,7 +3,7 @@
  * Summe findet, und dünnt fast identische Routen aus. */
 (function () {
   "use strict";
-  const A = window.APP, K = window.IUNKarte;
+  const A = window.APP, K = window.IUNKarte, S = window.IUNSprache, w = S.w;
   const $ = (s) => document.querySelector(s);
   const BLAU = "#0072B2", ROT = "#D55E00", TINTE = "#1b1b1b";
   const P = { ergebnis: null, auswahl: -1, ebene: null };
@@ -14,18 +14,20 @@
     if (id === "anstieg") return [5, 30, 1];
     return A.kriterium(id).einheit === "Stück" ? [1, 5, 1] : [100, 1000, 10];
   }
-  const einheit = (id) => (id === "zeit" ? "s" : A.kriterium(id).einheit === "Stück" ? "Stück" : "m");
-  const achsentext = (id) => (id === "zeit" ? "Zeit (min)" : id === "laenge" ? "Länge (m)" : `${A.name(id)} (${A.kriterium(id).einheit})`);
+  const STUECK = w("Stück", "items");
+  const einheit = (id) => (id === "zeit" ? "s" : A.kriterium(id).einheit === "Stück" ? STUECK : "m");
+  const achsentext = (id) => (id === "zeit" ? w("Zeit (min)", "Time (min)") : id === "laenge" ? w("Länge (m)", "Length (m)")
+    : `${A.name(id)} (${A.kriterium(id).einheit === "Stück" ? STUECK : A.kriterium(id).einheit})`);
   const achsenwert = (id, w) => (id === "zeit" ? w / 60 : w);
 
   const VORSCHLAG = { fuss: "fahrbahn", rad: "hauptstrasse", rollstuhl: "belag_unbekannt", blind: "querung_ohne_ampel", eigene: "hauptstrasse" };
 
   function auswahlen() {
     const wahl = $("#pareto-persona"), alt = wahl.value;
-    wahl.innerHTML = A.allePersonas().map((p) => `<option value="${p.id}">${p.name}</option>`).join("");
+    wahl.innerHTML = A.allePersonas().map((p) => `<option value="${p.id}">${S.feld(p, "name")}</option>`).join("");
     wahl.value = alt || "rad";
     if (!$("#pareto-a").options.length) {
-      const opt = '<option value="zeit">Zeit</option>' + A.kriterien.filter((k) => !k.nur_sperre).map((k) => `<option value="${k.id}">${k.name}</option>`).join("");
+      const opt = `<option value="zeit">${w("Zeit", "Time")}</option>` + A.kriterien.filter((k) => !k.nur_sperre).map((k) => `<option value="${k.id}">${S.feld(k, "name")}</option>`).join("");
       $("#pareto-a").innerHTML = opt; $("#pareto-b").innerHTML = opt;
       $("#pareto-a").value = "zeit"; $("#pareto-b").value = VORSCHLAG[wahl.value];
     }
@@ -33,8 +35,8 @@
 
   function berechnen() {
     const p = A.persona($("#pareto-persona").value), a = $("#pareto-a").value, b = $("#pareto-b").value;
-    if (a === b) { $("#pareto-status").textContent = "Bitte zwei verschiedene Kriterien wählen."; return; }
-    $("#pareto-status").textContent = "Rechnet …";
+    if (a === b) { $("#pareto-status").textContent = w("Bitte zwei verschiedene Kriterien wählen.", "Please choose two different criteria."); return; }
+    $("#pareto-status").textContent = w("Rechnet …", "Computing …");
     $("#pareto-start").disabled = true;
     setTimeout(() => {
       const e = A.endpunkte(p), FA = IUN.kriteriumFeld(A.netz, p, a), FB = IUN.kriteriumFeld(A.netz, p, b);
@@ -46,7 +48,7 @@
       $("#pareto-start").disabled = false;
       if (!r.routen.length) {
         P.ergebnis = null; $("#pareto-ergebnis").hidden = true; P.ebene.clearLayers();
-        $("#pareto-status").textContent = "Für diese Persona gibt es keinen Weg zwischen Start und Ziel.";
+        $("#pareto-status").textContent = w("Für diese Persona gibt es keinen Weg zwischen Start und Ziel.", "For this persona there is no path between start and destination.");
         return;
       }
       P.ergebnis = { p, a, b, routen: r.routen, art: IUN.gestuetzt(r.routen), marken: r.marken, ms, abgebrochen: r.abgebrochen,
@@ -55,7 +57,7 @@
       for (const [x, id] of [["a", a], ["b", b]]) {
         const [vor, max, schritt] = spielraum(id), regler = $("#spiel-" + x);
         regler.max = max; regler.step = schritt; regler.value = vor;
-        $("#spiel-" + x + "-name").textContent = "Spielraum " + A.name(id);
+        $("#spiel-" + x + "-name").textContent = w("Spielraum ", "Tolerance ") + A.name(id);
       }
       $("#pareto-ergebnis").hidden = false;
       zeigen();
@@ -66,23 +68,33 @@
     const E = P.ergebnis;
     if (!E) return;
     const ta = +$("#spiel-a").value, tb = +$("#spiel-b").value;
-    $("#spiel-a-wert").textContent = `${A.de(ta)} ${einheit(E.a)}`;
-    $("#spiel-b-wert").textContent = `${A.de(tb)} ${einheit(E.b)}`;
+    $("#spiel-a-wert").textContent = `${A.zahl(ta)} ${einheit(E.a)}`;
+    $("#spiel-b-wert").textContent = `${A.zahl(tb)} ${einheit(E.b)}`;
     E.relevant = IUN.relevante(E.routen, ta, tb);
     if (P.auswahl < 0 || P.auswahl >= E.routen.length) P.auswahl = E.relevant[0];
     const n = E.routen.length, mit = E.art.filter((x) => x > 0).length;
-    $("#pareto-status").innerHTML =
-      `<b>${A.de(n)}</b> Pareto-optimale ${n === 1 ? "Route" : "Routen"}. ` +
-      `<b>${A.de(mit)}</b> davon findet eine gewichtete Summe, <b>${A.de(n - mit)}</b> nicht. ` +
+    const z = A.zahl;
+    $("#pareto-status").innerHTML = w(
+      `<b>${z(n)}</b> Pareto-optimale ${n === 1 ? "Route" : "Routen"}. ` +
+      `<b>${z(mit)}</b> davon findet eine gewichtete Summe, <b>${z(n - mit)}</b> nicht. ` +
       `Spürbar verschieden: <b>${E.relevant.length}</b>.` +
-      (E.abgebrochen ? " Achtung: Die Suche wurde wegen zu vieler Marken abgebrochen; die Liste ist unvollständig." : "");
-    $("#pareto-aufwand").innerHTML =
-      `Aufwand: ${A.de(E.marken)} Marken (Labels) erzeugt, ${A.de(E.abgeschlossen)} davon abgearbeitet, ${A.de(E.ms)} ms. ` +
-      `Zum Vergleich: Dijkstra für ${A.name(E.a)} allein arbeitet ${A.de(E.dijkstra.knoten)} Knoten ab und braucht ${A.de(E.dijkstra.ms)} ms. ` +
-      `Marken, die das Ziel nachweislich nicht mehr verbessern können, werden verworfen; sonst wären es um ein Vielfaches mehr.`;
-    $("#pareto-beschreibung").textContent =
+      (E.abgebrochen ? " Achtung: Die Suche wurde wegen zu vieler Marken abgebrochen; die Liste ist unvollständig." : ""),
+      `<b>${z(n)}</b> Pareto-optimal ${n === 1 ? "route" : "routes"}. ` +
+      `<b>${z(mit)}</b> of them are found by a weighted sum, <b>${z(n - mit)}</b> are not. ` +
+      `Noticeably different: <b>${E.relevant.length}</b>.` +
+      (E.abgebrochen ? " Caution: the search was stopped because of too many labels; the list is incomplete." : ""));
+    $("#pareto-aufwand").innerHTML = w(
+      `Aufwand: ${z(E.marken)} Marken (Labels) erzeugt, ${z(E.abgeschlossen)} davon abgearbeitet, ${z(E.ms)} ms. ` +
+      `Zum Vergleich: Dijkstra für ${A.name(E.a)} allein arbeitet ${z(E.dijkstra.knoten)} Knoten ab und braucht ${z(E.dijkstra.ms)} ms. ` +
+      `Marken, die das Ziel nachweislich nicht mehr verbessern können, werden verworfen; sonst wären es um ein Vielfaches mehr.`,
+      `Effort: ${z(E.marken)} labels created, ${z(E.abgeschlossen)} of them settled, ${z(E.ms)} ms. ` +
+      `For comparison: Dijkstra for ${A.name(E.a)} alone settles ${z(E.dijkstra.knoten)} nodes and takes ${z(E.dijkstra.ms)} ms. ` +
+      `Labels that provably cannot improve the destination any more are discarded; otherwise there would be many times as many.`);
+    $("#pareto-beschreibung").textContent = w(
       `Streudiagramm mit ${n} Pareto-optimalen Routen: ${achsentext(E.a)} gegen ${achsentext(E.b)}. ` +
-      `${mit} Routen liegen auf der unteren konvexen Hülle und werden von einer gewichteten Summe gefunden, ${n - mit} nicht.`;
+      `${mit} Routen liegen auf der unteren konvexen Hülle und werden von einer gewichteten Summe gefunden, ${n - mit} nicht.`,
+      `Scatter plot of ${n} Pareto-optimal routes: ${achsentext(E.a)} against ${achsentext(E.b)}. ` +
+      `${mit} routes lie on the lower convex hull and are found by a weighted sum, ${n - mit} are not.`);
     diagramm();
     tabellen();
     karte();
@@ -106,8 +118,8 @@
     const [x0, x1] = bereich(xs), [y0, y1] = bereich(ys);
     const X = (v) => l + (v - x0) / (x1 - x0) * (B - l - r), Y = (v) => H - u - (v - y0) / (y1 - y0) * (H - o - u);
     const tx = schritte(x0, x1, 5), ty = schritte(y0, y1, 5);
-    const zahl = (v, t) => A.de(v, Math.min(t.stellen, 2));
-    let s = `<title id="pareto-titel">Pareto-Front: ${achsentext(E.a)} gegen ${achsentext(E.b)}</title><desc id="pareto-beschreibung">${$("#pareto-beschreibung").textContent}</desc>`;
+    const zahl = (v, t) => A.zahl(v, Math.min(t.stellen, 2));
+    let s = `<title id="pareto-titel">${w(`Pareto-Front: ${achsentext(E.a)} gegen ${achsentext(E.b)}`, `Pareto front: ${achsentext(E.a)} against ${achsentext(E.b)}`)}</title><desc id="pareto-beschreibung">${$("#pareto-beschreibung").textContent}</desc>`;
     s += '<g class="gitter">' + tx.liste.map((v) => `<line x1="${X(v)}" x2="${X(v)}" y1="${o}" y2="${H - u}"/>`).join("") +
       ty.liste.map((v) => `<line x1="${l}" x2="${B - r}" y1="${Y(v)}" y2="${Y(v)}"/>`).join("") + "</g>";
     s += `<g class="achse"><path d="M${l} ${o} V${H - u} H${B - r}"/></g>`;
@@ -144,17 +156,17 @@
   function punkttext(i) {
     const E = P.ergebnis, z = E.routen[i], nr = E.relevant.indexOf(i);
     return `${nr >= 0 ? "Route " + (nr + 1) + ": " : ""}${A.format(E.a, z.a)} · ${A.format(E.b, z.b)}<br>` +
-      (E.art[i] > 0 ? "findet eine gewichtete Summe" : "findet keine gewichtete Summe");
+      (E.art[i] > 0 ? w("findet eine gewichtete Summe", "found by a weighted sum") : w("findet keine gewichtete Summe", "not found by any weighted sum"));
   }
 
   // ------------------------------------------------------------------ Tabellen und Karte
 
   function tabellen() {
     const E = P.ergebnis;
-    const kopf = `<thead><tr><th scope="col">Nr.</th><th scope="col">${A.name(E.a)}</th><th scope="col">${A.name(E.b)}</th><th scope="col">gewichtete Summe</th></tr></thead>`;
+    const kopf = `<thead><tr><th scope="col">${w("Nr.", "No.")}</th><th scope="col">${A.name(E.a)}</th><th scope="col">${A.name(E.b)}</th><th scope="col">${w("gewichtete Summe", "weighted sum")}</th></tr></thead>`;
     const zeile = (i, nr, klickbar) => `<tr data-i="${i}" ${klickbar ? 'tabindex="0"' : ""} class="${i === P.auswahl && klickbar ? "auswahl" : ""}">
-      <th scope="row">${nr}</th><td>${A.format(E.a, E.routen[i].a)}</td><td>${A.format(E.b, E.routen[i].b)}</td><td>${E.art[i] > 0 ? "findet sie" : "findet sie nicht"}</td></tr>`;
-    $("#pareto-tabelle").innerHTML = "<caption>Spürbar verschiedene Routen</caption>" + kopf +
+      <th scope="row">${nr}</th><td>${A.format(E.a, E.routen[i].a)}</td><td>${A.format(E.b, E.routen[i].b)}</td><td>${E.art[i] > 0 ? w("findet sie", "finds it") : w("findet sie nicht", "does not find it")}</td></tr>`;
+    $("#pareto-tabelle").innerHTML = `<caption>${w("Spürbar verschiedene Routen", "Noticeably different routes")}</caption>` + kopf +
       "<tbody>" + E.relevant.map((i, nr) => zeile(i, nr + 1, true)).join("") + "</tbody>";
     $("#pareto-alle").innerHTML = kopf + "<tbody>" + E.routen.map((z, i) => zeile(i, i + 1, false)).join("") + "</tbody>";
   }
@@ -179,7 +191,8 @@
     P.ergebnis = null;
     P.ebene.clearLayers();
     $("#pareto-ergebnis").hidden = true;
-    $("#pareto-status").textContent = "Start, Ziel oder Auswahl haben sich geändert: bitte neu berechnen.";
+    $("#pareto-status").textContent = w("Start, Ziel oder Auswahl haben sich geändert: bitte neu berechnen.",
+      "Start, destination or selection have changed: please compute again.");
   }
 
   document.addEventListener("iun-bereit", () => {

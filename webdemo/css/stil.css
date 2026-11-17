@@ -63,6 +63,8 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 }
 .reiter:hover { background: var(--grund); }
 .reiter[aria-selected="true"], .reiter[aria-current="page"] { border-bottom-color: var(--akzent); font-weight: 650; }
+/* Sprachwahl: als Knopf mit Rahmen erkennbar, nicht als weiterer Reiter */
+.reiter.sprachwahl { border: 1px solid var(--linie); border-radius: 4px; margin-left: 0.4rem; }
 
 .arbeitsflaeche {
   display: grid;
@@ -203,4 +205,8 @@ details[open] > summary { margin-bottom: 0.4rem; }
   .arbeitsflaeche { display: block; height: auto; }
   .karten { height: 56dvh; min-height: 300px; }
   .seite { border-left: 0; border-top: 1px solid var(--linie); overflow: visible; }
+  /* Sprachwahl oben rechts neben dem Titel statt in einer eigenen Zeile */
+  .seitenkopf { position: relative; }
+  .seitenkopf > div:first-child { padding-right: 5.6rem; }
+  .reiter.sprachwahl { position: absolute; top: 0.5rem; right: 0.75rem; margin: 0; padding: 0.25rem 0.6rem; }
 }

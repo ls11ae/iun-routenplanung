@@ -3,130 +3,133 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Die beste Route für wen? – Informatik und Nachhaltigkeit</title>
-  <meta name="description" content="Webdemo zur Routenplanung: Routen für verschiedene Personen vergleichen und Pareto-optimale Routen erkunden. Wegenetz Dortmund-Süd aus OpenStreetMap.">
+  <title data-en="The best route for whom? – Computer Science and Sustainability">Die beste Route für wen? – Informatik und Nachhaltigkeit</title>
+  <meta name="description" content="Webdemo zur Routenplanung: Routen für verschiedene Personen vergleichen und Pareto-optimale Routen erkunden. Wegenetz Dortmund-Süd aus OpenStreetMap."
+        data-en-content="Route planning demo: compare routes for different people and explore Pareto-optimal routes. Path network of southern Dortmund from OpenStreetMap.">
   <link rel="stylesheet" href="vendor/leaflet-1.9.4/leaflet.css">
   <link rel="stylesheet" href="css/stil.css">
 </head>
 <body>
   <header class="seitenkopf">
     <div>
-      <h1>Die beste Route für wen?</h1>
-      <div class="untertitel">Informatik und Nachhaltigkeit · TU Dortmund · Wegenetz Dortmund-Süd</div>
+      <h1 data-en="The best route for whom?">Die beste Route für wen?</h1>
+      <div class="untertitel" data-en="Computer Science and Sustainability · TU Dortmund · Path network of southern Dortmund">Informatik und Nachhaltigkeit · TU Dortmund · Wegenetz Dortmund-Süd</div>
     </div>
-    <nav aria-label="Ansichten">
-      <div role="tablist" aria-label="Ansichten der Demo" style="display:contents">
-        <button class="reiter" role="tab" id="reiter-routen" aria-controls="feld-routen" aria-selected="true">Routen vergleichen</button>
-        <a class="reiter" href="algorithmen.html">Algorithmen</a>
-        <button class="reiter" role="tab" id="reiter-pareto" aria-controls="feld-pareto" aria-selected="false">Pareto-Front</button>
+    <nav aria-label="Ansichten" data-en-aria-label="Views">
+      <div role="tablist" aria-label="Ansichten der Demo" data-en-aria-label="Views of the demo" style="display:contents">
+        <button class="reiter" role="tab" id="reiter-routen" aria-controls="feld-routen" aria-selected="true" data-en="Compare routes">Routen vergleichen</button>
+        <a class="reiter" href="algorithmen.html" data-en="Algorithms">Algorithmen</a>
+        <button class="reiter" role="tab" id="reiter-pareto" aria-controls="feld-pareto" aria-selected="false" data-en="Pareto front">Pareto-Front</button>
       </div>
-      <a class="reiter" href="reisezeit.html">Nahverkehr gegen Auto</a>
+      <a class="reiter" href="reisezeit.html" data-en="Public transport vs. car">Nahverkehr gegen Auto</a>
     </nav>
   </header>
 
   <main class="arbeitsflaeche">
-    <section class="karten" id="karten" aria-label="Karte">
-      <div class="karte" id="karte" role="application" aria-label="Karte von Dortmund-Süd. Start und Ziel lassen sich auch rechts über die Auswahllisten setzen."></div>
+    <section class="karten" id="karten" aria-label="Karte" data-en-aria-label="Map">
+      <div class="karte" id="karte" role="application" aria-label="Karte von Dortmund-Süd. Start und Ziel lassen sich auch rechts über die Auswahllisten setzen."
+           data-en-aria-label="Map of southern Dortmund. Start and destination can also be set with the drop-down lists on the right."></div>
     </section>
 
     <aside class="seite" id="seite">
-      <div id="meldung" class="hinweis" role="status" aria-live="polite">Das Wegenetz wird geladen …</div>
+      <div id="meldung" class="hinweis" role="status" aria-live="polite" data-en="Loading the path network …">Das Wegenetz wird geladen …</div>
 
       <section id="startziel" hidden>
-        <h2>Start und Ziel</h2>
+        <h2 data-en="Start and destination">Start und Ziel</h2>
         <div class="startziel">
-          <label for="wahl-start">Start</label>
+          <label for="wahl-start" data-en="Start">Start</label>
           <select id="wahl-start"></select>
-          <button class="knopf" id="setze-start" aria-pressed="false" aria-label="Start auf der Karte wählen">auf Karte</button>
-          <label for="wahl-ziel">Ziel</label>
+          <button class="knopf" id="setze-start" aria-pressed="false" aria-label="Start auf der Karte wählen" data-en-aria-label="Choose the start on the map" data-en="on map">auf Karte</button>
+          <label for="wahl-ziel" data-en="Destination">Ziel</label>
           <select id="wahl-ziel"></select>
-          <button class="knopf" id="setze-ziel" aria-pressed="false" aria-label="Ziel auf der Karte wählen">auf Karte</button>
+          <button class="knopf" id="setze-ziel" aria-pressed="false" aria-label="Ziel auf der Karte wählen" data-en-aria-label="Choose the destination on the map" data-en="on map">auf Karte</button>
         </div>
-        <p class="leise" id="klickhinweis">Die Marken <b>S</b> und <b>Z</b> lassen sich auch verschieben.</p>
+        <p class="leise" id="klickhinweis" data-en="You can also drag the markers <b>S</b> and <b>D</b>.">Die Marken <b>S</b> und <b>Z</b> lassen sich auch verschieben.</p>
       </section>
 
       <!-- ------------------------------------------------ Routen vergleichen -->
       <section id="feld-routen" role="tabpanel" aria-labelledby="reiter-routen" hidden>
-        <h2>Für wen?</h2>
-        <p class="leise">Jede Persona bewertet Wege anders: Kosten einer Strecke = Zeit + Aufschläge. Wählen Sie eine oder mehrere aus.</p>
+        <h2 data-en="For whom?">Für wen?</h2>
+        <p class="leise" data-en="Each persona rates paths differently: cost of a segment = time + penalties. Select one or more.">Jede Persona bewertet Wege anders: Kosten einer Strecke = Zeit + Aufschläge. Wählen Sie eine oder mehrere aus.</p>
         <ul class="personas" id="personas"></ul>
 
         <details id="eigene-einstellung">
-          <summary>Gewichte selbst einstellen</summary>
-          <p class="leise">Die „Eigene Einstellung“ erscheint als weitere Route. Ein Gewicht sagt, wie viele Sekunden Umweg ein Meter (oder ein Stück) wert ist.</p>
+          <summary data-en="Set the weights yourself">Gewichte selbst einstellen</summary>
+          <p class="leise" data-en="“Custom settings” appears as an additional route. A weight states how many seconds of detour one meter (or one item) is worth.">Die „Eigene Einstellung“ erscheint als weitere Route. Ein Gewicht sagt, wie viele Sekunden Umweg ein Meter (oder ein Stück) wert ist.</p>
           <div class="zeile">
-            <label for="vorlage">Vorlage</label>
+            <label for="vorlage" data-en="Template">Vorlage</label>
             <select id="vorlage"></select>
-            <button class="knopf" id="vorlage-nehmen">übernehmen</button>
+            <button class="knopf" id="vorlage-nehmen" data-en="apply">übernehmen</button>
           </div>
           <div class="zeile">
-            <label for="tempo">Tempo</label>
+            <label for="tempo" data-en="Speed">Tempo</label>
             <input type="number" id="tempo" min="1" max="30" step="0.5" style="width:5rem"> km/h
           </div>
           <div id="regler"></div>
         </details>
 
-        <h2>Kennzahlen der Routen</h2>
+        <h2 data-en="Route metrics">Kennzahlen der Routen</h2>
         <div class="tabellenrahmen"><table class="kennzahlen" id="kennzahlen"></table></div>
         <div class="knopfreihe">
-          <label><input type="checkbox" id="alle-kriterien"> alle Kriterien anzeigen</label>
+          <label><input type="checkbox" id="alle-kriterien"> <span data-en="show all criteria">alle Kriterien anzeigen</span></label>
         </div>
         <div id="routenhinweise" class="leise"></div>
       </section>
 
       <!-- ------------------------------------------------ Pareto-Front -->
       <section id="feld-pareto" role="tabpanel" aria-labelledby="reiter-pareto" hidden>
-        <h2>Alle Kompromisse zwischen zwei Kriterien</h2>
-        <p class="leise">Eine Route ist Pareto-optimal, wenn keine andere in beiden Kriterien mindestens so gut und in einem besser ist. Hier werden alle Pareto-optimalen Routen exakt berechnet, mit einem Label-Setting-Algorithmus: Statt einer Distanz verwaltet er an jedem Knoten eine Menge nicht dominierter Marken (Labels).</p>
-        <div class="zeile"><label for="pareto-persona">Tempo und Sperren von</label><select id="pareto-persona"></select></div>
-        <div class="zeile"><label for="pareto-a">Kriterium 1</label><select id="pareto-a"></select></div>
-        <div class="zeile"><label for="pareto-b">Kriterium 2</label><select id="pareto-b"></select></div>
-        <div class="knopfreihe"><button class="knopf haupt" id="pareto-start">Pareto-Front berechnen</button></div>
+        <h2 data-en="All trade-offs between two criteria">Alle Kompromisse zwischen zwei Kriterien</h2>
+        <p class="leise" data-en="A route is Pareto-optimal if no other route is at least as good in both criteria and better in one. Here all Pareto-optimal routes are computed exactly, with a label-setting algorithm: instead of one distance it keeps a set of non-dominated labels at every node.">Eine Route ist Pareto-optimal, wenn keine andere in beiden Kriterien mindestens so gut und in einem besser ist. Hier werden alle Pareto-optimalen Routen exakt berechnet, mit einem Label-Setting-Algorithmus: Statt einer Distanz verwaltet er an jedem Knoten eine Menge nicht dominierter Marken (Labels).</p>
+        <div class="zeile"><label for="pareto-persona" data-en="Speed and blocked paths of">Tempo und Sperren von</label><select id="pareto-persona"></select></div>
+        <div class="zeile"><label for="pareto-a" data-en="Criterion 1">Kriterium 1</label><select id="pareto-a"></select></div>
+        <div class="zeile"><label for="pareto-b" data-en="Criterion 2">Kriterium 2</label><select id="pareto-b"></select></div>
+        <div class="knopfreihe"><button class="knopf haupt" id="pareto-start" data-en="Compute Pareto front">Pareto-Front berechnen</button></div>
         <p id="pareto-status" role="status" aria-live="polite"></p>
         <p id="pareto-aufwand" class="leise"></p>
         <div id="pareto-ergebnis" hidden>
           <svg class="diagramm" id="pareto-diagramm" viewBox="0 0 400 300" role="img" aria-labelledby="pareto-titel pareto-beschreibung">
-            <title id="pareto-titel">Pareto-Front</title>
+            <title id="pareto-titel" data-en="Pareto front">Pareto-Front</title>
             <desc id="pareto-beschreibung"></desc>
           </svg>
-          <ul class="legende" aria-label="Legende des Diagramms">
-            <li><svg width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="5" fill="#0072B2"/></svg> findet eine gewichtete Summe</li>
-            <li><svg width="16" height="16" aria-hidden="true"><path d="M8 2 L14 8 L8 14 L2 8 Z" fill="#fff" stroke="#D55E00" stroke-width="2"/></svg> findet keine gewichtete Summe</li>
-            <li><svg width="20" height="16" aria-hidden="true"><circle cx="10" cy="8" r="7" fill="none" stroke="#1b1b1b" stroke-width="1.5"/></svg> spürbar verschieden (nummeriert)</li>
-            <li><svg width="26" height="16" aria-hidden="true"><line x1="1" y1="8" x2="25" y2="8" stroke="#0072B2" stroke-width="1.5" stroke-dasharray="4 3"/></svg> untere konvexe Hülle</li>
+          <ul class="legende" aria-label="Legende des Diagramms" data-en-aria-label="Legend of the chart">
+            <li><svg width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="5" fill="#0072B2"/></svg> <span data-en="found by a weighted sum">findet eine gewichtete Summe</span></li>
+            <li><svg width="16" height="16" aria-hidden="true"><path d="M8 2 L14 8 L8 14 L2 8 Z" fill="#fff" stroke="#D55E00" stroke-width="2"/></svg> <span data-en="not found by any weighted sum">findet keine gewichtete Summe</span></li>
+            <li><svg width="20" height="16" aria-hidden="true"><circle cx="10" cy="8" r="7" fill="none" stroke="#1b1b1b" stroke-width="1.5"/></svg> <span data-en="noticeably different (numbered)">spürbar verschieden (nummeriert)</span></li>
+            <li><svg width="26" height="16" aria-hidden="true"><line x1="1" y1="8" x2="25" y2="8" stroke="#0072B2" stroke-width="1.5" stroke-dasharray="4 3"/></svg> <span data-en="lower convex hull">untere konvexe Hülle</span></li>
           </ul>
-          <h3>Fast gleiche Routen ausdünnen</h3>
-          <p class="leise">Viele Pareto-optimale Routen unterscheiden sich kaum (etwa Straße und daneben eigens erfasster Radweg). Behalten wird eine Route nur, wenn sie im zweiten Kriterium spürbar spart und es keine fast gleich gute, aber deutlich bessere gibt.</p>
-          <div class="zeile"><label for="spiel-a" id="spiel-a-name">Spielraum 1</label><input type="range" id="spiel-a" min="0" max="100" value="25"><output id="spiel-a-wert" for="spiel-a"></output></div>
-          <div class="zeile"><label for="spiel-b" id="spiel-b-name">Spielraum 2</label><input type="range" id="spiel-b" min="0" max="100" value="25"><output id="spiel-b-wert" for="spiel-b"></output></div>
+          <h3 data-en="Thinning out near-identical routes">Fast gleiche Routen ausdünnen</h3>
+          <p class="leise" data-en="Many Pareto-optimal routes hardly differ (for example a road and a separately mapped cycle track next to it). A route is kept only if it saves noticeably in the second criterion and there is no almost equally good but clearly better one.">Viele Pareto-optimale Routen unterscheiden sich kaum (etwa Straße und daneben eigens erfasster Radweg). Behalten wird eine Route nur, wenn sie im zweiten Kriterium spürbar spart und es keine fast gleich gute, aber deutlich bessere gibt.</p>
+          <div class="zeile"><label for="spiel-a" id="spiel-a-name" data-en="Tolerance 1">Spielraum 1</label><input type="range" id="spiel-a" min="0" max="100" value="25"><output id="spiel-a-wert" for="spiel-a"></output></div>
+          <div class="zeile"><label for="spiel-b" id="spiel-b-name" data-en="Tolerance 2">Spielraum 2</label><input type="range" id="spiel-b" min="0" max="100" value="25"><output id="spiel-b-wert" for="spiel-b"></output></div>
           <div class="tabellenrahmen"><table class="kennzahlen" id="pareto-tabelle"></table></div>
-          <p class="leise">Zeile oder Punkt anklicken, um die Route auf der Karte hervorzuheben.</p>
+          <p class="leise" data-en="Click a row or a point to highlight the route on the map.">Zeile oder Punkt anklicken, um die Route auf der Karte hervorzuheben.</p>
           <details>
-            <summary>Alle Pareto-optimalen Routen als Tabelle</summary>
+            <summary data-en="All Pareto-optimal routes as a table">Alle Pareto-optimalen Routen als Tabelle</summary>
             <div class="tabellenrahmen" style="max-height: 16rem; overflow-y: auto"><table class="kennzahlen" id="pareto-alle"></table></div>
           </details>
         </div>
       </section>
 
       <details id="karteneinstellungen" hidden>
-        <summary>Karte und Daten ansehen</summary>
+        <summary data-en="Look at the map and data">Karte und Daten ansehen</summary>
         <div class="zeile">
-          <label for="hervorheben">Hervorheben</label>
+          <label for="hervorheben" data-en="Highlight">Hervorheben</label>
           <select id="hervorheben"></select>
         </div>
         <p class="leise" id="hervorheben-text"></p>
       </details>
 
       <footer class="fuss">
-        <p><b>Nur ein Prototyp für die Lehre.</b> Die Daten sind unvollständig und können falsch sein. Die Routen sind keine Empfehlung und keine Navigationshilfe, auch nicht für Menschen mit Behinderung.</p>
-        <p>Wege und Grundkarte: © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a> (ODbL)<span id="stand-wege"></span>. Höhen: DGM1, Geobasis NRW (Datenlizenz Deutschland Zero 2.0). Kartendarstellung mit <a href="https://leafletjs.com">Leaflet</a>.</p>
-        <p>Vereinfachungen: Einbahnstraßen werden nicht beachtet, Wartezeiten an Ampeln zählen nicht. Kriterien und Personas stehen im <a href="https://github.com/ls11ae/iun-routenplanung">Repository</a> in <code>wegenetz/routen_hilfen.py</code> und <code>webdemo/personas.json</code>.</p>
-        <p class="rechtliches"><a href="https://ae.cs.tu-dortmund.de/imprint/">Impressum</a> · <a href="https://ae.cs.tu-dortmund.de/privacy/">Datenschutz</a> · Die Seite wird über GitHub Pages ausgeliefert und lädt nichts von anderen Servern.</p>
+        <p data-en="<b>Only a prototype for teaching.</b> The data are incomplete and may be wrong. The routes are no recommendation and no navigation aid, not for people with disabilities either."><b>Nur ein Prototyp für die Lehre.</b> Die Daten sind unvollständig und können falsch sein. Die Routen sind keine Empfehlung und keine Navigationshilfe, auch nicht für Menschen mit Behinderung.</p>
+        <p data-en='Paths and base map: © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> (ODbL)<span id="stand-wege"></span>. Elevation: DGM1, Geobasis NRW (Datenlizenz Deutschland Zero 2.0). Map display with <a href="https://leafletjs.com">Leaflet</a>.'>Wege und Grundkarte: © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a> (ODbL)<span id="stand-wege"></span>. Höhen: DGM1, Geobasis NRW (Datenlizenz Deutschland Zero 2.0). Kartendarstellung mit <a href="https://leafletjs.com">Leaflet</a>.</p>
+        <p data-en='Simplifications: one-way streets are ignored, waiting times at traffic lights do not count. Criteria and personas are in the <a href="https://github.com/ls11ae/iun-routenplanung">repository</a> in <code>wegenetz/routen_hilfen.py</code> and <code>webdemo/personas.json</code>.'>Vereinfachungen: Einbahnstraßen werden nicht beachtet, Wartezeiten an Ampeln zählen nicht. Kriterien und Personas stehen im <a href="https://github.com/ls11ae/iun-routenplanung">Repository</a> in <code>wegenetz/routen_hilfen.py</code> und <code>webdemo/personas.json</code>.</p>
+        <p class="rechtliches" data-en='<a href="https://ae.cs.tu-dortmund.de/imprint/">Legal notice</a> · <a href="https://ae.cs.tu-dortmund.de/privacy/">Privacy</a> · The page is served by GitHub Pages and loads nothing from other servers.'><a href="https://ae.cs.tu-dortmund.de/imprint/">Impressum</a> · <a href="https://ae.cs.tu-dortmund.de/privacy/">Datenschutz</a> · Die Seite wird über GitHub Pages ausgeliefert und lädt nichts von anderen Servern.</p>
       </footer>
     </aside>
   </main>
   <div class="tipp" id="tipp" hidden></div>
 
+  <script src="js/sprache.js"></script>
   <script src="vendor/leaflet-1.9.4/leaflet.js"></script>
   <script src="js/routing.js"></script>
   <script src="js/kern.js"></script>

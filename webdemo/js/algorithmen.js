@@ -11,15 +11,16 @@
   const R = self.Routing;
   const P = new URLSearchParams(location.search);
   const COL = { blau: '#0072B2', rot: '#D55E00', gruen: '#009E73', rosa: '#CC79A7', tinte: '#1b1b1b' };
-  const NAMEN = { dijkstra: 'Dijkstra', bidir: 'Bidirektionaler Dijkstra', astar: 'A* (Luftlinie)',
-                  alt: 'ALT (A* mit Landmarken)', ch: 'Contraction Hierarchies', compare: 'Schnell und ruhig' };
-  const KURZ = { dijkstra: 'Dijkstra', bidir: 'Bidirektional', astar: 'A*', alt: 'ALT', ch: 'CH', compare: 'schnell/ruhig' };
+  const S = self.IUNSprache, w = S.w, zahl = S.zahl;
+  const NAMEN = { dijkstra: 'Dijkstra', bidir: w('Bidirektionaler Dijkstra', 'Bidirectional Dijkstra'), astar: w('A* (Luftlinie)', 'A* (straight line)'),
+                  alt: w('ALT (A* mit Landmarken)', 'ALT (A* with landmarks)'), ch: w('Contraction Hierarchies', 'Contraction hierarchies'),
+                  compare: w('Schnell und ruhig', 'Fast vs. quiet') };
+  const KURZ = { dijkstra: 'Dijkstra', bidir: w('Bidirektional', 'Bidirectional'), astar: 'A*', alt: 'ALT', ch: 'CH', compare: w('schnell/ruhig', 'fast/quiet') };
   const ALGOS = ['dijkstra', 'bidir', 'astar', 'alt', 'ch'];
   const RATE = { dijkstra: 140, bidir: 140, astar: 140, alt: 140, ch: 1.5 };   // Knoten je Bild
   const ui = P.get('ui') || 'full';
   if (ui !== 'full') document.body.classList.add('eingebettet', 'ui-' + ui);
   const $ = (id) => document.getElementById(id);
-  const zahl = (x, stellen = 0) => x.toLocaleString('de-DE', { minimumFractionDigits: stellen, maximumFractionDigits: stellen });
 
   // ------------------------------------------------------------ Daten
   async function ladeGz(url) {
@@ -36,8 +37,9 @@
                                       fetch('daten/radnetz-stats.json').then((r) => r.json())]);
   } catch (e) {
     $('laden').innerHTML = location.protocol === 'file:'
-      ? 'Die Seite wurde direkt als Datei geöffnet.<br>Bitte im Ordner webdemo <code>python -m http.server</code> starten.'
-      : 'Die Daten konnten nicht geladen werden (' + e.message + ').';
+      ? w('Die Seite wurde direkt als Datei geöffnet.<br>Bitte im Ordner webdemo <code>python -m http.server</code> starten.',
+          'The page was opened directly as a file.<br>Please start <code>python -m http.server</code> in the folder webdemo.')
+      : w('Die Daten konnten nicht geladen werden (', 'The data could not be loaded (') + e.message + ').';
     return;
   }
   const G = R.makeGraph(D);
@@ -189,7 +191,8 @@
     zeiten.sort((x, y) => x - y);
     return { ms: zeiten[2], laeufe: 5 * reps };
   }
-  const NOTIZ_CH = 'Die Contraction Hierarchy wurde nur für die Reisezeit vorberechnet. Ein anderes Gewicht braucht eine neue Vorberechnung (oder eine anpassbare CH).';
+  const NOTIZ_CH = w('Die Contraction Hierarchy wurde nur für die Reisezeit vorberechnet. Ein anderes Gewicht braucht eine neue Vorberechnung (oder eine anpassbare CH).',
+    'The contraction hierarchy was precomputed for travel time only. Another weight needs a new preprocessing (or a customizable CH).');
   function compute() {
     const { algo, metric, s, t } = st;
     st.zeit = null;
@@ -210,10 +213,12 @@
   function vorberechnung(algo, metric) {
     if (algo === 'alt') {
       tablesFor(metric);
-      return `${CH.landmarks.length} Landmarken, ${2 * CH.landmarks.length} Dijkstra-Läufe, ${zahl(st.tabellenMs[metric] / 1000, 2)} s (in diesem Browser)`;
+      return w(`${CH.landmarks.length} Landmarken, ${2 * CH.landmarks.length} Dijkstra-Läufe, ${zahl(st.tabellenMs[metric] / 1000, 2)} s (in diesem Browser)`,
+               `${CH.landmarks.length} landmarks, ${2 * CH.landmarks.length} Dijkstra runs, ${zahl(st.tabellenMs[metric] / 1000, 2)} s (in this browser)`);
     }
-    if (algo === 'ch') return `${zahl(STAT.ch.shortcuts)} Shortcuts, ${zahl(STAT.ch.seconds, 1)} s (vorab berechnet)`;
-    return 'keine';
+    if (algo === 'ch') return w(`${zahl(STAT.ch.shortcuts)} Shortcuts, ${zahl(STAT.ch.seconds, 1)} s (vorab berechnet)`,
+                                `${zahl(STAT.ch.shortcuts)} shortcuts, ${zahl(STAT.ch.seconds, 1)} s (precomputed)`);
+    return w('keine', 'none');
   }
 
   // ------------------------------------------------------------ Suche zeichnen
@@ -284,7 +289,7 @@
     c.font = `700 11px ${SCHRIFT}`;
     c.fillStyle = eckig ? COL.tinte : '#ffffff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(txt, x, y + 0.5);
   }
-  const nameOf = (v) => { for (const p of Object.values(D.places)) if (p.node === v) return p.label; return null; };
+  const nameOf = (v) => { for (const p of Object.values(D.places)) if (p.node === v) return S.ort(p.label); return null; };
   function drawTop() {
     const c = ctx.top;
     c.clearRect(0, 0, W, H);
@@ -308,10 +313,10 @@
       if (v === st.s || v === st.t) continue;
       const x = SX(G.x[v]), y = SY(G.y[v]);
       c.beginPath(); c.arc(x, y, 3, 0, 2 * Math.PI); c.fillStyle = COL.tinte; c.fill();
-      label(c, p.label, x + 6, y - 9, { size: ui === 'compact' ? 14 : 12, color: '#4d4f53' });
+      label(c, S.ort(p.label), x + 6, y - 9, { size: ui === 'compact' ? 14 : 12, color: '#4d4f53' });
     }
     if (st.s >= 0) marker(c, st.s, 'S', false);
-    if (st.t >= 0) marker(c, st.t, 'Z', true);
+    if (st.t >= 0) marker(c, st.t, w('Z', 'D'), true);
     const fs = ui === 'compact' ? 15 : 13;
     if (st.s >= 0 && nameOf(st.s)) label(c, nameOf(st.s), SX(G.x[st.s]) - 13, SY(G.y[st.s]) + 17, { bold: true, align: 'right', size: fs });
     if (st.t >= 0 && nameOf(st.t)) label(c, nameOf(st.t), SX(G.x[st.t]) + 13, SY(G.y[st.t]) + 17, { bold: true, size: fs });
@@ -327,31 +332,36 @@
   // ------------------------------------------------------------ Texte
   const strich = (col, gestrichelt) => `<span class="strich" style="background:${gestrichelt ? `repeating-linear-gradient(90deg, ${col} 0 6px, transparent 6px 10px)` : col}"></span>`;
   function updateStats() {
-    const r = st.res, ort = (v) => nameOf(v) || 'Knoten ' + v;
+    const r = st.res, ort = (v) => nameOf(v) || w('Knoten ', 'node ') + v;
     let html = '', leg = '', zeichen = [];
     if (r && r.note) html = `<p>${r.note}</p>`;
     else if (r && r.compare) {
-      const zeile = (col, name, i, gestr) => `${strich(col, gestr)}${name}: <b>${zahl(i.min, 1)} min</b>, ${zahl(i.km, 1)} km, davon ${zahl(i.busyKm, 1)} km auf Hauptstraßen`;
-      html = `<p><b>${NAMEN.compare}</b> (jeweils Dijkstra)<br>${zeile(COL.blau, 'am schnellsten', r.fast.info)}<br>${zeile(COL.gruen, 'ruhiger', r.quiet.info, true)}</p>`;
-      leg = `<b>${ort(st.s)} → ${ort(st.t)} mit dem Rad</b><br>${zeile(COL.blau, 'am schnellsten', r.fast.info)}<br>${zeile(COL.gruen, 'ruhiger', r.quiet.info, true)}`;
+      const zeile = (col, name, i, gestr) => `${strich(col, gestr)}${name}: <b>${zahl(i.min, 1)} min</b>, ${zahl(i.km, 1)} km, ` +
+        w(`davon ${zahl(i.busyKm, 1)} km auf Hauptstraßen`, `${zahl(i.busyKm, 1)} km of it on main roads`);
+      const beide = `${zeile(COL.blau, w('am schnellsten', 'fastest'), r.fast.info)}<br>${zeile(COL.gruen, w('ruhiger', 'quieter'), r.quiet.info, true)}`;
+      html = `<p><b>${NAMEN.compare}</b> ${w('(jeweils Dijkstra)', '(Dijkstra in both cases)')}<br>${beide}</p>`;
+      leg = `<b>${ort(st.s)} → ${ort(st.t)} ${w('mit dem Rad', 'by bike')}</b><br>${beide}`;
     } else if (r) {
       const k = Math.floor(st.shown), fertig = !st.anim;
-      const zeit = st.zeit ? `${zahl(st.zeit.ms, st.zeit.ms < 10 ? 2 : 1)} ms <span class="leise">(Median, ${st.zeit.laeufe} Läufe)</span>` : (fertig ? '<span class="leise">wird gemessen …</span>' : '–');
+      const zeit = st.zeit ? `${zahl(st.zeit.ms, st.zeit.ms < 10 ? 2 : 1)} ms <span class="leise">(${w('Median', 'median')}, ${st.zeit.laeufe} ${w('Läufe', 'runs')})</span>`
+        : (fertig ? `<span class="leise">${w('wird gemessen …', 'measuring …')}</span>` : '–');
+      const von = w('von', 'of');
       html = `<dl class="statistik">
-        <dt>Algorithmus</dt><dd>${NAMEN[st.algo]}</dd>
-        <dt>Gewicht</dt><dd>${st.metric === 'fast' ? 'schnell (Reisezeit)' : 'ruhig'}</dd>
-        <dt>abgearbeitete Knoten</dt><dd>${zahl(k)}${fertig ? ` <span class="leise">von ${zahl(G.n)}</span>` : ''}</dd>
-        <dt>relaxierte Kanten</dt><dd>${fertig ? zahl(r.relaxed) : '–'}</dd>
-        <dt>Laufzeit</dt><dd>${zeit}</dd>
+        <dt>${w('Algorithmus', 'Algorithm')}</dt><dd>${NAMEN[st.algo]}</dd>
+        <dt>${w('Gewicht', 'Weight')}</dt><dd>${st.metric === 'fast' ? w('schnell (Reisezeit)', 'fast (travel time)') : w('ruhig', 'quiet')}</dd>
+        <dt>${w('abgearbeitete Knoten', 'settled nodes')}</dt><dd>${zahl(k)}${fertig ? ` <span class="leise">${von} ${zahl(G.n)}</span>` : ''}</dd>
+        <dt>${w('relaxierte Kanten', 'relaxed edges')}</dt><dd>${fertig ? zahl(r.relaxed) : '–'}</dd>
+        <dt>${w('Laufzeit', 'Running time')}</dt><dd>${zeit}</dd>
         <dt>Route</dt><dd>${fertig && r.info ? `${zahl(r.info.min, 1)} min · ${zahl(r.info.km, 2)} km` : '–'}</dd>
-        <dt>Vorberechnung</dt><dd>${vorberechnung(st.algo, st.metric)}</dd></dl>`;
+        <dt>${w('Vorberechnung', 'Preprocessing')}</dt><dd>${vorberechnung(st.algo, st.metric)}</dd></dl>`;
       const zwei = st.algo === 'bidir' || st.algo === 'ch';
-      zeichen = zwei ? [`${strich(COL.blau)} vom Start aus`, `${strich(COL.rot)} vom Ziel aus`] : [`${strich(COL.blau)} durchsuchte Straßen`];
-      if (st.algo === 'ch') zeichen.push(`${strich(COL.blau, true)} Shortcuts in den beiden Suchbäumen`);
-      if (st.algo === 'alt') zeichen.push(`<span style="color:${COL.rosa}">◆</span> Landmarken (weit auseinander gewählt)`);
-      zeichen.push(`${strich(COL.tinte)} gefundener Weg`);
-      leg = `<b>${NAMEN[st.algo]}</b><br>abgearbeitete Knoten: <b>${zahl(k)}</b> von ${zahl(G.n)}<br>${zeichen.slice(0, -1).join(' &nbsp;')}`;
-    } else html = '<p class="leise">Bitte Start und Ziel wählen.</p>';
+      zeichen = zwei ? [`${strich(COL.blau)} ${w('vom Start aus', 'from the start')}`, `${strich(COL.rot)} ${w('vom Ziel aus', 'from the destination')}`]
+        : [`${strich(COL.blau)} ${w('durchsuchte Straßen', 'searched streets')}`];
+      if (st.algo === 'ch') zeichen.push(`${strich(COL.blau, true)} ${w('Shortcuts in den beiden Suchbäumen', 'shortcuts in the two search trees')}`);
+      if (st.algo === 'alt') zeichen.push(`<span style="color:${COL.rosa}">◆</span> ${w('Landmarken (weit auseinander gewählt)', 'landmarks (chosen far apart)')}`);
+      zeichen.push(`${strich(COL.tinte)} ${w('gefundener Weg', 'path found')}`);
+      leg = `<b>${NAMEN[st.algo]}</b><br>${w('abgearbeitete Knoten', 'settled nodes')}: <b>${zahl(k)}</b> ${von} ${zahl(G.n)}<br>${zeichen.slice(0, -1).join(' &nbsp;')}`;
+    } else html = `<p class="leise">${w('Bitte Start und Ziel wählen.', 'Please choose start and destination.')}</p>`;
     $('statistik').innerHTML = html;
     $('zeichen').innerHTML = zeichen.map((z) => `<li>${z}</li>`).join('');
     $('legende').innerHTML = leg;
@@ -404,28 +414,34 @@
   }
 
   // ------------------------------------------------------------ Vergleich
+  const mal = (x) => w(`${zahl(x, 1)}-mal`, `${zahl(x, 1)}×`);
+  const gewicht = (metric) => (metric === 'fast' ? w('schnell', 'fast') : w('ruhig', 'quiet'));
+  const SPALTEN = [w('Algorithmus', 'Algorithm'), w('abgearbeitete Knoten', 'settled nodes'), w('relaxierte Kanten', 'relaxed edges'),
+    w('weniger Knoten als Dijkstra', 'fewer nodes than Dijkstra'), w('Laufzeit (ms)', 'running time (ms)'),
+    w('schneller als Dijkstra (Laufzeit)', 'faster than Dijkstra (running time)')];
+  const NUR_REISEZEIT = w('nur für die Reisezeit vorberechnet', 'precomputed for travel time only');
   const kopf = (spalten) => `<thead><tr>${spalten.map((s, i) => `<th scope="col"${i ? '' : ' style="text-align:left"'}>${s}</th>`).join('')}</tr></thead>`;
   function alleVergleichen() {
     const { metric, s, t } = st;
     if (s < 0 || t < 0) return;
-    $('vergleich').innerHTML = '<p>Rechnet …</p>';
+    $('vergleich').innerHTML = `<p>${w('Rechnet …', 'Computing …')}</p>`;
     setTimeout(() => {
       const zeilen = [];
       let basis = null;
       for (const algo of ALGOS) {
         const r = lauf(algo, metric, s, t);
-        if (!r) { zeilen.push(`<tr><th scope="row">${KURZ[algo]}</th><td colspan="5" style="text-align:left">nur für die Reisezeit vorberechnet</td></tr>`); continue; }
+        if (!r) { zeilen.push(`<tr><th scope="row">${KURZ[algo]}</th><td colspan="5" style="text-align:left">${NUR_REISEZEIT}</td></tr>`); continue; }
         const z = messen(() => lauf(algo, metric, s, t));
         if (!basis) basis = { dist: r.dist, ms: z.ms, settled: r.settled };
         zeilen.push(`<tr><th scope="row" title="${vorberechnung(algo, metric)}">${KURZ[algo]}</th><td>${zahl(r.settled)}</td><td>${zahl(r.relaxed)}</td>` +
-          `<td>${zahl(basis.settled / r.settled, 1)}-mal</td><td>${zahl(z.ms, z.ms < 10 ? 2 : 1)}</td><td>${zahl(basis.ms / z.ms, 1)}-mal</td><td>${r.dist === basis.dist ? '✓ gleich' : '✗ ' + r.dist}</td></tr>`);
+          `<td>${mal(basis.settled / r.settled)}</td><td>${zahl(z.ms, z.ms < 10 ? 2 : 1)}</td><td>${mal(basis.ms / z.ms)}</td><td>${r.dist === basis.dist ? w('✓ gleich', '✓ same') : '✗ ' + r.dist}</td></tr>`);
       }
-      const ort = (v) => nameOf(v) || 'Knoten ' + v;
+      const ort = (v) => nameOf(v) || w('Knoten ', 'node ') + v;
       $('vergleich').innerHTML = `<div class="tabellenrahmen"><table class="kennzahlen">
-        <caption>${ort(s)} → ${ort(t)}, Gewicht ${metric === 'fast' ? 'schnell' : 'ruhig'}: Reisezeit ${zahl(basis.dist / 600, 1)} min</caption>
-        ${kopf(['Algorithmus', 'abgearbeitete Knoten', 'relaxierte Kanten', 'weniger Knoten als Dijkstra', 'Laufzeit (ms)', 'schneller als Dijkstra (Laufzeit)', 'Distanz'])}
+        <caption>${ort(s)} → ${ort(t)}, ${w('Gewicht', 'weight')} ${gewicht(metric)}: ${w('Reisezeit', 'travel time')} ${zahl(basis.dist / 600, 1)} min</caption>
+        ${kopf([...SPALTEN, w('Distanz', 'distance')])}
         <tbody>${zeilen.join('')}</tbody></table></div>
-        <p class="leise">Vorberechnung: ALT ${vorberechnung('alt', metric)}; CH ${vorberechnung('ch', metric)}.</p>`;
+        <p class="leise">${w('Vorberechnung', 'Preprocessing')}: ALT ${vorberechnung('alt', metric)}; CH ${vorberechnung('ch', metric)}.</p>`;
     }, 30);
   }
 
@@ -452,20 +468,23 @@
           if (dist === null) dist = r.dist; else if (r.dist !== dist) abweichungen++;
         }
       }
-      if (fertig < anzahl) { $('zufall-ergebnis').innerHTML = `<p>Rechnet … ${fertig} von ${anzahl} Paaren</p>`; setTimeout(block, 0); return; }
+      if (fertig < anzahl) { $('zufall-ergebnis').innerHTML = `<p>${w(`Rechnet … ${fertig} von ${anzahl} Paaren`, `Computing … ${fertig} of ${anzahl} pairs`)}</p>`; setTimeout(block, 0); return; }
       zufallLaeuft = false;
       const d = summe.dijkstra;
       $('zufall-ergebnis').innerHTML = `<div class="tabellenrahmen"><table class="kennzahlen">
-        <caption>${zahl(anzahl)} zufällige Paare, Gewicht ${metric === 'fast' ? 'schnell' : 'ruhig'}: Mittelwerte je Anfrage</caption>
-        ${kopf(['Algorithmus', 'abgearbeitete Knoten', 'relaxierte Kanten', 'weniger Knoten als Dijkstra', 'Laufzeit (ms)', 'schneller als Dijkstra (Laufzeit)'])}
+        <caption>${w(`${zahl(anzahl)} zufällige Paare, Gewicht ${gewicht(metric)}: Mittelwerte je Anfrage`,
+                     `${zahl(anzahl)} random pairs, weight ${gewicht(metric)}: averages per query`)}</caption>
+        ${kopf(SPALTEN)}
         <tbody>${algos.map((a) => `<tr><th scope="row">${KURZ[a]}</th><td>${zahl(summe[a].settled / anzahl)}</td><td>${zahl(summe[a].relaxed / anzahl)}</td>` +
-          `<td>${zahl(d.settled / summe[a].settled, 1)}-mal</td><td>${zahl(summe[a].ms / anzahl, 2)}</td><td>${zahl(d.ms / summe[a].ms, 1)}-mal</td></tr>`).join('')}</tbody></table></div>
+          `<td>${mal(d.settled / summe[a].settled)}</td><td>${zahl(summe[a].ms / anzahl, 2)}</td><td>${mal(d.ms / summe[a].ms)}</td></tr>`).join('')}</tbody></table></div>
         <p>${abweichungen === 0
-          ? `<b>✓ Prüfung bestanden:</b> Alle ${algos.length} Algorithmen liefern für alle ${zahl(anzahl)} Paare dieselbe Distanz.`
-          : `<b>✗ ${abweichungen} Abweichungen</b> zwischen den Algorithmen. Das dürfte nicht vorkommen.`}</p>
-        ${metric === 'fast' ? '' : '<p class="leise">CH fehlt: nur für die Reisezeit vorberechnet.</p>'}`;
+          ? w(`<b>✓ Prüfung bestanden:</b> Alle ${algos.length} Algorithmen liefern für alle ${zahl(anzahl)} Paare dieselbe Distanz.`,
+              `<b>✓ Check passed:</b> all ${algos.length} algorithms return the same distance for all ${zahl(anzahl)} pairs.`)
+          : w(`<b>✗ ${abweichungen} Abweichungen</b> zwischen den Algorithmen. Das dürfte nicht vorkommen.`,
+              `<b>✗ ${abweichungen} differences</b> between the algorithms. This should not happen.`)}</p>
+        ${metric === 'fast' ? '' : `<p class="leise">${w('CH fehlt', 'CH missing')}: ${NUR_REISEZEIT}.</p>`}`;
     };
-    $('zufall-ergebnis').innerHTML = '<p>Rechnet …</p>';
+    $('zufall-ergebnis').innerHTML = `<p>${w('Rechnet …', 'Computing …')}</p>`;
     setTimeout(block, 30);
   }
 
@@ -484,10 +503,13 @@
   $('zufall').onclick = zufaelligePaare;
   for (const art of ['start', 'ziel']) {
     const wahl = $('wahl-' + art);
-    wahl.innerHTML = Object.values(D.places).map((p) => `<option value="${p.node}">${p.label}</option>`).join('') + '<option value="frei">Punkt auf der Karte</option>';
+    wahl.innerHTML = Object.values(D.places).map((p) => `<option value="${p.node}">${S.ort(p.label)}</option>`).join('') +
+      `<option value="frei">${w('Punkt auf der Karte', 'point on the map')}</option>`;
     wahl.onchange = () => { if (wahl.value === 'frei') return; st[art === 'start' ? 's' : 't'] = +wahl.value; run(false); };
   }
-  $('stand').textContent = `, Stand ${D.meta.osm_base.slice(8, 10)}.${D.meta.osm_base.slice(5, 7)}.${D.meta.osm_base.slice(0, 4)}: ${zahl(G.n)} Knoten, ${zahl(G.m)} gerichtete Kanten, ${zahl(D.meta.km)} km`;
+  const osm = D.meta.osm_base;
+  $('stand').textContent = w(`, Stand ${osm.slice(8, 10)}.${osm.slice(5, 7)}.${osm.slice(0, 4)}: ${zahl(G.n)} Knoten, ${zahl(G.m)} gerichtete Kanten, ${zahl(D.meta.km)} km`,
+                             `, as of ${osm.slice(0, 10)}: ${zahl(G.n)} nodes, ${zahl(G.m)} directed edges, ${zahl(D.meta.km)} km`);
 
   function zoom(f, px, py) {          // um den Bildpunkt (px, py) zoomen
     const mx = (px - W / 2) / view.scale + view.cx, my = view.cy - (py - H / 2) / view.scale;

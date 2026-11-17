@@ -3,71 +3,74 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Wo verliert der Nahverkehr gegen das Auto? – Informatik und Nachhaltigkeit</title>
-  <meta name="description" content="Karte für Dortmund: Wie viel länger dauert der Weg zum Campus Nord mit Bus und Bahn als mit dem Auto? Berechnet mit dem Routenplaner MOTIS aus offenen Fahrplan- und Kartendaten.">
+  <title data-en="Where does public transport lose to the car? – Computer Science and Sustainability">Wo verliert der Nahverkehr gegen das Auto? – Informatik und Nachhaltigkeit</title>
+  <meta name="description" content="Karte für Dortmund: Wie viel länger dauert der Weg zum Campus Nord mit Bus und Bahn als mit dem Auto? Berechnet mit dem Routenplaner MOTIS aus offenen Fahrplan- und Kartendaten."
+        data-en-content="Map of Dortmund: how much longer does the trip to North Campus take by bus and train than by car? Computed with the journey planner MOTIS from open timetable and map data.">
   <link rel="stylesheet" href="vendor/leaflet-1.9.4/leaflet.css">
   <link rel="stylesheet" href="css/stil.css">
 </head>
 <body>
   <header class="seitenkopf">
     <div>
-      <h1>Wo verliert der Nahverkehr gegen das Auto?</h1>
-      <div class="untertitel">Informatik und Nachhaltigkeit · TU Dortmund · Reisezeiten zum Campus Nord</div>
+      <h1 data-en="Where does public transport lose to the car?">Wo verliert der Nahverkehr gegen das Auto?</h1>
+      <div class="untertitel" data-en="Computer Science and Sustainability · TU Dortmund · Travel times to North Campus">Informatik und Nachhaltigkeit · TU Dortmund · Reisezeiten zum Campus Nord</div>
     </div>
-    <nav aria-label="Ansichten">
-      <a class="reiter" href="index.html#routen">Routen vergleichen</a>
-      <a class="reiter" href="algorithmen.html">Algorithmen</a>
-      <a class="reiter" href="index.html#pareto">Pareto-Front</a>
-      <a class="reiter" href="reisezeit.html" aria-current="page">Nahverkehr gegen Auto</a>
+    <nav aria-label="Ansichten" data-en-aria-label="Views">
+      <a class="reiter" href="index.html#routen" data-en="Compare routes">Routen vergleichen</a>
+      <a class="reiter" href="algorithmen.html" data-en="Algorithms">Algorithmen</a>
+      <a class="reiter" href="index.html#pareto" data-en="Pareto front">Pareto-Front</a>
+      <a class="reiter" href="reisezeit.html" aria-current="page" data-en="Public transport vs. car">Nahverkehr gegen Auto</a>
     </nav>
   </header>
 
   <main class="arbeitsflaeche">
-    <section class="karten" aria-label="Karte">
-      <div class="karte" id="karte" role="application" aria-label="Karte von Dortmund mit einem Raster. Jede Zelle ist nach der gewählten Größe eingefärbt; die Legende auf der Karte nennt die Klassen mit ihren Anteilen und die Annahmen. Eine Zelle anklicken zeigt rechts ihre Werte."></div>
+    <section class="karten" aria-label="Karte" data-en-aria-label="Map">
+      <div class="karte" id="karte" role="application" aria-label="Karte von Dortmund mit einem Raster. Jede Zelle ist nach der gewählten Größe eingefärbt; die Legende auf der Karte nennt die Klassen mit ihren Anteilen und die Annahmen. Eine Zelle anklicken zeigt rechts ihre Werte."
+           data-en-aria-label="Map of Dortmund with a grid. Each cell is colored by the selected quantity; the legend on the map lists the classes with their shares and the assumptions. Clicking a cell shows its values on the right."></div>
     </section>
 
     <aside class="seite">
-      <div id="meldung" class="hinweis" role="status" aria-live="polite">Die Reisezeiten werden geladen …</div>
+      <div id="meldung" class="hinweis" role="status" aria-live="polite" data-en="Loading the travel times …">Die Reisezeiten werden geladen …</div>
       <div id="inhalt" hidden>
         <h2 id="frage"></h2>
         <p class="leise" id="rahmen"></p>
-        <p class="leise">Diese Karte ist der Ausgangspunkt für Projekt 1 „Was wäre, wenn …? Eine bessere Verbindung zum Campus“: Dort entwerfen Sie Änderungen am Fahrplan und messen, wie sich die Karte dadurch verändert.</p>
+        <p class="leise" data-en="This map is the starting point for project 1 “What if …? A better connection to campus”: there you design changes to the timetable and measure how they change the map.">Diese Karte ist der Ausgangspunkt für Projekt 1 „Was wäre, wenn …? Eine bessere Verbindung zum Campus“: Dort entwerfen Sie Änderungen am Fahrplan und messen, wie sich die Karte dadurch verändert.</p>
 
         <div class="zeile">
-          <label for="ansicht">Dargestellt</label>
+          <label for="ansicht" data-en="Shown">Dargestellt</label>
           <select id="ansicht"></select>
         </div>
         <div class="zeile">
-          <label for="oepnv-art">Zeit mit Bus und Bahn</label>
+          <label for="oepnv-art" data-en="Time by bus and train">Zeit mit Bus und Bahn</label>
           <select id="oepnv-art"></select>
         </div>
         <div class="zeile">
-          <label for="zuschlag">Zuschlag für das Auto</label>
+          <label for="zuschlag" data-en="Extra time for the car">Zuschlag für das Auto</label>
           <input type="range" id="zuschlag" min="0" max="15" step="1" value="5">
           <output id="zuschlag-wert" for="zuschlag"></output>
         </div>
-        <p class="leise">Die Autozeit aus OpenStreetMap ist ohne Stau gerechnet. Der Zuschlag (Standard 5 Minuten) steht für Parkplatzsuche und den Fußweg vom Parkplatz; mit 0 sehen Sie die reine Fahrzeit.</p>
+        <p class="leise" data-en="The driving time from OpenStreetMap assumes no congestion. The extra time (default 5 minutes) stands for finding a parking space and walking from it; with 0 you see the pure driving time.">Die Autozeit aus OpenStreetMap ist ohne Stau gerechnet. Der Zuschlag (Standard 5 Minuten) steht für Parkplatzsuche und den Fußweg vom Parkplatz; mit 0 sehen Sie die reine Fahrzeit.</p>
         <p id="kennzahl"></p>
 
-        <h3>Ausgewählte Zelle</h3>
-        <div id="zelle" class="leise">Klicken Sie auf eine Zelle der Karte.</div>
+        <h3 data-en="Selected cell">Ausgewählte Zelle</h3>
+        <div id="zelle" class="leise" data-en="Click a cell on the map.">Klicken Sie auf eine Zelle der Karte.</div>
 
         <details open>
-          <summary>Annahmen und Grenzen</summary>
+          <summary data-en="Assumptions and limitations">Annahmen und Grenzen</summary>
           <ul id="annahmen" class="leise" style="padding-left:1.1rem; margin:0.3rem 0"></ul>
         </details>
 
         <footer class="fuss">
-          <p><b>Nur ein Beispiel für die Lehre.</b> Die Karte zeigt eine Morgenstunde an einem Tag und ein einziges Ziel. Wer kein Auto hat, für den ist der Vergleich ohnehin ein anderer.</p>
-          <p>Berechnet mit <a href="https://github.com/motis-project/motis">MOTIS</a>. Fahrplan: <a href="https://gtfs.de">gtfs.de</a>, Daten von DELFI e.V. (CC BY 4.0)<span id="stand-fahrplan"></span>. Wege und Grundkarte: © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a> (ODbL). Kartendarstellung mit <a href="https://leafletjs.com">Leaflet</a>.</p>
-          <p>Wie die Karte entsteht, steht im <a href="https://github.com/ls11ae/iun-routenplanung">Repository</a> unter <code>nahverkehr/</code>.</p>
-          <p class="rechtliches"><a href="https://ae.cs.tu-dortmund.de/imprint/">Impressum</a> · <a href="https://ae.cs.tu-dortmund.de/privacy/">Datenschutz</a> · Die Seite wird über GitHub Pages ausgeliefert und lädt nichts von anderen Servern.</p>
+          <p data-en="<b>Only an example for teaching.</b> The map shows one morning hour on one day and a single destination. For people without a car, the comparison is a different one anyway."><b>Nur ein Beispiel für die Lehre.</b> Die Karte zeigt eine Morgenstunde an einem Tag und ein einziges Ziel. Wer kein Auto hat, für den ist der Vergleich ohnehin ein anderer.</p>
+          <p data-en='Computed with <a href="https://github.com/motis-project/motis">MOTIS</a>. Timetable: <a href="https://gtfs.de">gtfs.de</a>, data by DELFI e.V. (CC BY 4.0)<span id="stand-fahrplan"></span>. Paths and base map: © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> (ODbL). Map display with <a href="https://leafletjs.com">Leaflet</a>.'>Berechnet mit <a href="https://github.com/motis-project/motis">MOTIS</a>. Fahrplan: <a href="https://gtfs.de">gtfs.de</a>, Daten von DELFI e.V. (CC BY 4.0)<span id="stand-fahrplan"></span>. Wege und Grundkarte: © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a> (ODbL). Kartendarstellung mit <a href="https://leafletjs.com">Leaflet</a>.</p>
+          <p data-en='How the map is made is described in the <a href="https://github.com/ls11ae/iun-routenplanung">repository</a> under <code>nahverkehr/</code> (in German).'>Wie die Karte entsteht, steht im <a href="https://github.com/ls11ae/iun-routenplanung">Repository</a> unter <code>nahverkehr/</code>.</p>
+          <p class="rechtliches" data-en='<a href="https://ae.cs.tu-dortmund.de/imprint/">Legal notice</a> · <a href="https://ae.cs.tu-dortmund.de/privacy/">Privacy</a> · The page is served by GitHub Pages and loads nothing from other servers.'><a href="https://ae.cs.tu-dortmund.de/imprint/">Impressum</a> · <a href="https://ae.cs.tu-dortmund.de/privacy/">Datenschutz</a> · Die Seite wird über GitHub Pages ausgeliefert und lädt nichts von anderen Servern.</p>
         </footer>
       </div>
     </aside>
   </main>
 
+  <script src="js/sprache.js"></script>
   <script src="vendor/leaflet-1.9.4/leaflet.js"></script>
   <script src="js/grundkarte.js"></script>
   <script src="js/reisezeit.js"></script>

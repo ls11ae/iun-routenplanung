@@ -7,6 +7,9 @@ Diese Datei beschreibt Aufbau, Konventionen, Datenquellen und Tests für die Arb
 ## Konventionen
 
 - Alles für Studierende auf Deutsch, Anrede „Sie“, sachlich. Code-Bezeichner dürfen deutsch sein.
+  Die Webdemo gibt es zusätzlich auf Englisch: Jeder neue sichtbare Text braucht eine englische
+  Fassung (`data-en`/`data-en-<attribut>` im HTML, `w("…", "…")` im JavaScript, `*_en` in
+  `personas.json`); `tests/test_webdemo.py` prüft das. Notebooks und READMEs bleiben deutsch.
   Ausnahme: `webdemo/js/routing.js` und `werkzeuge/` stammen aus der englischsprachigen Vorlesung
   „Algorithms and Sustainability“ (AuS).
 - Kleine Commits, Commit-Texte auf Deutsch.
@@ -35,6 +38,7 @@ Diese Datei beschreibt Aufbau, Konventionen, Datenquellen und Tests für die Arb
 webdemo/              statische Seite für GitHub Pages, kein Build-Schritt
   index.html          Routen je Persona (Leaflet) und Pareto-Front      js/app.js, pareto.js, karte.js
   js/grundkarte.js    eigene Grundkarte aus daten/grundkarte.json (keine fremden Kacheln)
+  js/sprache.js       Deutsch/Englisch: Knopf, ?lang=en|de, w(), zahl(); als erstes Skript jeder Seite
   algorithmen.html    Dijkstra, bidirektional, A*, ALT, CH mit Statistik   js/algorithmen.js
   reisezeit.html      Karte Nahverkehr gegen Auto                       js/reisezeit.js
   js/routing.js       die Routing-Bibliothek (aus AuS, erweitert); auch von kern.js benutzt
@@ -69,6 +73,7 @@ tests/                pytest; tests/js/ rechnet mit dem JavaScript-Kern in Node
 | Einbahnstraßen | im Wegenetz Dortmund-Süd ignoriert; das Radnetz beachtet sie | Vereinfachung, im README genannt |
 | Karte | Leaflet 1.9.4 in `webdemo/vendor/`; eigene Grundkarte (`werkzeuge/grundkarte.py`) statt OSM-Kacheln; Algorithmen-Ansicht zeichnet selbst auf Canvas | nichts von fremden Servern laden (Datenschutz); OSM erlaubt keinen Massen-Download von Kacheln |
 | Pareto | exakter Label-Setting-Algorithmus in `kern.js` mit unteren Schranken aus Rückwärtssuchen; Ausdünnen mit `relevante` | Netz klein genug |
+| Sprachen | Deutsch im HTML, Englisch daneben in `data-en`; Wechsel lädt die Seite neu; Wahl in `localStorage` und `?lang=`; Zahlen und Daten über `IUNSprache.zahl` und `IUNSprache.locale` (en-US); Annahmen der Reisezeitkarte als `{de, en}` aus `reisezeitkarte.py` (`--nur-texte` erneuert sie ohne MOTIS) | Übersetzung steht neben dem Original und läuft nicht auseinander; Neuladen statt Neuzeichnen hält den Code einfach |
 | Pages | Workflow `.github/workflows/pages.yml`, Quelle „GitHub Actions“ | ohne Actions nur `/` oder `/docs` |
 | MOTIS | 2.11.4, `timetable.first_day` fest auf den Fahrplanbeginn, Server nur an 127.0.0.1:8080 | sonst liefern vergangene Tage nichts; keine Firewall-Nachfrage |
 | Szenarien | geänderte GTFS-Kopie je Szenario; `motis_rechnen` kopiert `nahverkehr/motis/data` ohne Kacheln nach `motis/szenarien/<name>/`, importiert nur Fahrplan und Zuordnung (5–10 s), eigener Server auf Port 8090, gleiche Anfragen wie die Reisezeitkarte; Datenkopie wird danach gelöscht, Ergebnis mit Prüfsumme des Fahrplans zwischengespeichert; Fahrzeug-km als Luftlinie zwischen Halten | ein ganzes Raster in 2,5 min statt eigenem Hauptimport (1,5 min) je Szenario; Original nie überschreiben |
@@ -109,8 +114,9 @@ cd webdemo && python -m http.server        # Webdemo lokal unter http://localhos
 
 - `tests/test_python_js.py`: Python und JavaScript liefern dieselben Kosten und Kriterien.
 - `tests/test_algorithmen.py`: Dijkstra, bidirektional, A*, ALT und CH liefern dieselben Distanzen.
-- `tests/test_webdemo.py`: keine fremden Ladequellen (Skripte, Stylesheets, Kacheln, Daten) und
-  stimmige Reisezeitdaten. Links auf Impressum und Datenschutz (Lehrstuhlseite) sind erlaubt.
+- `tests/test_webdemo.py`: keine fremden Ladequellen (Skripte, Stylesheets, Kacheln, Daten),
+  stimmige Reisezeitdaten und zu jedem sichtbaren Text eine englische Fassung. Links auf
+  Impressum und Datenschutz (Lehrstuhlseite) sind erlaubt.
 - `tests/test_szenarien.py`: Takt verdoppeln, Schreiben ohne das Original anzutasten, Fahrleistung,
   Vergleich, Einwohner je Zelle, Auswahl des Datenpakets (kleiner Beispielfahrplan, ohne MOTIS).
 - `nahverkehr/reisezeiten_motis.ipynb` braucht einen laufenden MOTIS-Server;

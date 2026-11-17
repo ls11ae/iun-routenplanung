@@ -5,7 +5,8 @@ im Modul *Informatik und Nachhaltigkeit* an der TU Dortmund (WiSe 2026/27) und
 Startpunkt für vier Projektideen.
 
 **Zur Webdemo:** <https://ls11ae.github.io/iun-routenplanung/>
-(läuft im Browser, auch auf dem Handy, ohne Installation)
+(läuft im Browser, auch auf dem Handy, ohne Installation; auf Deutsch oder Englisch, Knopf
+oben rechts; *English version:* <https://ls11ae.github.io/iun-routenplanung/?lang=en>)
 
 | Ordner | Inhalt | für |
 |---|---|---|
@@ -107,6 +108,14 @@ python -m http.server
 Danach öffnen Sie <http://localhost:8000>. Die Seite lädt nichts von fremden Servern,
 auch keine Kartenkacheln: Die Grundkarte ist aus OpenStreetMap-Daten erzeugt und liegt mit
 im Ordner. Sie funktioniert deshalb auch ohne Internet.
+
+**Zwei Sprachen:** Deutsch steht im HTML, die englische Fassung direkt daneben
+(`data-en="…"` für den Inhalt eines Elements, `data-en-aria-label="…"` usw. für Attribute);
+Texte, die erst das JavaScript erzeugt, stehen als `w("Deutsch", "English")` im Code, die
+englischen Namen der Personas und Kriterien als `name_en` und `beschreibung_en` in
+`personas.json`. Gewählt wird mit `?lang=en` bzw. `?lang=de` oder mit dem Knopf oben rechts
+(`webdemo/js/sprache.js`); der Browser merkt sich die Wahl. Ein Test prüft, dass kein
+sichtbarer Text ohne englische Fassung bleibt.
 
 ## Tests
 

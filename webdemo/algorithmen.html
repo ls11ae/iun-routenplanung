@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Kürzeste Wege: Algorithmen im Vergleich – Informatik und Nachhaltigkeit</title>
-  <meta name="description" content="Dijkstra, bidirektionaler Dijkstra, A*, ALT und Contraction Hierarchies auf dem Radnetz von Dortmund: Animation der Suche, Statistik je Lauf und Vergleich.">
+  <title data-en="Shortest paths: algorithms compared – Computer Science and Sustainability">Kürzeste Wege: Algorithmen im Vergleich – Informatik und Nachhaltigkeit</title>
+  <meta name="description" content="Dijkstra, bidirektionaler Dijkstra, A*, ALT und Contraction Hierarchies auf dem Radnetz von Dortmund: Animation der Suche, Statistik je Lauf und Vergleich."
+        data-en-content="Dijkstra, bidirectional Dijkstra, A*, ALT and contraction hierarchies on the bicycle network of Dortmund: animated search, statistics per run and comparison.">
   <link rel="stylesheet" href="css/stil.css">
   <style>
     .karten canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; touch-action: none; }
@@ -30,92 +31,93 @@
 <body>
   <header class="seitenkopf">
     <div>
-      <h1>Kürzeste Wege: Algorithmen im Vergleich</h1>
-      <div class="untertitel">Informatik und Nachhaltigkeit · TU Dortmund · Radnetz Dortmund</div>
+      <h1 data-en="Shortest paths: algorithms compared">Kürzeste Wege: Algorithmen im Vergleich</h1>
+      <div class="untertitel" data-en="Computer Science and Sustainability · TU Dortmund · Bicycle network of Dortmund">Informatik und Nachhaltigkeit · TU Dortmund · Radnetz Dortmund</div>
     </div>
-    <nav aria-label="Ansichten">
-      <a class="reiter" href="index.html#routen">Routen vergleichen</a>
-      <a class="reiter" href="algorithmen.html" aria-current="page">Algorithmen</a>
-      <a class="reiter" href="index.html#pareto">Pareto-Front</a>
-      <a class="reiter" href="reisezeit.html">Nahverkehr gegen Auto</a>
+    <nav aria-label="Ansichten" data-en-aria-label="Views">
+      <a class="reiter" href="index.html#routen" data-en="Compare routes">Routen vergleichen</a>
+      <a class="reiter" href="algorithmen.html" aria-current="page" data-en="Algorithms">Algorithmen</a>
+      <a class="reiter" href="index.html#pareto" data-en="Pareto front">Pareto-Front</a>
+      <a class="reiter" href="reisezeit.html" data-en="Public transport vs. car">Nahverkehr gegen Auto</a>
     </nav>
   </header>
 
   <main class="arbeitsflaeche">
-    <section class="karten" id="karten" aria-label="Karte">
-      <canvas id="grund" role="img" aria-label="Radnetz von Dortmund. Die Ergebnisse der Suche stehen rechts als Text und Tabelle."></canvas>
+    <section class="karten" id="karten" aria-label="Karte" data-en-aria-label="Map">
+      <canvas id="grund" role="img" aria-label="Radnetz von Dortmund. Die Ergebnisse der Suche stehen rechts als Text und Tabelle." data-en-aria-label="Bicycle network of Dortmund. The results of the search are shown on the right as text and tables."></canvas>
       <canvas id="suche" aria-hidden="true"></canvas>
       <canvas id="oben" aria-hidden="true"></canvas>
-      <div id="laden" role="status">Das Radnetz von Dortmund wird geladen …</div>
+      <div id="laden" role="status" data-en="Loading the bicycle network of Dortmund …">Das Radnetz von Dortmund wird geladen …</div>
       <div id="zoom">
-        <button class="knopf" id="zoom-rein" aria-label="hineinzoomen">+</button>
-        <button class="knopf" id="zoom-raus" aria-label="herauszoomen">−</button>
-        <button class="knopf" id="zoom-alles" aria-label="ganze Karte zeigen" title="ganze Karte">⤢</button>
+        <button class="knopf" id="zoom-rein" aria-label="hineinzoomen" data-en-aria-label="zoom in">+</button>
+        <button class="knopf" id="zoom-raus" aria-label="herauszoomen" data-en-aria-label="zoom out">−</button>
+        <button class="knopf" id="zoom-alles" aria-label="ganze Karte zeigen" title="ganze Karte" data-en-aria-label="show the whole map" data-en-title="whole map">⤢</button>
       </div>
       <div id="legende"></div>
       <div id="mini">
         <div class="knopfreihe" id="mini-algos"></div>
-        <div class="knopfreihe"><button class="knopf haupt" data-tat="lauf">▶ Animation</button><button class="knopf" data-tat="ergebnis">Ergebnis</button></div>
+        <div class="knopfreihe"><button class="knopf haupt" data-tat="lauf" data-en="▶ Run">▶ Animation</button><button class="knopf" data-tat="ergebnis" data-en="Result">Ergebnis</button></div>
         <div id="mini-text"></div>
       </div>
-      <div id="nennung">Kartendaten © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a> (ODbL)</div>
+      <div id="nennung" data-en='Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> (ODbL)'>Kartendaten © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a> (ODbL)</div>
     </section>
 
     <aside class="seite">
-      <h2>Start und Ziel</h2>
+      <h2 data-en="Start and destination">Start und Ziel</h2>
       <div class="startziel">
-        <label for="wahl-start">Start</label><select id="wahl-start"></select><span></span>
-        <label for="wahl-ziel">Ziel</label><select id="wahl-ziel"></select><span></span>
+        <label for="wahl-start" data-en="Start">Start</label><select id="wahl-start"></select><span></span>
+        <label for="wahl-ziel" data-en="Destination">Ziel</label><select id="wahl-ziel"></select><span></span>
       </div>
-      <p class="leise">Auf der Karte: erster Klick setzt den Start, zweiter Klick das Ziel. Ziehen verschiebt, Mausrad oder zwei Finger zoomen.</p>
+      <p class="leise" data-en="On the map: the first click sets the start, the second the destination. Drag to pan, zoom with the mouse wheel or two fingers.">Auf der Karte: erster Klick setzt den Start, zweiter Klick das Ziel. Ziehen verschiebt, Mausrad oder zwei Finger zoomen.</p>
 
-      <h2>Algorithmus</h2>
-      <div class="knopfreihe" id="algos" role="group" aria-label="Algorithmus"></div>
+      <h2 data-en="Algorithm">Algorithmus</h2>
+      <div class="knopfreihe" id="algos" role="group" aria-label="Algorithmus" data-en-aria-label="Algorithm"></div>
       <div class="zeile">
-        <span><b>Gewicht</b></span>
-        <button class="knopf" data-gewicht="fast" aria-pressed="true">schnell (Reisezeit)</button>
-        <button class="knopf" data-gewicht="quiet" aria-pressed="false">ruhig</button>
+        <span><b data-en="Weight">Gewicht</b></span>
+        <button class="knopf" data-gewicht="fast" aria-pressed="true" data-en="fast (travel time)">schnell (Reisezeit)</button>
+        <button class="knopf" data-gewicht="quiet" aria-pressed="false" data-en="quiet">ruhig</button>
       </div>
       <div class="knopfreihe">
-        <button class="knopf haupt" data-tat="lauf">▶ Animation</button>
-        <button class="knopf" data-tat="ergebnis">Ergebnis</button>
-        <button class="knopf" data-tat="leeren">Löschen</button>
+        <button class="knopf haupt" data-tat="lauf" data-en="▶ Run">▶ Animation</button>
+        <button class="knopf" data-tat="ergebnis" data-en="Result">Ergebnis</button>
+        <button class="knopf" data-tat="leeren" data-en="Clear">Löschen</button>
       </div>
       <div class="zeile">
-        <span><b>Tempo</b></span>
-        <button class="knopf" data-tempo="0.1">langsam</button>
-        <button class="knopf" data-tempo="1">normal</button>
-        <button class="knopf" data-tempo="6">schnell</button>
+        <span><b data-en="Speed">Tempo</b></span>
+        <button class="knopf" data-tempo="0.1" data-en="slow">langsam</button>
+        <button class="knopf" data-tempo="1" data-en="normal">normal</button>
+        <button class="knopf" data-tempo="6" data-en="fast">schnell</button>
       </div>
 
-      <h2>Statistik des Laufs</h2>
+      <h2 data-en="Statistics of the run">Statistik des Laufs</h2>
       <div id="statistik" role="status" aria-live="polite"></div>
-      <ul class="legende" id="zeichen" aria-label="Legende der Karte"></ul>
+      <ul class="legende" id="zeichen" aria-label="Legende der Karte" data-en-aria-label="Legend of the map"></ul>
 
-      <h2>Vergleich</h2>
+      <h2 data-en="Comparison">Vergleich</h2>
       <div class="knopfreihe">
-        <button class="knopf haupt" id="alle">Alle vergleichen</button>
-        <button class="knopf" id="zufall">Zufällige Paare</button>
-        <label>Anzahl <select id="zufall-anzahl"><option>100</option><option>300</option><option>1000</option></select></label>
+        <button class="knopf haupt" id="alle" data-en="Compare all">Alle vergleichen</button>
+        <button class="knopf" id="zufall" data-en="Random pairs">Zufällige Paare</button>
+        <label><span data-en="Number">Anzahl</span> <select id="zufall-anzahl"><option>100</option><option>300</option><option>1000</option></select></label>
       </div>
-      <p class="leise">„Alle vergleichen“ rechnet das aktuelle Paar mit jedem Algorithmus. Die Laufzeit ist der Median über mehrere Wiederholungen in Ihrem Browser; sie schwankt je nach Gerät und zwischen Läufen. Knoten, Kanten und der Faktor der Knoten sind bei jedem Lauf gleich.</p>
+      <p class="leise" data-en="“Compare all” runs every algorithm on the current pair. The running time is the median over several repetitions in your browser; it varies between devices and between runs. Nodes, edges and the node factor are the same in every run.">„Alle vergleichen“ rechnet das aktuelle Paar mit jedem Algorithmus. Die Laufzeit ist der Median über mehrere Wiederholungen in Ihrem Browser; sie schwankt je nach Gerät und zwischen Läufen. Knoten, Kanten und der Faktor der Knoten sind bei jedem Lauf gleich.</p>
       <div id="vergleich" role="status" aria-live="polite"></div>
       <div id="zufall-ergebnis" role="status" aria-live="polite"></div>
 
       <details>
-        <summary>Was bedeuten die Spalten?</summary>
-        <p class="leise"><b>Abgearbeitete Knoten:</b> Knoten, deren kürzeste Distanz feststeht (aus der Vorrangwarteschlange entnommen). <b>Relaxierte Kanten:</b> Kanten, die dabei angesehen wurden. <b>Vorberechnung:</b> ALT speichert Distanzen von und zu einigen Landmarken (je Landmarke zwei Dijkstra-Läufe); Contraction Hierarchies (CH) fügen vorab Abkürzungen (Shortcuts) ein und suchen danach nur noch „bergauf“.</p>
-        <p class="leise"><b>Schnell und ruhig:</b> Die Reisezeit rechnet mit 18 km/h auf Straßen und Radwegen, langsamer auf schlechtem Belag, 5 km/h beim Schieben. „Ruhig“ multipliziert die Zeit auf Hauptstraßen mit einem Stressfaktor (bis 3), weniger mit Radweg oder Tempo 30. Die CH ist nur für die Reisezeit vorberechnet.</p>
+        <summary data-en="What do the columns mean?">Was bedeuten die Spalten?</summary>
+        <p class="leise" data-en="<b>Settled nodes:</b> nodes whose shortest distance is final (taken out of the priority queue). <b>Relaxed edges:</b> edges looked at in the process. <b>Preprocessing:</b> ALT stores distances from and to a few landmarks (two Dijkstra runs per landmark); contraction hierarchies (CH) add shortcuts in advance and afterwards only search “upwards”."><b>Abgearbeitete Knoten:</b> Knoten, deren kürzeste Distanz feststeht (aus der Vorrangwarteschlange entnommen). <b>Relaxierte Kanten:</b> Kanten, die dabei angesehen wurden. <b>Vorberechnung:</b> ALT speichert Distanzen von und zu einigen Landmarken (je Landmarke zwei Dijkstra-Läufe); Contraction Hierarchies (CH) fügen vorab Abkürzungen (Shortcuts) ein und suchen danach nur noch „bergauf“.</p>
+        <p class="leise" data-en="<b>Fast and quiet:</b> travel time assumes 18 km/h on roads and cycle paths, slower on poor surfaces, 5 km/h when pushing the bike. “Quiet” multiplies the time on main roads by a stress factor (up to 3), less with a cycle lane or a 30 km/h limit. The CH is precomputed for travel time only."><b>Schnell und ruhig:</b> Die Reisezeit rechnet mit 18 km/h auf Straßen und Radwegen, langsamer auf schlechtem Belag, 5 km/h beim Schieben. „Ruhig“ multipliziert die Zeit auf Hauptstraßen mit einem Stressfaktor (bis 3), weniger mit Radweg oder Tempo 30. Die CH ist nur für die Reisezeit vorberechnet.</p>
       </details>
 
       <footer class="fuss">
-        <p>Die Demo stammt aus der Vorlesung „Algorithms and Sustainability“ (Kevin Buchin, TU Dortmund) und wurde für diese Veranstaltung übersetzt und erweitert.</p>
-        <p>Radnetz: © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a> (ODbL)<span id="stand"></span>. Ein Modell für die Lehre, kein echtes Radprofil und keine Navigationshilfe.</p>
-        <p class="rechtliches"><a href="https://ae.cs.tu-dortmund.de/imprint/">Impressum</a> · <a href="https://ae.cs.tu-dortmund.de/privacy/">Datenschutz</a> · Die Seite wird über GitHub Pages ausgeliefert und lädt nichts von anderen Servern.</p>
+        <p data-en="The demo comes from the lecture “Algorithms and Sustainability” (Kevin Buchin, TU Dortmund) and was translated and extended for this course.">Die Demo stammt aus der Vorlesung „Algorithms and Sustainability“ (Kevin Buchin, TU Dortmund) und wurde für diese Veranstaltung übersetzt und erweitert.</p>
+        <p data-en='Bicycle network: © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> (ODbL)<span id="stand"></span>. A model for teaching, not a real cycling profile and no navigation aid.'>Radnetz: © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a> (ODbL)<span id="stand"></span>. Ein Modell für die Lehre, kein echtes Radprofil und keine Navigationshilfe.</p>
+        <p class="rechtliches" data-en='<a href="https://ae.cs.tu-dortmund.de/imprint/">Legal notice</a> · <a href="https://ae.cs.tu-dortmund.de/privacy/">Privacy</a> · The page is served by GitHub Pages and loads nothing from other servers.'><a href="https://ae.cs.tu-dortmund.de/imprint/">Impressum</a> · <a href="https://ae.cs.tu-dortmund.de/privacy/">Datenschutz</a> · Die Seite wird über GitHub Pages ausgeliefert und lädt nichts von anderen Servern.</p>
       </footer>
     </aside>
   </main>
 
+  <script src="js/sprache.js"></script>
   <script src="js/routing.js"></script>
   <script src="js/algorithmen.js"></script>
 </body>
