@@ -70,10 +70,12 @@ SERVER = "http://127.0.0.1:8080"
 OHNE_PROXY = {"http": None, "https": None}   # der eigene Rechner wird ohne Proxy angesprochen
 
 ZIEL_NAME = "TU Dortmund, Campus Nord"
+ZIEL_NAME_EN = "TU Dortmund, North Campus"      # für die englische Fassung der Webdemo
 ZIEL = (51.4925, 7.4128)          # (Breite, Länge)
 # Der Campus ist autofrei: Im Umkreis des Ziels findet MOTIS keine Straße, die mit dem
 # Auto erreichbar ist. Die Autofahrt endet deshalb an der nächsten öffentlichen Straße.
 ZIEL_AUTO_NAME = "Emil-Figge-Straße am Campus Nord (rund 180 m vom Ziel)"
+ZIEL_AUTO_NAME_EN = "Emil-Figge-Straße at North Campus (about 180 m from the destination)"
 ZIEL_AUTO = (51.4941, 7.4122)
 
 UTM = 25832                       # ETRS89 / UTM Zone 32N: Koordinaten in Metern
@@ -428,6 +430,57 @@ def _gerundet(koordinaten, stellen: int = 5):
     return [_gerundet(k, stellen) for k in koordinaten]
 
 
+def annahmen_texte(anzahl: int, von: datetime, bis: datetime, schritt_min: int, max_fussweg_min: int,
+                   raster_m: int) -> dict:
+    """Die Annahmen der Karte als Sätze, auf Deutsch und Englisch ({"de": [...], "en": [...]}).
+    Die Webdemo zeigt sie unter „Annahmen und Grenzen“."""
+    de = [
+        f"Bus und Bahn: Median der Reisezeit über {anzahl} Abfahrten von {von:%H:%M} "
+        f"bis {bis:%H:%M} Uhr im Abstand von {schritt_min} Minuten. Je Abfahrt zählt die "
+        "Zeit vom Verlassen des Hauses bis zur frühesten Ankunft, die Wartezeit also mit.",
+        "Tür zu Tür mit Fußwegen; welche Haltestelle man nimmt, entscheidet die früheste "
+        f"Ankunft (technische Grenze für den Fußweg {max_fussweg_min} Minuten). Ist man zu "
+        f"Fuß früher da, gilt die Gehzeit. Reisezeiten über {MAX_REISEZEIT_MIN // 60} Stunden "
+        "gelten als keine Verbindung.",
+        f"Keine Haltestelle in Gehweite: Im Umkreis von {HALT_MAX_M} m (Luftlinie) fährt "
+        "zwischen 7 und 9 Uhr kein Bus und keine Bahn ab.",
+        f"Campus in Gehweite: zu Fuß in höchstens {CAMPUS_FUSS_MAX_MIN} Minuten am Ziel.",
+        "Auto: Fahrzeit nach OpenStreetMap ohne Stau; die Karte rechnet standardmäßig "
+        f"{ZUSCHLAG_MIN} Minuten für Parkplatzsuche und Fußweg dazu. Die Fahrt endet an der "
+        f"Stelle „{ZIEL_AUTO_NAME}“, weil der Campus autofrei ist.",
+        "Fahrplan nach Plan: ohne Verspätungen und Ausfälle. Umsteigen mit der Voreinstellung "
+        "von MOTIS, in der Regel 2 Minuten.",
+        "Fahrrad und zu Fuß: Zeiten nach OpenStreetMap mit den Standardgeschwindigkeiten "
+        "von MOTIS, ohne Steigungen.",
+        f"Start ist der Mittelpunkt der Rasterzelle ({raster_m} m). Liegt im Umkreis von "
+        f"{MAX_WEGABSTAND_M} m kein passender Weg oder gibt es keine Verbindung, bleibt der "
+        "Wert leer.",
+    ]
+    en = [
+        f"Bus and train: median travel time over {anzahl} departures from {von:%H:%M} to "
+        f"{bis:%H:%M} every {schritt_min} minutes. For each departure the time counts from "
+        "leaving home to the earliest arrival, so waiting time is included.",
+        "Door to door including walking; the earliest arrival decides which stop is used "
+        f"(technical limit for walking {max_fussweg_min} minutes). If walking is faster, the "
+        f"walking time counts. Travel times over {MAX_REISEZEIT_MIN // 60} hours count as no "
+        "connection.",
+        f"No stop within walking distance: no bus or train departs between 7 and 9 am within "
+        f"{HALT_MAX_M} m (straight line).",
+        f"Campus within walking distance: at most {CAMPUS_FUSS_MAX_MIN} minutes on foot to the "
+        "destination.",
+        "Car: driving time from OpenStreetMap without congestion; by default the map adds "
+        f"{ZUSCHLAG_MIN} minutes for finding a parking space and walking. The drive ends at "
+        f"“{ZIEL_AUTO_NAME_EN}”, because the campus is car-free.",
+        "Timetable as planned: no delays or cancellations. Transfers with the MOTIS default, "
+        "usually 2 minutes.",
+        "Bicycle and walking: times from OpenStreetMap with the default speeds of MOTIS, "
+        "without slopes.",
+        f"The start is the center of the grid cell ({raster_m} m). If there is no suitable path "
+        f"within {MAX_WEGABSTAND_M} m or no connection, the value stays empty.",
+    ]
+    return {"de": de, "en": en}
+
+
 def kategorie(zellen: dict, i: int, zuschlag_min: float = ZUSCHLAG_MIN, halt_max_m: int = HALT_MAX_M,
               campus_fuss_max_min: float = CAMPUS_FUSS_MAX_MIN, grenzen=VERHAELTNIS_GRENZEN):
     """Kategorie einer Zelle für die Karte „ÖPNV gegen Auto“: "campus" (zu Fuß in Gehweite),
@@ -482,7 +535,21 @@ def main():
     parser.add_argument("--ausgabe", type=Path, default=AUSGABE, help="Zieldatei (JSON)")
     parser.add_argument("--nur-einwohner", action="store_true",
                         help="nur die Einwohner je Zelle in eine vorhandene Ergebnisdatei eintragen (ohne MOTIS)")
+    parser.add_argument("--nur-texte", action="store_true",
+                        help="nur Annahmen und Namen (deutsch und englisch) in einer vorhandenen Ergebnisdatei erneuern (ohne MOTIS)")
     args = parser.parse_args()
+
+    if args.nur_texte:
+        daten = json.loads(args.ausgabe.read_text(encoding="utf-8"))
+        a = daten["abfahrten"]
+        daten["annahmen"] = annahmen_texte(a["anzahl"], datetime.fromisoformat(a["von"]), datetime.fromisoformat(a["bis"]),
+                                           a["schritt_min"], args.max_fussweg, daten["raster_m"])
+        daten["ziel"]["name_en"] = ZIEL_NAME_EN
+        daten["ziel_auto"]["name_en"] = ZIEL_AUTO_NAME_EN
+        with open(args.ausgabe, "w", encoding="utf-8", newline="\n") as f:
+            f.write(json.dumps(daten, ensure_ascii=False, separators=(",", ":")) + "\n")
+        print(f"Texte erneuert: {args.ausgabe}")
+        return
 
     if args.nur_einwohner:
         daten = json.loads(args.ausgabe.read_text(encoding="utf-8"))
@@ -518,8 +585,8 @@ def main():
         zellen["einwohner"] = einwohner_je_zelle(punkte, args.raster)
     daten = {
         "erzeugt": date.today().isoformat(),
-        "ziel": {"name": ZIEL_NAME, "lat": ZIEL[0], "lon": ZIEL[1]},
-        "ziel_auto": {"name": ZIEL_AUTO_NAME, "lat": ZIEL_AUTO[0], "lon": ZIEL_AUTO[1]},
+        "ziel": {"name": ZIEL_NAME, "name_en": ZIEL_NAME_EN, "lat": ZIEL[0], "lon": ZIEL[1]},
+        "ziel_auto": {"name": ZIEL_AUTO_NAME, "name_en": ZIEL_AUTO_NAME_EN, "lat": ZIEL_AUTO[0], "lon": ZIEL_AUTO[1]},
         "abfahrten": {"von": zeiten[0].isoformat(), "bis": zeiten[-1].isoformat(),
                       "schritt_min": args.schritt, "anzahl": len(zeiten)},
         "raster_m": args.raster,
@@ -530,28 +597,8 @@ def main():
         "darstellung": {"zuschlag_min": ZUSCHLAG_MIN, "halt_max_m": HALT_MAX_M,
                         "campus_fuss_max_min": CAMPUS_FUSS_MAX_MIN,
                         "verhaeltnis_grenzen": VERHAELTNIS_GRENZEN},
-        "annahmen": [
-            f"Bus und Bahn: Median der Reisezeit über {len(zeiten)} Abfahrten von {zeiten[0]:%H:%M} "
-            f"bis {zeiten[-1]:%H:%M} Uhr im Abstand von {args.schritt} Minuten. Je Abfahrt zählt die "
-            "Zeit vom Verlassen des Hauses bis zur frühesten Ankunft, die Wartezeit also mit.",
-            "Tür zu Tür mit Fußwegen; welche Haltestelle man nimmt, entscheidet die früheste "
-            f"Ankunft (technische Grenze für den Fußweg {args.max_fussweg} Minuten). Ist man zu "
-            f"Fuß früher da, gilt die Gehzeit. Reisezeiten über {MAX_REISEZEIT_MIN // 60} Stunden "
-            "gelten als keine Verbindung.",
-            f"Keine Haltestelle in Gehweite: Im Umkreis von {HALT_MAX_M} m (Luftlinie) fährt "
-            "zwischen 7 und 9 Uhr kein Bus und keine Bahn ab.",
-            f"Campus in Gehweite: zu Fuß in höchstens {CAMPUS_FUSS_MAX_MIN} Minuten am Ziel.",
-            "Auto: Fahrzeit nach OpenStreetMap ohne Stau; die Karte rechnet standardmäßig "
-            f"{ZUSCHLAG_MIN} Minuten für Parkplatzsuche und Fußweg dazu. Die Fahrt endet an der "
-            f"Stelle „{ZIEL_AUTO_NAME}“, weil der Campus autofrei ist.",
-            "Fahrplan nach Plan: ohne Verspätungen und Ausfälle. Umsteigen mit der Voreinstellung "
-            "von MOTIS, in der Regel 2 Minuten.",
-            "Fahrrad und zu Fuß: Zeiten nach OpenStreetMap mit den Standardgeschwindigkeiten "
-            "von MOTIS, ohne Steigungen.",
-            f"Start ist der Mittelpunkt der Rasterzelle ({args.raster} m). Liegt im Umkreis von "
-            f"{MAX_WEGABSTAND_M} m kein passender Weg oder gibt es keine Verbindung, bleibt der "
-            "Wert leer.",
-        ],
+        "annahmen": annahmen_texte(len(zeiten), zeiten[0], zeiten[-1], args.schritt, args.max_fussweg,
+                                   args.raster),
         "grenze": {"type": grenze.geom_type,
                    "coordinates": _gerundet(shapely.geometry.mapping(grenze)["coordinates"])},
         "zellen": zellen,
