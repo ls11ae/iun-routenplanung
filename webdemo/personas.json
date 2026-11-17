@@ -85,8 +85,8 @@
     },
     {
       "id": "blind",
-      "name": "Blinde Studentin",
-      "name_en": "Blind student",
+      "name": "Blinde Person",
+      "name_en": "Blind person",
       "beschreibung": "Geht 1,0 m/s. Bevorzugt Ampeln mit akustischem Signal und Querungen mit Bodenindikatoren, meidet Querungen ohne Ampel, Treppen und Fahrbahnen ohne Gehweg.",
       "beschreibung_en": "Walks at 1.0 m/s. Prefers traffic lights with an acoustic signal and crossings with tactile paving, avoids crossings without traffic lights, stairs and roadways without a sidewalk.",
       "farbe": "#CC79A7",
