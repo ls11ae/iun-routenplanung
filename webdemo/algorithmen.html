@@ -26,6 +26,10 @@
     body.eingebettet .karten { height: 100dvh; }
     body.ui-legend #legende { display: block; }
     body.ui-compact #mini { display: block; }
+    /* kompaktes Bedienfeld einklappbar: dann nur noch Animation, Ergebnis und der Klappknopf */
+    #mini .knopfreihe { align-items: center; }
+    #mini-klappe { min-width: 2.2em; }
+    #mini.zu #mini-algos, #mini.zu #mini-text { display: none; }
   </style>
 </head>
 <body>
@@ -56,7 +60,7 @@
       <div id="legende"></div>
       <div id="mini">
         <div class="knopfreihe" id="mini-algos"></div>
-        <div class="knopfreihe"><button class="knopf haupt" data-tat="lauf" data-en="▶ Run">▶ Animation</button><button class="knopf" data-tat="ergebnis" data-en="Result">Ergebnis</button></div>
+        <div class="knopfreihe"><button class="knopf haupt" data-tat="lauf" data-en="▶ Run">▶ Animation</button><button class="knopf" data-tat="ergebnis" data-en="Result">Ergebnis</button><button class="knopf" id="mini-klappe" aria-expanded="true" aria-controls="mini-algos mini-text" aria-label="Bedienfeld einklappen" data-en-aria-label="Collapse the panel" title="Bedienfeld einklappen" data-en-title="Collapse the panel">▴</button></div>
         <div id="mini-text"></div>
       </div>
       <div id="nennung" data-en='Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> (ODbL)'>Kartendaten © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a> (ODbL)</div>

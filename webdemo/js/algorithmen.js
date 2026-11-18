@@ -5,7 +5,8 @@
  *
  * URL-Parameter (für Folien): algo=dijkstra|bidir|astar|alt|ch|compare  metric=fast|quiet
  * s=, t= (Ort oder Knotennummer)  state=final|start|anim  ui=full|legend|compact|none
- * speed=<Faktor>  view=x0,y0,x1,y1 (Meter)  algos=<Liste> (nur diese Algorithmen anbieten) */
+ * speed=<Faktor>  view=x0,y0,x1,y1 (Meter)  algos=<Liste> (nur diese Algorithmen anbieten)
+ * mini=zu (kompaktes Bedienfeld eingeklappt starten; der Knopf ▾/▴ klappt es aus und ein) */
 (async function () {
   'use strict';
   const R = self.Routing;
@@ -496,6 +497,17 @@
   for (const b of document.querySelectorAll('[data-algo]')) b.onclick = () => { st.algo = b.dataset.algo; run(st.algo !== 'compare'); };
   for (const b of document.querySelectorAll('[data-gewicht]')) b.onclick = () => { st.metric = b.dataset.gewicht; run(false); };
   for (const b of document.querySelectorAll('[data-tempo]')) b.onclick = () => { st.speed = +b.dataset.tempo; updateStats(); };
+  // kompaktes Bedienfeld (ui=compact) ein- und ausklappen; ?mini=zu startet eingeklappt
+  function miniKlappen(zu) {
+    const k = $('mini-klappe'), text = zu ? w('Bedienfeld ausklappen', 'Expand the panel') : w('Bedienfeld einklappen', 'Collapse the panel');
+    $('mini').classList.toggle('zu', zu);
+    k.textContent = zu ? '▾' : '▴';
+    k.setAttribute('aria-expanded', String(!zu));
+    k.setAttribute('aria-label', text);
+    k.title = text;
+  }
+  $('mini-klappe').onclick = () => miniKlappen(!$('mini').classList.contains('zu'));
+  miniKlappen(P.get('mini') === 'zu');
   for (const b of document.querySelectorAll('[data-tat]')) {
     b.onclick = () => { if (b.dataset.tat === 'lauf') run(true); else if (b.dataset.tat === 'ergebnis') run(false); else clearSearch(); };
   }
