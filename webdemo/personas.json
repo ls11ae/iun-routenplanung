@@ -60,7 +60,7 @@
     },
     {
       "id": "rollstuhl",
-      "name": "Rollstuhlfahrer",
+      "name": "Rollstuhlfahrer*in",
       "name_en": "Wheelchair user",
       "beschreibung": "Fährt 1,0 m/s. Treppen, hohe Bordsteine und als ungeeignet erfasste Wege sind gesperrt; schlechter oder unbekannter Belag, Steigung und Querungen ohne Ampel werden gemieden.",
       "beschreibung_en": "Moves at 1.0 m/s. Stairs, raised curbs and paths mapped as unsuitable are blocked; poor or unknown surfaces, slopes and crossings without traffic lights are avoided.",
