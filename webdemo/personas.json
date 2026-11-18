@@ -39,7 +39,7 @@
     },
     {
       "id": "rad",
-      "name": "Radpendlerin",
+      "name": "Radpendler*in",
       "name_en": "Cycling commuter",
       "beschreibung": "Fährt 15 km/h, schiebt auf reinen Fußwegen, meidet Hauptstraßen ohne Radweg, schlechten Belag und Anstiege. Treppen sind gesperrt.",
       "beschreibung_en": "Rides at 15 km/h, pushes the bike on footpaths, avoids main roads without a cycle lane, poor surfaces and climbs. Stairs are blocked.",
