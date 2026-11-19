@@ -1,0 +1,402 @@
+/*
+ * Informatik und Nachhaltigkeit: schlichter Folienstil.
+ * Hell: schwarz auf weiß, dunkel: weiß auf schwarz.
+ * Farbakzente (accent0 bis accent7) kommen aus der Okabe-Ito-Palette,
+ * definiert unter `palette` in decker.yaml.
+ */
+
+:root {
+  --header-color: var(--foreground-color);
+  --primary-color: var(--accent5);   /* Okabe-Ito Blau */
+  --secondary-color: var(--accent1); /* Okabe-Ito Orange */
+  --hover-color: var(--accent5);
+  --focus-color: var(--accent1);
+  --icon-active-color: var(--accent5);
+  --highlight-color: var(--accent2-bg);
+}
+
+/* Im Dunkelmodus Himmelblau statt Blau: mehr Kontrast auf Schwarz */
+:root.dark {
+  --primary-color: var(--accent4);
+  --hover-color: var(--accent4);
+  --icon-active-color: var(--accent4);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --primary-color: var(--accent4);
+    --hover-color: var(--accent4);
+    --icon-active-color: var(--accent4);
+  }
+}
+
+/* Titelfolie: kein Farbbalken, Titel in Textfarbe */
+.background-on-accent {
+  background-color: transparent;
+  border-bottom: 0.15rem solid var(--foreground-color);
+}
+section#title-slide h1,
+section#title-slide h2 {
+  color: var(--foreground-color);
+}
+
+/* Folien, die nur aus einer Überschrift bestehen: ebenfalls ohne Farbbalken */
+.reveal section.section h1,
+.reveal section h1:only-child {
+  color: var(--foreground-color);
+  background-color: transparent;
+  border-bottom: 0.15rem solid var(--foreground-color);
+}
+
+/* Große Kennzahlen, z. B. [415 TWh]{.kennzahl} */
+.reveal .kennzahl {
+  font-size: 2.2em;
+  font-weight: bold;
+  line-height: 1.1;
+}
+
+/* Fortschrittsbalken in der Akzentfarbe statt Grün */
+.reveal .progress {
+  background: var(--shade1);
+}
+.reveal .progress span {
+  background: var(--primary-color);
+}
+
+/* Kompakte Listen, z. B. die 17 SDGs in drei Spalten */
+.reveal .kompakt {
+  font-size: 0.8em;
+}
+
+/* Boxen im Dunkelmodus: dezente, dunkle Tönung statt kräftiger Flächen */
+:root.dark {
+    --accent0-bbg: color-mix(in srgb, var(--accent0) 25%, var(--background-color));
+    --accent1-bbg: color-mix(in srgb, var(--accent1) 25%, var(--background-color));
+    --accent2-bbg: color-mix(in srgb, var(--accent2) 25%, var(--background-color));
+    --accent3-bbg: color-mix(in srgb, var(--accent3) 25%, var(--background-color));
+    --accent4-bbg: color-mix(in srgb, var(--accent4) 25%, var(--background-color));
+    --accent5-bbg: color-mix(in srgb, var(--accent5) 25%, var(--background-color));
+    --accent6-bbg: color-mix(in srgb, var(--accent6) 25%, var(--background-color));
+    --accent7-bbg: color-mix(in srgb, var(--accent7) 25%, var(--background-color));
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --accent0-bbg: color-mix(in srgb, var(--accent0) 25%, var(--background-color));
+    --accent1-bbg: color-mix(in srgb, var(--accent1) 25%, var(--background-color));
+    --accent2-bbg: color-mix(in srgb, var(--accent2) 25%, var(--background-color));
+    --accent3-bbg: color-mix(in srgb, var(--accent3) 25%, var(--background-color));
+    --accent4-bbg: color-mix(in srgb, var(--accent4) 25%, var(--background-color));
+    --accent5-bbg: color-mix(in srgb, var(--accent5) 25%, var(--background-color));
+    --accent6-bbg: color-mix(in srgb, var(--accent6) 25%, var(--background-color));
+    --accent7-bbg: color-mix(in srgb, var(--accent7) 25%, var(--background-color));
+  }
+}
+
+/* Eigene Grafiken bringen ihren Dunkelmodus selbst mit: im Dunkelmodus
+   keinen weißen Hintergrund und keinen Filter darunterlegen.
+   Verwendung: ![Bildunterschrift](bild.svg){.eigener-dunkelmodus}
+   (Decker setzt die Klasse auf den umgebenden div.media.) */
+html.dark .eigener-dunkelmodus img {
+  background-color: transparent;
+  filter: none;
+}
+
+/* Seiten (*-page.md), z. B. Projektideen-Steckbriefe:
+   schlichter Kopf statt Farbbalken, kompakt genug für eine A4-Seite */
+body > header {
+  background: transparent;
+  border-bottom: 0.15rem solid var(--foreground-color);
+  padding: 0 0 0.75rem 0;
+  margin: 0 0 1.5rem 0;
+  text-align: left;
+}
+body > header > h1,
+body > header > h2 {
+  color: var(--foreground-color);
+  margin: 0;
+  line-height: 1.25;
+}
+body > header > h1 {
+  font-size: 2rem;
+}
+body > header > h2 {
+  font-size: 1.2rem;
+}
+@media print {
+  /* Bedienelemente nicht mitdrucken */
+  button,
+  .color-scheme-toggle,
+  nav,
+  body > footer {
+    display: none !important;
+  }
+  /* kompakter, damit ein Steckbrief auf eine A4-Seite passt */
+  main h1,
+  main h2,
+  main h3 {
+    margin-top: 1rem !important;
+    margin-bottom: 0.3rem !important;
+  }
+  main p,
+  main ul {
+    margin-top: 0.2rem;
+    margin-bottom: 0.4rem;
+  }
+}
+
+/* ------------------------------------------------------------------
+ * Bausteine aus dem Setup von „Algorithms and Sustainability“ (aus.css),
+ * übertragen auf die Okabe-Ito-Farben dieses Kurses.
+ * Farbbedeutung:
+ *   blau    Hervorhebung: **fett**, Fachbegriffe, Info- und Beispielboxen ({.info})
+ *   orange  Fragen ans Publikum und Aktivitäten ({.ask}, [Text]{.ask})
+ *   rot     Vorsicht, typische Fehlvorstellungen ({.warn}, [Text]{.warn}); selten
+ *   grau    Nebeninformation: Quellen ([Text]{.source})
+ *   SDG-Farben nur in den SDG-Chips ([7]{.sdg .s7})
+ * Für Schrift werden Orange und Rot im hellen Modus abgedunkelt,
+ * sonst reicht der Kontrast auf Weiß nicht.
+ * ------------------------------------------------------------------ */
+:root {
+  --iun-blue: var(--accent5);
+  --iun-orange-line: var(--accent1);
+  --iun-orange-text: color-mix(in srgb, var(--accent1) 55%, #000000);
+  --iun-red-line: var(--accent0);
+  --iun-red-text: color-mix(in srgb, var(--accent0) 75%, #000000);
+}
+:root.dark {
+  --iun-blue: var(--accent4);
+  --iun-orange-text: var(--accent1);
+  --iun-red-text: var(--accent0);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --iun-blue: var(--accent4);
+    --iun-orange-text: var(--accent1);
+    --iun-red-text: var(--accent0);
+  }
+}
+
+.reveal strong {
+  color: var(--iun-blue);
+}
+.reveal div.block:is(.info, .ask, .warn) {
+  border-left: 6px solid;
+}
+.reveal div.block.info {
+  background-color: var(--accent5-bbg);
+  border-left-color: var(--iun-blue);
+}
+.reveal div.block.info h2 {
+  color: var(--iun-blue);
+}
+.reveal div.block.ask {
+  background-color: var(--accent1-bbg);
+  border-left-color: var(--iun-orange-line);
+}
+.reveal div.block.ask :is(h2, strong),
+.reveal span.ask {
+  color: var(--iun-orange-text);
+}
+.reveal span.ask {
+  font-weight: bold;
+}
+.reveal div.block.warn {
+  background-color: var(--accent0-bbg);
+  border-left-color: var(--iun-red-line);
+}
+.reveal div.block.warn :is(h2, strong),
+.reveal span.warn {
+  color: var(--iun-red-text);
+}
+
+/* Lizenzzeile auf der Titelfolie: klein und unaufdringlich */
+.reveal #title-slide .copyright,
+.reveal #title-slide .copyright a {
+  font-size: 0.75em;
+  color: var(--shade5);
+}
+
+/* SDG-Chips: Nummer in der offiziellen SDG-Farbe, danach der Name des Ziels */
+.sdg {
+  display: inline-block;
+  min-width: 1.7em;
+  padding: 0.05em 0.3em;
+  margin-right: 0.35em;
+  border-radius: 3px;
+  font-weight: bold;
+  text-align: center;
+  color: #ffffff;
+}
+.sdg.s1  { background: #E5243B; }
+.sdg.s2  { background: #DDA63A; color: #1d1f21; }
+.sdg.s3  { background: #4C9F38; }
+.sdg.s4  { background: #C5192D; }
+.sdg.s5  { background: #FF3A21; }
+.sdg.s6  { background: #26BDE2; color: #1d1f21; }
+.sdg.s7  { background: #FCC30B; color: #1d1f21; }
+.sdg.s8  { background: #A21942; }
+.sdg.s9  { background: #FD6925; color: #1d1f21; }
+.sdg.s10 { background: #DD1367; }
+.sdg.s11 { background: #FD9D24; color: #1d1f21; }
+.sdg.s12 { background: #BF8B2E; color: #1d1f21; }
+.sdg.s13 { background: #3F7E44; }
+.sdg.s14 { background: #0A97D9; color: #1d1f21; }
+.sdg.s15 { background: #56C02B; color: #1d1f21; }
+.sdg.s16 { background: #00689D; }
+.sdg.s17 { background: #19486A; }
+
+/* Listen von SDG-Chips ohne Aufzählungszeichen */
+.reveal ul.sdglist,
+.reveal .sdglist ul {
+  list-style: none;
+  margin-left: 0;
+  padding-left: 0;
+}
+.reveal div.sdglist {
+  font-size: 0.85em;
+}
+.reveal .sdglist li {
+  margin-bottom: 0.15em;
+}
+
+/* Übersicht der 17 Ziele: drei Spalten mit Chip und Kurztitel */
+.reveal div.sdggrid ul {
+  list-style: none;
+  margin: 0.3em 0 0.2em 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(6, auto);
+  grid-auto-flow: column;
+  column-gap: 0.9em;
+  row-gap: 0.28em;
+  font-size: 0.64em;
+  line-height: 1.2;
+}
+.reveal div.sdggrid li {
+  display: flex;
+  align-items: center;
+  margin: 0;
+}
+.reveal div.sdggrid li::before {
+  content: none;
+}
+.reveal div.sdggrid .sdg {
+  flex: none;
+  min-width: 2em;
+  padding: 0.3em 0.25em;
+  margin-right: 0.5em;
+  font-size: 1.05em;
+}
+
+/* große Leitfrage */
+.reveal .bigquestion {
+  font-size: 1.45em;
+  line-height: 1.35;
+  text-align: center;
+  margin: 1.2em 0 1em 0;
+}
+
+/* Quellenzeilen unter Abbildungen und Zahlen */
+.reveal .source {
+  font-size: 0.6em;
+  color: var(--shade5);
+}
+
+/* Literatur- und Kleingedrucktes */
+.reveal div.refs {
+  font-size: 0.62em;
+}
+.reveal div.refs li,
+.reveal div.small li {
+  margin-bottom: 0.3em;
+}
+
+/* Tabellen, die etwas weniger Platz brauchen */
+.reveal div.tablefit {
+  font-size: 0.8em;
+}
+.reveal div.tablesmall {
+  font-size: 0.68em;
+}
+
+/* Abbildungen, deren Bildunterschrift nur als Alternativtext dient */
+.reveal .nocap figcaption {
+  display: none;
+}
+
+/* Erklärungen zu Quizantworten im PDF weglassen, sonst rutscht die Folie auf zwei Seiten */
+html.print-pdf .reveal .quiz ul li ul {
+  display: none;
+}
+
+/* Grün für „im sicheren Bereich“, z. B. auf der Folie Planetare Grenzen:
+   ::: {.block .gut} oder [Text]{.gut} */
+:root {
+  --iun-green-line: var(--accent3);
+  --iun-green-text: color-mix(in srgb, var(--accent3) 70%, #000000);
+}
+:root.dark {
+  --iun-green-text: var(--accent3);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --iun-green-text: var(--accent3);
+  }
+}
+.reveal div.block.gut {
+  border-left: 6px solid var(--iun-green-line);
+  background-color: var(--accent3-bbg);
+}
+.reveal div.block.gut :is(h2, strong),
+.reveal span.gut {
+  color: var(--iun-green-text);
+}
+.reveal span.gut {
+  font-weight: bold;
+}
+
+/* Folien mit Projektideen ({.columns .ideen}): Inhalt etwas kleiner,
+   damit zwei Ideen mit Leitfrage, Abbildung und Bezug auf eine Folie passen */
+.reveal section.ideen div.layout {
+  font-size: 0.84em;
+}
+
+/* Zwei gleich breite Spalten innerhalb einer Folie: ::: columns-1-1 mit ::: {.col} */
+.reveal div.columns-1-1 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2em;
+  align-items: start;
+}
+
+/* Listen mit SDG-Chip am Anfang jedes Punkts: ohne Aufzählungszeichen */
+.reveal .chiplist ul {
+  list-style: none;
+  margin-left: 0;
+  padding-left: 0;
+}
+.reveal .chiplist li {
+  margin-bottom: 0.55em;
+}
+
+/* Live-Demos (Webdemo zur Routenplanung) als iframe; im PDF stattdessen ein Bild:
+   <iframe class="demo" data-src="…"></iframe> und ![…](bild.jpg){.demo-print .nocap} */
+.reveal iframe.demo {
+  width: 100%;
+  height: 450px;
+  border: 1px solid var(--shade3);
+  border-radius: 4px;
+}
+.reveal .demo-print {
+  display: none !important;
+}
+html.print-pdf .reveal iframe.demo {
+  display: none !important;
+}
+html.print-pdf .reveal .demo-print {
+  display: block !important;
+}
+html.print-pdf .reveal .demo-print img {
+  max-height: 450px;
+  width: auto;
+}

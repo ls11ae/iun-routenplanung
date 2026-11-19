@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html lang="de-DE">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="Prof. Dr. Kevin Buchin">
+  <title> Informatik und Nachhaltigkeit:  Sitzung 6:
+Routenplanung</title>
+
+  <!-- PWA stuff -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-touch-fullscreen" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="../support/pwa/icon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#84b819" />
+  <link rel="manifest" href="../support/pwa/manifest.webmanifest" crossorigin="use-credentials" />
+
+  <link rel="shortcut icon" href="../support/assets/favicon.ico">
+
+  <script type="module">
+    /* Store JSON encoded Pandoc meta data in a global variable. */
+    import initializeDecker from "./../support/js/decker.js";
+    initializeDecker("0538d92ac.json");
+  </script>
+
+    <!-- Default values for CSS variables can live here. They can be overridden by
+    meta data values. -->
+    <link rel="stylesheet" href="../support/css/variables.css">
+
+    <!-- Transfer meta data values from keys `palette.colors` and `css-variables`
+    into a style sheet. Default values can come from `variables.css`. -->
+    <style class="css-declarations">
+      :root {
+                --shade7: #000000;
+                --shade6: #222222;
+                --shade5: #555555;
+                --shade4: #808080;
+                --shade3: #b0b0b0;
+                --shade2: #dddddd;
+                --shade1: #f2f2f2;
+                --shade0: #ffffff;
+                --contrast: 40%;
+                --base0F: #000000;
+                --base0E: #cc79a7;
+                --base0D: #0072b2;
+                --base0C: #56b4e9;
+                --base0B: #009e73;
+                --base0A: #f0e442;
+                --base09: #e69f00;
+                --base08: #d55e00;
+                --base07: #000000;
+                --base06: #222222;
+                --base05: #555555;
+                --base04: #808080;
+                --base03: #b0b0b0;
+                --base02: #dddddd;
+                --base01: #f2f2f2;
+                --base00: #ffffff;
+                --accent7: #000000;
+                --accent6: #cc79a7;
+                --accent5: #0072b2;
+                --accent4: #56b4e9;
+                --accent3: #009e73;
+                --accent2: #f0e442;
+                --accent1: #e69f00;
+                --accent0: #d55e00;
+            }
+      :root.dark {
+                --shade7: #ffffff;
+                --shade6: #e0e0e0;
+                --shade5: #b0b0b0;
+                --shade4: #7a7a7a;
+                --shade3: #4a4a4a;
+                --shade2: #2a2a2a;
+                --shade1: #141414;
+                --shade0: #000000;
+                --contrast: 40%;
+                --base0F: #ffffff;
+                --base0E: #cc79a7;
+                --base0D: #0072b2;
+                --base0C: #56b4e9;
+                --base0B: #009e73;
+                --base0A: #f0e442;
+                --base09: #e69f00;
+                --base08: #d55e00;
+                --base07: #ffffff;
+                --base06: #e0e0e0;
+                --base05: #b0b0b0;
+                --base04: #7a7a7a;
+                --base03: #4a4a4a;
+                --base02: #2a2a2a;
+                --base01: #141414;
+                --base00: #000000;
+                --accent7: #ffffff;
+                --accent6: #cc79a7;
+                --accent5: #0072b2;
+                --accent4: #56b4e9;
+                --accent3: #009e73;
+                --accent2: #f0e442;
+                --accent1: #e69f00;
+                --accent0: #d55e00;
+            }
+      :root {
+            }
+    </style>
+
+    <link rel="stylesheet" href="../support/vendor/reveal/dist/reset.css">
+    <link rel="stylesheet" href="../support/vendor/reveal/dist/reveal.css">
+    <link rel="stylesheet" href="../support/components/components.css">
+    <link rel="stylesheet" href="../support/plugins/decker/ui-anchors.css">
+    <link rel="stylesheet" href="../support/plugins/whiteboard/whiteboard.css">
+    <link rel="stylesheet" href="../support/plugins/menu/menu.css">
+    <link rel="stylesheet" href="../support/plugins/feedback/feedback.css">
+    <link rel="stylesheet" href="../support/vendor/videojs/video-js.min.css">
+    <link rel="stylesheet" href="../support/plugins/explain/explain.css">
+      <link rel="stylesheet" href="../support/plugins/live-captioning/live-captioning.css">
+      <link rel="stylesheet" href="../support/plugins/quiz-wue/quiz-wue.css">
+    <link rel="stylesheet" href="../support/plugins/quizzer/quizzer.css">
+    <link rel="stylesheet" href="../support/css/deck.css">
+    <link rel="stylesheet" href="../support/css/tudo-deck.css">
+      <link rel="stylesheet" href="../support/fonts/lato.css">
+      <link rel="stylesheet" href="../support/plugins/handout/handout.css">
+      <link rel="stylesheet" href="../static/iun.css"/>
+      
+</head>
+
+<body >
+  <div class="reveal">
+    <div class="slides">
+
+      <section id="title-slide">
+  <div class="decker">
+    <div class="alignment">
+      <header class="background-on-accent">
+        <h1 class="title">
+        <span class="title-title">Informatik und Nachhaltigkeit</span>
+        </h1>
+        <h2 class="subtitle">
+        <span class="title-subtitle">Sitzung 6: Routenplanung</span>
+        </h2>
+      </header>
+
+      
+            
+            <div class="author">
+                
+              <p>
+                Prof. Dr. Kevin Buchin
+              </p>
+              </div>
+      
+            <div class="affiliation">
+              <p>
+                TU Dortmund · Fakultät für Informatik
+              </p>
+              </div>
+      
+              <div class="date">18.11.2026</div>
+      
+            <div class="copyright">
+              <p>
+                <a href="https://creativecommons.org/licenses/by/4.0/deed.de">Folien:
+            CC BY 4.0 (ausgenommen gekennzeichnetes Material
+            Dritter)</a>
+              </p>
+            </div>
+      
+      <div class="logos">
+                        </div>
+          </div>
+  </div>
+</section>            
+<section id="heute" class="slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Heute</h1>
+<div class="layout">
+<div class="area">
+<div class="box block">
+<table>
+<thead>
+<tr>
+<th>Zeit</th>
+<th>Programm</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>14:15</td>
+<td>Einstieg: Wie sind Sie heute zur Uni gekommen?</td>
+</tr>
+<tr>
+<td>14:25</td>
+<td>Vorlesung: vom Stadtplan zum kürzesten Weg</td>
+</tr>
+<tr>
+<td>15:05</td>
+<td>Aktivität: Die beste Route für wen?</td>
+</tr>
+<tr>
+<td>15:40</td>
+<td>Pause</td>
+</tr>
+<tr>
+<td>15:55</td>
+<td>Vorlesung: schnell für alle, nach mehreren Kriterien</td>
+</tr>
+<tr>
+<td>16:35</td>
+<td>Ausprobieren in der Webdemo</td>
+</tr>
+<tr>
+<td>17:00</td>
+<td>Projektthemen zur Routenplanung</td>
+</tr>
+<tr>
+<td>17:20</td>
+<td>Ausblick; Ende um 17:30</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="wie-sind-sie-heute-zur-uni-gekommen" class="slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Wie sind Sie heute zur Uni gekommen?</h1>
+<div class="layout">
+<div class="area">
+<div class="box block">
+<p><span class="ask">Wählen Sie alles, was Sie heute genutzt haben.</span></p>
+<div class="quiz">
+<ul class="task-list">
+<li><label><input type="checkbox" checked="" />zu Fuß</label></li>
+<li><label><input type="checkbox" checked="" />Fahrrad, E-Bike oder Roller</label></li>
+<li><label><input type="checkbox" checked="" />Bus, Bahn oder H-Bahn</label></li>
+<li><label><input type="checkbox" checked="" />Auto, selbst gefahren oder mitgefahren</label></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="warum-so" class="slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Warum so?</h1>
+<div class="layout">
+<div class="area">
+<div class="box block">
+<p><span class="ask">Warum sind Sie so gekommen und nicht anders?</span></p>
+<p><span class="ask">Was müsste sich ändern, damit Sie anders fahren?</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="warum-routenplanung-für-nachhaltigkeit" class="slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Warum Routenplanung für Nachhaltigkeit?</h1>
+<div class="layout">
+<div class="area">
+<div class="box block">
+<div id="unterziel-11.2" class="block info">
+<h2>Unterziel 11.2</h2>
+<p>„Bis 2030 den Zugang zu <strong>sicheren, bezahlbaren, zugänglichen und nachhaltigen Verkehrssystemen für alle</strong> ermöglichen (…), mit besonderem Augenmerk auf den Bedürfnissen von Menschen in prekären Situationen, Frauen, Kindern, <strong>Menschen mit Behinderungen</strong> und älteren Menschen.“</p>
+</div>
+<ul>
+<li>Verkehr in Deutschland 2025: <strong>146 von 649 Mio. t CO₂-Äquivalenten</strong> (23 %), <strong>steigend</strong></li>
+<li>In Großstädten sind <strong>über 40 %</strong> der Autofahrten <strong>kürzer als 5 km</strong></li>
+<li><strong>7,8 Millionen</strong> Menschen in Deutschland haben eine <strong>Schwerbehinderung</strong> (9,4 %)</li>
+</ul>
+<p><span class="source"><span class="sdg s11">11</span> Städte · <span class="sdg s13">13</span> Klima · <span class="sdg s3">3</span> Gesundheit · <span class="sdg s10">10</span> weniger Ungleichheiten · Zahlen: Umweltbundesamt 2026, MiD 2023, Destatis 2026</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="die-beste-route-für-wen" class="columns slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Die beste Route für wen?</h1>
+<div class="layout row columns">
+<div class="area left" grow="3">
+<div id="section" class="left box block" grow="3">
+<h2 class="left"></h2>
+<div class="nocap media">
+<figure class="image" style="height:auto;width:auto;">
+<img src="img/webdemo-routen-personas.jpg" style="height:500px;width:auto;" aria-label="Webdemo: vier Routen vom Hauptbahnhof zum Phoenix-See, eine je Persona: zu Fuß (blau), Radpendler*in (orange gestrichelt), Rollstuhlfahrer*in (grün gepunktet), blinde Person (rosa Strichpunkt)" alt="img/webdemo-routen-personas.jpg" />
+<figcaption>
+Webdemo: vier Routen vom Hauptbahnhof zum Phoenix-See, eine je Persona: zu Fuß (blau), Radpendler*in (orange gestrichelt), Rollstuhlfahrer*in (grün gepunktet), blinde Person (rosa Strichpunkt)
+</figcaption>
+</figure>
+</div>
+</div>
+</div><div class="area right" grow="2">
+<div id="section-1" class="right box block" grow="2">
+<h2 class="right"></h2>
+<p>Hauptbahnhof → Phoenix-See</p>
+<div class="tablefit tablesmall">
+<table>
+<thead>
+<tr>
+<th></th>
+<th align="right">Fuß</th>
+<th align="right">Rad</th>
+<th align="right">Rollst.</th>
+<th align="right">blind</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Länge (km)</td>
+<td align="right">5,2</td>
+<td align="right">5,9</td>
+<td align="right">5,5</td>
+<td align="right">6,0</td>
+</tr>
+<tr>
+<td>Hauptstraße o. Radweg (m)</td>
+<td align="right">825</td>
+<td align="right">18</td>
+<td align="right">315</td>
+<td align="right">159</td>
+</tr>
+<tr>
+<td>Treppen (m)</td>
+<td align="right">50</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">21</td>
+</tr>
+<tr>
+<td>Querung ohne Ampel</td>
+<td align="right">4</td>
+<td align="right">3</td>
+<td align="right">3</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><span class="ask">Gleicher Start, gleiches Ziel, vier Routen. Warum?</span></p>
+<p><span class="source">Webdemo, Reiter „Routen vergleichen“</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="live-routen-vergleichen" class="slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Live: Routen vergleichen</h1>
+<div class="layout">
+<div class="area">
+<div class="box block">
+<iframe class="demo" style="height: 560px" data-src="../../index.html?lang=de#routen" title="Webdemo: Routen vom Hauptbahnhof zum Phoenix-See für verschiedene Personas vergleichen">
+</iframe>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="was-zählt-für-wen" class="slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Was zählt für wen?</h1>
+<div class="layout">
+<div class="area">
+<div class="box block">
+<div class="grid-layout" style="grid-template-columns: 1fr 1fr;">
+<div class="col chiplist">
+<ul>
+<li><span class="sdg s3">3</span> <strong>Radfahrende</strong> wägen Zeit gegen <strong>Eignung</strong> ab (Sicherheit, Verkehr, Radwege, Steigung), jede Person anders (Ehrgott et al. 2012)</li>
+<li><span class="sdg s11">11</span> Portland: <strong>60 %</strong> sind „interessiert, aber besorgt“ (Dill und McNeil 2013)</li>
+<li><span class="sdg s10">10</span> <strong>Blinde Fußgänger*innen:</strong> Länge, <strong>Abbiegungen</strong>, <strong>Orientierungspunkte</strong>, Art des Weges (Cohen und Dalyot 2021)</li>
+</ul>
+</div>
+<div class="col chiplist">
+<ul>
+<li><span class="sdg s13">13</span> <strong>Emissionen:</strong> Die schnellste Autoroute ist nicht die sparsamste: 15,6 min und 1,34 l gegen 15,7 min und 0,76 l (Minett et al. 2011)</li>
+<li><span class="sdg s10">10</span> <strong>Rollstuhl:</strong> Stufen, Bordsteine, Steigung, Belag</li>
+<li><span class="sdg s11">11</span> <strong>Nahverkehr:</strong> Fahrplan, Umstiege, Rad und Bahn: am <strong>16.12.</strong></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="ein-problem-hinter-allen" class="columns slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Ein Problem hinter allen</h1>
+<div class="layout row columns">
+<div class="area left" grow="1">
+<div id="section-2" class="box block left" grow="1">
+<h2 class="left" id="section-2"></h2>
+<p><strong>Straßennetz als Graph</strong> <span class="math inline">\(G=(V,E)\)</span>: Kreuzungen sind Knoten, Wegstücke sind Kanten</p>
+<p><strong>Kantengewicht</strong> <span class="math inline">\(c(e)\ge0\)</span>: das Kriterium (Zeit, Länge, CO₂, Stress, Barrieren, …)</p>
+<div id="kürzeste-wege-problem" class="block info">
+<h2>Kürzeste-Wege-Problem</h2>
+<p>Gegeben <span class="math inline">\(s,t\in V\)</span>: Finde einen Weg von <span class="math inline">\(s\)</span> nach <span class="math inline">\(t\)</span> mit kleinstem Gesamtgewicht <span class="math inline">\(\sum_e c(e)\)</span>.</p>
+</div>
+</div>
+</div><div class="area right" grow="1">
+<div id="section-3" class="right box block" grow="1">
+<h2 class="right"></h2>
+<p><strong>Dortmund mit dem Rad</strong> (OpenStreetMap, 09.11.2026):</p>
+<ul>
+<li><strong>112.743</strong> Knoten, <strong>264.203</strong> Kanten, 5.068 km</li>
+<li>Gewicht: Fahrzeit bei 18 km/h, langsamer auf Pfaden und Pflaster</li>
+</ul>
+<p>Westeuropa: <strong>18 Millionen</strong> Knoten, <strong>42 Millionen</strong> Kanten</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="vom-stadtplan-zum-graphen" class="columns slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Vom Stadtplan zum Graphen</h1>
+<div class="layout row columns">
+<div class="area">
+<div id="section-4" class="top box block">
+<h2 class="top"></h2>
+<div class="nocap media">
+<figure class="image" style="height:auto;width:auto;">
+<img src="img/wegenetz-graph.svg" style="height:270px;width:auto;" aria-label="Ausschnitt am Campus Nord. Links die Wege mit ihrem Verlauf, eingefärbt nach Merkmalen aus OpenStreetMap: Treppen, Sammelstraßen ohne Radweg, Wege ohne Angabe zum Belag. Rechts derselbe Ausschnitt als Graph mit 188 Knoten und 202 Kanten" alt="img/wegenetz-graph.svg" />
+<figcaption>
+Ausschnitt am Campus Nord. Links die Wege mit ihrem Verlauf, eingefärbt nach Merkmalen aus OpenStreetMap: Treppen, Sammelstraßen ohne Radweg, Wege ohne Angabe zum Belag. Rechts derselbe Ausschnitt als Graph mit 188 Knoten und 202 Kanten
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div class="layout row columns">
+<div class="area left">
+<div id="section-5" class="left box block">
+<h2 class="left"></h2>
+<p><strong>OpenStreetMap:</strong> Wege mit <strong>Tags</strong>, z. B. <code>highway=steps</code>, <code>surface=sett</code>, <code>wheelchair=no</code>, <code>traffic_signals:sound=yes</code></p>
+</div>
+</div><div class="area right">
+<div id="section-6" class="right box block">
+<h2 class="right"></h2>
+<p><strong>Graph:</strong> Knoten an Kreuzungen <strong>und</strong> dort, wo sich Tags ändern; Kanten mit Länge und Merkmalen</p>
+<p><span class="ask">Wie vollständig? Belag an <strong>87 %</strong> der Wegstücke, <code>wheelchair</code> an <strong>3 %</strong>, Steigung an <strong>4 %</strong></span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="gewichte-sind-modellannahmen" class="slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Gewichte sind Modellannahmen</h1>
+<div class="layout">
+<div class="area">
+<div class="box block">
+<p>Kosten einer Kante = <strong>Zeit</strong> + <span class="math inline">\(\sum\)</span> <strong>Gewicht</strong> × <strong>Merkmal</strong>; gesperrte Merkmale schließen eine Kante aus <span class="source">(Webdemo, <code>personas.json</code>)</span></p>
+<div class="tablefit">
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Radpendler*in</th>
+<th>Rollstuhlfahrer*in</th>
+<th>Blinde Person</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tempo</td>
+<td>15 km/h</td>
+<td>1,0 m/s</td>
+<td>1,0 m/s</td>
+</tr>
+<tr>
+<td>gesperrt</td>
+<td>Treppen</td>
+<td>Treppen, hohe Bordsteine, <code>wheelchair=no</code></td>
+<td>–</td>
+</tr>
+<tr>
+<td>Aufschläge</td>
+<td>Hauptstraße ohne Radweg: +0,5 s je m<br>schlechter Belag: +0,3 s je m<br>je Höhenmeter: +6 s</td>
+<td>Querung ohne Ampel: +20 s<br>schlechter Belag: +3 s je m<br>je Höhenmeter: +20 s</td>
+<td>Querung ohne Ampel: +180 s<br>Ampel ohne Signal: +60 s<br>ohne Bodenindikatoren: +30 s</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><span class="ask">Woher kommen diese Zahlen? Wer sollte sie festlegen?</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="dijkstras-algorithmus-wiederholung" class="columns slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Dijkstras Algorithmus: Wiederholung</h1>
+<div class="layout row columns">
+<div class="area left" grow="1">
+<div id="section-7" class="left box block" grow="1">
+<h2 class="left"></h2>
+<ul>
+<li><span class="math inline">\(d(s)=0\)</span>, alle anderen <span class="math inline">\(\infty\)</span></li>
+<li>Wiederhole: <strong>arbeite</strong> den offenen Knoten <span class="math inline">\(u\)</span> mit kleinstem <span class="math inline">\(d(u)\)</span> <strong>ab</strong></li>
+<li><strong>Relaxiere</strong> seine Kanten:<br><span class="math inline">\(d(v)\gets\min(d(v),\,d(u)+c(u,v))\)</span></li>
+</ul>
+<p><span class="ask">Welcher Knoten ist als Nächstes dran?</span></p>
+</div>
+</div><div class="area right" grow="1">
+<div id="section-8" class="right box block" grow="1">
+<h2 class="right"></h2>
+<div class="r-stack">
+<div class="nocap media">
+<figure class="image" style="height:auto;width:auto;">
+<img src="img/dijkstra-step-0.svg" style="height:330px;width:auto;" aria-label="Sieben Knoten; s hat Distanz 0, alle anderen unendlich" alt="img/dijkstra-step-0.svg" />
+<figcaption>
+Sieben Knoten; s hat Distanz 0, alle anderen unendlich
+</figcaption>
+</figure>
+</div>
+<div class="nocap media">
+<figure class="fragment image" style="height:auto;width:auto;">
+<img src="img/dijkstra-step-1.svg" style="height:330px;width:auto;" aria-label="s abgearbeitet: a erhält 2, b erhält 1" alt="img/dijkstra-step-1.svg" />
+<figcaption>
+s abgearbeitet: a erhält 2, b erhält 1
+</figcaption>
+</figure>
+</div>
+<div class="nocap media">
+<figure class="fragment image" style="height:auto;width:auto;">
+<img src="img/dijkstra-step-2.svg" style="height:330px;width:auto;" aria-label="b abgearbeitet: c erhält 5, e erhält 7" alt="img/dijkstra-step-2.svg" />
+<figcaption>
+b abgearbeitet: c erhält 5, e erhält 7
+</figcaption>
+</figure>
+</div>
+<div class="nocap media">
+<figure class="fragment image" style="height:auto;width:auto;">
+<img src="img/dijkstra-step-3.svg" style="height:330px;width:auto;" aria-label="a abgearbeitet: c verbessert sich auf 4, d erhält 7" alt="img/dijkstra-step-3.svg" />
+<figcaption>
+a abgearbeitet: c verbessert sich auf 4, d erhält 7
+</figcaption>
+</figure>
+</div>
+<div class="nocap media">
+<figure class="fragment image" style="height:auto;width:auto;">
+<img src="img/dijkstra-step-4.svg" style="height:330px;width:auto;" aria-label="c abgearbeitet: d verbessert sich auf 5" alt="img/dijkstra-step-4.svg" />
+<figcaption>
+c abgearbeitet: d verbessert sich auf 5
+</figcaption>
+</figure>
+</div>
+<div class="nocap media">
+<figure class="fragment image" style="height:auto;width:auto;">
+<img src="img/dijkstra-step-5.svg" style="height:330px;width:auto;" aria-label="d abgearbeitet: t erhält 8" alt="img/dijkstra-step-5.svg" />
+<figcaption>
+d abgearbeitet: t erhält 8
+</figcaption>
+</figure>
+</div>
+<div class="nocap media">
+<figure class="fragment image" style="height:auto;width:auto;">
+<img src="img/dijkstra-step-7.svg" style="height:330px;width:auto;" aria-label="Alle abgearbeitet; kürzester Weg s, a, c, d, t mit Länge 8" alt="img/dijkstra-step-7.svg" />
+<figcaption>
+Alle abgearbeitet; kürzester Weg s, a, c, d, t mit Länge 8
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="dijkstra-auf-der-karte-von-dortmund" class="columns slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Dijkstra auf der Karte von Dortmund</h1>
+<div class="layout row columns">
+<div class="area left" grow="1">
+<div id="section-9" class="left box block" grow="1">
+<h2 class="left"></h2>
+<p><strong>TU Dortmund</strong> → <strong>Phoenix-See</strong>: 27,4 min</p>
+<ul>
+<li>arbeitet <strong>62.880</strong> von 112.743 Knoten ab: <strong>alle</strong>, die näher liegen als das Ziel</li>
+<li>etwa 15 ms im Browser: genug für eine Stadt</li>
+<li>Westeuropa: etwa <strong>1,6 s</strong> je Anfrage</li>
+</ul>
+<p><span class="ask">▶ Animation: Wie wächst die Suche?</span></p>
+</div>
+</div><div class="area right" grow="1">
+<div id="section-10" class="right box block" grow="1">
+<h2 class="right"></h2>
+<iframe class="demo" data-src="../../algorithmen.html?ui=compact&amp;state=start&amp;mini=zu&amp;lang=de&amp;algo=dijkstra&amp;view=-8800,-7200,9200,8300" title="Interaktive Karte: Dijkstras Algorithmus von der TU Dortmund zum Phoenix-See">
+</iframe>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="bidirektionale-suche" class="columns slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Bidirektionale Suche</h1>
+<div class="layout row columns">
+<div class="area left" grow="1">
+<div id="section-11" class="left box block" grow="1">
+<h2 class="left"></h2>
+<ul>
+<li><strong>vorwärts</strong> von <span class="math inline">\(s\)</span>, <strong>rückwärts</strong> von <span class="math inline">\(t\)</span></li>
+<li><span class="math inline">\(\mu\)</span>: bester bisher gefundener Weg</li>
+<li><strong>Stopp</strong>, wenn die Minima beider Warteschlangen zusammen <span class="math inline">\(\ge\mu\)</span></li>
+</ul>
+<div class="block warn">
+<p>Der erste Knoten, den beide Suchen abarbeiten, liegt nicht unbedingt auf einem kürzesten Weg.</p>
+</div>
+</div>
+</div><div class="area right" grow="1">
+<div id="section-12" class="right box block" grow="1">
+<h2 class="right"></h2>
+<iframe class="demo" data-src="../../algorithmen.html?ui=compact&amp;state=start&amp;mini=zu&amp;lang=de&amp;algo=bidir&amp;view=-8800,-7200,9200,8300" title="Interaktive Karte: bidirektionaler Dijkstra von der TU Dortmund und vom Phoenix-See">
+</iframe>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="abstimmung-was-bringt-die-bidirektionale-suche" class="slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Abstimmung: Was bringt die bidirektionale Suche?</h1>
+<div class="layout">
+<div class="area">
+<div class="box block">
+<p><span class="ask">Wie viel schneller ist der bidirektionale Dijkstra als Dijkstra, ungefähr?</span></p>
+<div class="quiz">
+<ul class="task-list">
+<li><label><input type="checkbox" />gar nicht</label>
+<ul>
+<li>Er arbeitet weniger Knoten ab: zwei kleinere Suchen.</li>
+</ul></li>
+<li><label><input type="checkbox" checked="" />etwa 2- bis 4-mal</label>
+<ul>
+<li>Zwei Scheiben mit Radius r/2 haben zusammen die halbe Fläche einer Scheibe mit Radius r; Dortmund: 62.880 gegen 33.547 Knoten, Faktor 1,9.</li>
+</ul></li>
+<li><label><input type="checkbox" />etwa 100-mal</label>
+<ul>
+<li>Nicht ohne Vorberechnung: Dafür braucht es die Verfahren nach der Pause.</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="zielgerichtet-suchen-a" class="columns slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Zielgerichtet suchen: A*</h1>
+<div class="layout row columns">
+<div class="area left" grow="2">
+<div id="section-13" class="left box block" grow="2">
+<h2 class="left"></h2>
+<p><strong>Schätzung</strong> <span class="math inline">\(h(v)\le\)</span> Distanz von <span class="math inline">\(v\)</span> nach <span class="math inline">\(t\)</span>, z. B. <strong>Luftlinie / Höchstgeschwindigkeit</strong></p>
+<p>Arbeite den Knoten mit kleinstem <span class="math inline">\(d(v)+h(v)\)</span> ab</p>
+<p><strong>Landmarken (ALT):</strong> bessere Schätzungen aus vorberechneten Distanzen zu einigen Knoten</p>
+<p><span class="ask">Warum darf <span class="math inline">\(h\)</span> nie zu groß sein?</span></p>
+</div>
+</div><div class="area right" grow="3">
+<div id="section-14" class="right box block" grow="3">
+<h2 class="right"></h2>
+<div class="r-stack">
+<div class="nocap media">
+<figure class="image" style="height:auto;width:auto;">
+<img src="img/astar-dijkstra.svg" style="height:340px;width:auto;" aria-label="Dijkstra arbeitet alle sechs Knoten des Beispiels ab, auch die billigen Kanten, die von t wegführen" alt="img/astar-dijkstra.svg" />
+<figcaption>
+Dijkstra arbeitet alle sechs Knoten des Beispiels ab, auch die billigen Kanten, die von t wegführen
+</figcaption>
+</figure>
+</div>
+<div class="nocap media">
+<figure class="fragment image" style="height:auto;width:auto;">
+<img src="img/astar.svg" style="height:340px;width:auto;" aria-label="A* mit der Schätzung h arbeitet nur s, u1, u2 und t ab" alt="img/astar.svg" />
+<figcaption>
+A* mit der Schätzung h arbeitet nur s, u1, u2 und t ab
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="a-und-alt-auf-der-karte-von-dortmund" class="columns slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>A* und ALT auf der Karte von Dortmund</h1>
+<div class="layout row columns">
+<div class="area left" grow="1">
+<div id="section-15" class="left box block" grow="1">
+<h2 class="left"></h2>
+<ul>
+<li>A*, Luftlinie: <strong>8.725</strong> abgearbeitete Knoten</li>
+<li>ALT, 8 Landmarken: <strong>6.123</strong></li>
+<li>Die Suche läuft <strong>auf das Ziel zu</strong></li>
+<li>ALT braucht Vorberechnung: 16 Dijkstra-Läufe</li>
+</ul>
+</div>
+</div><div class="area right" grow="1">
+<div id="section-16" class="right box block" grow="1">
+<h2 class="right"></h2>
+<iframe class="demo" data-src="../../algorithmen.html?ui=compact&amp;state=start&amp;mini=zu&amp;lang=de&amp;algo=astar&amp;algos=astar,alt&amp;view=-9700,-8600,10700,9300" title="Interaktive Karte: A* und ALT von der TU Dortmund zum Phoenix-See">
+</iframe>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="aktivität-die-beste-route-für-wen" class="columns slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Aktivität: Die beste Route für wen?</h1>
+<div class="layout row columns">
+<div class="area left" grow="3">
+<div id="section-17" class="left box block" grow="3">
+<h2 class="left"></h2>
+<p>In Gruppen zu 4–5, je Gruppe eine <strong>Persona-Karte</strong>:</p>
+<ol style="list-style-type: decimal">
+<li><strong>Was zählt</strong> für diese Person? Fünf Kriterien, nach Wichtigkeit</li>
+<li><strong>Welche Daten?</strong> Auf openstreetmap.org mit dem <strong>Abfragewerkzeug</strong> (Fragezeichen) zwei Stellen am Campus prüfen</li>
+<li><strong>Gewichte:</strong> Wie viele Sekunden Umweg ist z. B. eine Treppe wert? Was wird gesperrt?</li>
+<li><strong>A3-Blatt</strong> ausfüllen, alle Namen eintragen</li>
+</ol>
+</div>
+</div><div class="area right" grow="2">
+<div id="section-18" class="box block right" grow="2">
+<h2 class="right" id="section-18"></h2>
+<div id="personas" class="block info">
+<h2>Personas</h2>
+<ul>
+<li>Radpendler*in</li>
+<li>Rollstuhlfahrer*in</li>
+<li>Blinde Person</li>
+<li>Pendler*in ohne Auto</li>
+</ul>
+</div>
+<p><span class="ask">20 Minuten, dann je Persona eine Gruppe: drei Minuten</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="pause" class="slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Pause</h1>
+<div class="layout">
+<div class="area">
+<div class="box block">
+<p><strong>15 Minuten</strong></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="schnell-für-viele-anfragen-vorberechnung" class="slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Schnell für viele Anfragen: Vorberechnung</h1>
+<div class="layout">
+<div class="area">
+<div class="box block">
+<ul>
+<li>Straßen haben eine <strong>Hierarchie</strong>: Lange Wege nutzen wenige wichtige Straßen</li>
+<li>Ordne die Knoten nach <strong>Wichtigkeit</strong>; <strong>kontrahiere</strong> den unwichtigsten Knoten: entferne ihn, füge <strong>Abkürzungen</strong> (Shortcuts) ein, sodass alle Distanzen zwischen den übrigen Knoten gleich bleiben</li>
+<li>Anfrage: von <span class="math inline">\(s\)</span> und von <span class="math inline">\(t\)</span> aus nur <strong>aufwärts</strong> suchen</li>
+</ul>
+<div id="kontraktionshierarchien" class="block info">
+<h2>Kontraktionshierarchien</h2>
+<p>Geisberger, Sanders, Schultes und Delling (2008); Grundlage vieler Routenplaner, z. B. OSRM und GraphHopper</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="weitere-ideen-mit-vorberechnung" class="slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Weitere Ideen mit Vorberechnung</h1>
+<div class="layout">
+<div class="area">
+<div class="box block">
+<div class="tablefit">
+<table>
+<thead>
+<tr>
+<th>Verfahren</th>
+<th>Idee</th>
+<th>Preis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Arc-Flags</strong></td>
+<td>Karte in Regionen teilen; jede Kante merkt sich, zu welchen Zielregionen sie auf einem kürzesten Weg liegt</td>
+<td>ein Bit je Kante und Region</td>
+</tr>
+<tr>
+<td><strong>Transit Node Routing (TNR)</strong></td>
+<td>Lange Wege verlassen die Umgebung von <span class="math inline">\(s\)</span> über wenige <strong>Zugangsknoten</strong>; Distanzen zwischen allen Transitknoten als Tabelle</td>
+<td>große Tabelle; kurze Wege extra</td>
+</tr>
+<tr>
+<td><strong>Hub Labels</strong></td>
+<td>Jeder Knoten speichert Hubs mit Distanzen; eine Anfrage schneidet zwei Listen</td>
+<td>sehr schnell, viel Speicher</td>
+</tr>
+<tr>
+<td><strong>Mehrebenen-Partitionen (CRP)</strong></td>
+<td>Graph in Zellen teilen, Abkürzungen zwischen den Zellrändern; neue Gewichte schnell einrechnen</td>
+<td>etwas langsamere Anfragen</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><span class="ask">Je mehr vorberechnet und gespeichert wird, desto schneller die Anfrage. Wir sehen uns CH genauer an.</span></p>
+<p><span class="source">Überblick: Bast et al. (2016)</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="einen-knoten-kontrahieren" class="slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Einen Knoten kontrahieren</h1>
+<div class="layout">
+<div class="area">
+<div class="box block">
+<p>Kontrahiere <span class="math inline">\(v\)</span>; für jedes Paar von Nachbarn <span class="math inline">\(u,w\)</span>: <strong>Abkürzung</strong> <span class="math inline">\(u\!-\!w\)</span> der Länge <span class="math inline">\(c(u,v)+c(v,w)\)</span>, außer ein ebenso kurzer <strong>Zeuge</strong> umgeht <span class="math inline">\(v\)</span> (kleine, begrenzte Dijkstra-Suche ab <span class="math inline">\(u\)</span>)</p>
+<div class="r-stack">
+<div class="nocap media">
+<figure class="image" style="height:auto;width:auto;">
+<img src="img/ch-contract-0.svg" style="height:370px;width:auto;" aria-label="Ein kleines Netz: s, a, m, b, t entlang einer Straße, Umwege über x und y" alt="img/ch-contract-0.svg" />
+<figcaption>
+Ein kleines Netz: s, a, m, b, t entlang einer Straße, Umwege über x und y
+</figcaption>
+</figure>
+</div>
+<div class="nocap media">
+<figure class="fragment image" style="height:auto;width:auto;">
+<img src="img/ch-contract-1.svg" style="height:370px;width:auto;" aria-label="a kontrahieren: Abkürzung s–m der Länge 4" alt="img/ch-contract-1.svg" />
+<figcaption>
+a kontrahieren: Abkürzung s–m der Länge 4
+</figcaption>
+</figure>
+</div>
+<div class="nocap media">
+<figure class="fragment image" style="height:auto;width:auto;">
+<img src="img/ch-contract-2.svg" style="height:370px;width:auto;" aria-label="x kontrahieren: Der Weg über x hat Länge 6; die Abkürzung s–m (4) ist ein Zeuge, keine neue Abkürzung" alt="img/ch-contract-2.svg" />
+<figcaption>
+x kontrahieren: Der Weg über x hat Länge 6; die Abkürzung s–m (4) ist ein Zeuge, keine neue Abkürzung
+</figcaption>
+</figure>
+</div>
+<div class="nocap media">
+<figure class="fragment image" style="height:auto;width:auto;">
+<img src="img/ch-contract-3.svg" style="height:370px;width:auto;" aria-label="b kontrahieren: Abkürzung m–t der Länge 4" alt="img/ch-contract-3.svg" />
+<figcaption>
+b kontrahieren: Abkürzung m–t der Länge 4
+</figcaption>
+</figure>
+</div>
+<div class="nocap media">
+<figure class="fragment image" style="height:auto;width:auto;">
+<img src="img/ch-contract-4.svg" style="height:370px;width:auto;" aria-label="y kontrahieren: Der Weg über y hat Länge 5; die Abkürzung m–t (4) ist ein Zeuge" alt="img/ch-contract-4.svg" />
+<figcaption>
+y kontrahieren: Der Weg über y hat Länge 5; die Abkürzung m–t (4) ist ein Zeuge
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="die-anfrage" class="slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Die Anfrage</h1>
+<div class="layout">
+<div class="area">
+<div class="box block">
+<div class="nocap media">
+<figure class="image" style="height:auto;width:auto;">
+<img src="img/ch-query.svg" style="height:290px;width:auto;" aria-label="Die Hierarchie: Knoten nach der Reihenfolge der Kontraktion gezeichnet; die Aufwärtssuche von s erreicht m über die Abkürzung s–m, die Aufwärtssuche von t erreicht m über die Abkürzung m–t; Treffen in m mit 4 + 4 = 8" alt="img/ch-query.svg" />
+<figcaption>
+Die Hierarchie: Knoten nach der Reihenfolge der Kontraktion gezeichnet; die Aufwärtssuche von s erreicht m über die Abkürzung s–m, die Aufwärtssuche von t erreicht m über die Abkürzung m–t; Treffen in m mit 4 + 4 = 8
+</figcaption>
+</figure>
+</div>
+<ul>
+<li>Bidirektionaler Dijkstra, beide Suchen nur über Kanten zu <strong>höheren</strong> Knoten: ab <span class="math inline">\(s\)</span>: <span class="math inline">\(s, m\)</span>; ab <span class="math inline">\(t\)</span>: <span class="math inline">\(t, m\)</span></li>
+<li>Antwort: bester Treffpunkt (<span class="math inline">\(m\)</span>: <span class="math inline">\(4+4=8\)</span>); Abkürzungen rekursiv <strong>entpacken</strong> (<span class="math inline">\(s\)</span>–<span class="math inline">\(a\)</span>–<span class="math inline">\(m\)</span>, <span class="math inline">\(m\)</span>–<span class="math inline">\(b\)</span>–<span class="math inline">\(t\)</span>)</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="kontraktionshierarchien-auf-der-karte" class="columns slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Kontraktionshierarchien auf der Karte</h1>
+<div class="layout row columns">
+<div class="area left" grow="1">
+<div id="section-19" class="left box block" grow="1">
+<h2 class="left"></h2>
+<ul>
+<li>Zwei Aufwärtssuchen arbeiten <strong>239</strong> Knoten ab (Dijkstra: 62.880)</li>
+<li>Ihre Bäume erreichen <strong>wichtige</strong> Kreuzungen in der ganzen Stadt, oft über <strong>Abkürzungen</strong> (gestrichelt)</li>
+<li>Entpackt: dieselbe Route, 27,4 min</li>
+</ul>
+<p><span class="ask">Warum bleiben die Suchen nicht in der Nähe der Route?</span></p>
+</div>
+</div><div class="area right" grow="1">
+<div id="section-20" class="right box block" grow="1">
+<h2 class="right"></h2>
+<iframe class="demo" data-src="../../algorithmen.html?ui=compact&amp;state=start&amp;mini=zu&amp;lang=de&amp;algo=ch&amp;view=-8800,-7200,9200,8300" title="Interaktive Karte: Anfrage in einer Kontraktionshierarchie von der TU Dortmund zum Phoenix-See">
+</iframe>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="vergleich" class="slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Vergleich</h1>
+<div class="layout">
+<div class="area">
+<div class="box block">
+<div class="tablefit">
+<table>
+<thead>
+<tr>
+<th>Dortmund mit dem Rad</th>
+<th>Vorberechnung</th>
+<th align="right">Knoten: TU → Phoenix-See</th>
+<th align="right">Mittel über 300 Anfragen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dijkstra</td>
+<td>keine</td>
+<td align="right">62.880</td>
+<td align="right">54.587</td>
+</tr>
+<tr>
+<td>bidirektional</td>
+<td>keine</td>
+<td align="right">33.547</td>
+<td align="right">34.990</td>
+</tr>
+<tr>
+<td>A*, Luftlinie</td>
+<td>keine</td>
+<td align="right">8.725</td>
+<td align="right">13.775</td>
+</tr>
+<tr>
+<td>ALT, 8 Landmarken</td>
+<td>16 Dijkstra-Läufe</td>
+<td align="right">6.123</td>
+<td align="right">4.896</td>
+</tr>
+<tr>
+<td>Kontraktionshierarchie</td>
+<td>185.295 Abkürzungen, etwa 9 s</td>
+<td align="right">239</td>
+<td align="right">249</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Westeuropa (18 Millionen Knoten), je Anfrage: Dijkstra <strong>1,6 s</strong>, anpassbare CH <strong>0,41 ms</strong></p>
+<p><span class="source">Bast et al. (2016); Dibbelt, Strasser, Wagner (2014); Dortmund: Webdemo</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="ein-profil-pro-person" class="columns slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Ein Profil pro Person?</h1>
+<div class="layout row columns">
+<div class="area left" grow="1">
+<div id="section-21" class="left box block" grow="1">
+<h2 class="left"></h2>
+<ul>
+<li>Inklusive Routenplanung: ein Gewicht je <strong>Gruppe</strong> oder <strong>Person</strong>: Rollstuhl, Kinderwagen, vorsichtig Radfahrende, E-Bike, …</li>
+<li>Eine CH wird für <strong>ein</strong> Gewicht gebaut</li>
+</ul>
+<p><span class="ask">Alles für jedes Profil neu berechnen?</span></p>
+</div>
+</div><div class="area right" grow="1">
+<div id="section-22" class="box block right" grow="1">
+<h2 class="right" id="section-22"></h2>
+<div id="anpassbare-kontraktionshierarchien-cch" class="block info">
+<h2>Anpassbare Kontraktionshierarchien (CCH)</h2>
+<ol style="list-style-type: decimal">
+<li>Reihenfolge und Abkürzungen <strong>nur aus dem Graphen</strong>, einmal</li>
+<li><strong>Anpassen</strong> an ein neues Gewicht: unter <strong>1 s</strong> für Westeuropa</li>
+<li>Anfragen wie in einer CH: <strong>0,41 ms</strong></li>
+</ol>
+</div>
+<p><span class="source">Dibbelt, Strasser, Wagner (2014, 2016)</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="mehrere-kriterien-zugleich" class="columns slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Mehrere Kriterien zugleich</h1>
+<div class="layout row columns">
+<div class="area left" grow="1">
+<div id="section-23" class="left box block" grow="1">
+<h2 class="left"></h2>
+<p>Route <span class="math inline">\(P\)</span> <strong>dominiert</strong> Route <span class="math inline">\(Q\)</span>: in <strong>beiden</strong> Kriterien mindestens so gut, in einem besser</p>
+<p><strong>Pareto-optimal:</strong> von keiner anderen Route dominiert</p>
+<p><strong>Gewichtete Summe:</strong> <span class="math inline">\(\lambda\cdot\text{Zeit}+(1-\lambda)\cdot\text{Meter Hauptstraße}\)</span>, für ein festes <span class="math inline">\(\lambda\)</span></p>
+</div>
+</div><div class="area right" grow="1">
+<div id="section-24" class="right box block" grow="1">
+<h2 class="right"></h2>
+<div class="tablesmall">
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th align="right">Zeit</th>
+<th align="right">Hauptstraße ohne Radweg</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td align="right">22 min</td>
+<td align="right">3.300 m</td>
+</tr>
+<tr>
+<td>B</td>
+<td align="right">23 min</td>
+<td align="right">200 m</td>
+</tr>
+<tr>
+<td>C</td>
+<td align="right">24 min</td>
+<td align="right">400 m</td>
+</tr>
+<tr>
+<td>D</td>
+<td align="right">25 min</td>
+<td align="right">0 m</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><span class="ask">Welche Route ist dominiert?</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="abstimmung-wie-viele-kompromisse" class="slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Abstimmung: Wie viele Kompromisse?</h1>
+<div class="layout">
+<div class="area">
+<div class="box block">
+<p>Radpendler*in, Hauptbahnhof → Phoenix-See, Kriterien <strong>Zeit</strong> und <strong>Meter auf Hauptstraßen ohne Radweg</strong></p>
+<p><span class="ask">Wie viele Pareto-optimale Routen gibt es?</span></p>
+<div class="quiz">
+<ul class="task-list">
+<li><label><input type="checkbox" />2</label>
+<ul>
+<li>Es sind viel mehr; aber nur zwei unterscheiden sich spürbar (nächste Folie).</li>
+</ul></li>
+<li><label><input type="checkbox" />etwa 10</label>
+<ul>
+<li>So viele findet eine gewichtete Summe: 11.</li>
+</ul></li>
+<li><label><input type="checkbox" checked="" />etwa 100</label>
+<ul>
+<li>113 Pareto-optimale Routen.</li>
+</ul></li>
+<li><label><input type="checkbox" />über 1.000</label>
+<ul>
+<li>In großen Netzen kann es so viele geben; hier sind es 113.</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="die-pareto-front" class="columns slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Die Pareto-Front</h1>
+<div class="layout row columns">
+<div class="area left" grow="3">
+<div id="section-25" class="left box block" grow="3">
+<h2 class="left"></h2>
+<div class="nocap media">
+<figure class="image">
+<img src="img/pareto-radpendlerin.svg" aria-label="Alle 113 Pareto-optimalen Radrouten für Radpendler*innen vom Hauptbahnhof zum Phoenix-See, von der schnellsten (22,2 min, 3.277 m Hauptstraße ohne Radweg) bis zu 23,5 min mit 18 m; 11 davon findet eine gewichtete Summe (blaue Kreise, auf der unteren konvexen Hülle); nur zwei sind spürbar verschieden (22,7 min mit 176 m und 23,4 min mit 61 m)" alt="img/pareto-radpendlerin.svg" />
+<figcaption>
+Alle 113 Pareto-optimalen Radrouten für Radpendler*innen vom Hauptbahnhof zum Phoenix-See, von der schnellsten (22,2 min, 3.277 m Hauptstraße ohne Radweg) bis zu 23,5 min mit 18 m; 11 davon findet eine gewichtete Summe (blaue Kreise, auf der unteren konvexen Hülle); nur zwei sind spürbar verschieden (22,7 min mit 176 m und 23,4 min mit 61 m)
+</figcaption>
+</figure>
+</div>
+</div>
+</div><div class="area right" grow="2">
+<div id="section-26" class="right box block" grow="2">
+<h2 class="right"></h2>
+<ul>
+<li><strong>113</strong> Pareto-optimale Routen, nur <strong>11</strong> per gewichteter Summe</li>
+<li>Viele unterscheiden sich kaum: Straße und daneben eigens erfasster Radweg</li>
+<li><strong>Spürbar verschieden:</strong> 2</li>
+</ul>
+<p><span class="ask">Warum findet die gewichtete Summe die anderen nicht?</span></p>
+<p><span class="source">Webdemo, Reiter „Pareto-Front“</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="live-pareto-front" class="slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Live: Pareto-Front</h1>
+<div class="layout">
+<div class="area">
+<div class="box block">
+<iframe class="demo" style="height: 560px" data-src="../../index.html?lang=de#pareto" title="Webdemo: Pareto-Front für Radpendler*innen vom Hauptbahnhof zum Phoenix-See">
+</iframe>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="was-der-algorithmus-nicht-weiß" class="slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Was der Algorithmus nicht weiß</h1>
+<div class="layout">
+<div class="area">
+<div class="box block">
+<div class="grid-layout" style="grid-template-columns: 1fr 1fr;">
+<div class="col">
+<ul>
+<li><strong>Daten:</strong> Was nicht erfasst ist, gibt es für den Algorithmus nicht. Ist „Belag unbekannt“ gut oder schlecht?</li>
+<li><strong>Modell:</strong> Gewichte sind Annahmen; Tageszeit, Wetter, Dunkelheit, Baustellen fehlen meist</li>
+</ul>
+</div>
+<div class="col">
+<ul>
+<li><strong>Wirkung:</strong> Wenn alle der ruhigen Route folgen, ist sie nicht mehr ruhig; Navigations-Apps leiten Autos durch Wohnstraßen (Sitzung 2)</li>
+<li><strong>Für wen?</strong> Wessen Bedürfnisse stehen in den Daten, wessen nicht?</li>
+</ul>
+</div>
+</div>
+<p><span class="ask">Welche dieser Grenzen ist Ihnen bei Ihrer Persona begegnet?</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="ausprobieren-in-der-webdemo" class="columns slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Ausprobieren in der Webdemo</h1>
+<div class="layout row columns">
+<div class="area left" grow="3">
+<div id="section-27" class="left box block" grow="3">
+<h2 class="left"></h2>
+<ol style="list-style-type: decimal">
+<li><strong>Routen vergleichen:</strong> Ihre Persona anhaken, Start und Ziel am Campus setzen</li>
+<li><strong>Eigene Einstellung:</strong> die Gewichte von Ihrem A3-Blatt eintragen. Wie ändert sich die Route gegenüber der Persona der Webdemo?</li>
+<li><strong>Pareto-Front:</strong> Wählen Sie zwei Kriterien Ihrer Persona. Wie viele Routen sind spürbar verschieden?</li>
+</ol>
+<p><span class="ask">In denselben Gruppen, 20 Minuten; notieren Sie eine Überraschung.</span></p>
+</div>
+</div><div class="area right" grow="2">
+<div id="section-28" class="right box block" grow="2">
+<h2 class="right"></h2>
+<div class="nocap media">
+<figure class="image" style="height:auto;width:70%;">
+<img src="img/qr-webdemo.svg" style="height:auto;width:100%;" aria-label="QR-Code zur Webdemo" alt="img/qr-webdemo.svg" />
+<figcaption>
+QR-Code zur Webdemo
+</figcaption>
+</figure>
+</div>
+<p><a href="https://ls11ae.github.io/iun-routenplanung/" class="uri">https://ls11ae.github.io/iun-routenplanung/</a></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="projektthemen-zur-routenplanung" class="slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Projektthemen zur Routenplanung</h1>
+<div class="layout">
+<div class="area">
+<div class="box block">
+<div class="tablefit">
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Thema</th>
+<th>Worum es geht</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Sicher mit dem Rad ans Ziel</strong></td>
+<td>Was macht eine Radroute gut?</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Ohne Stufen ans Ziel</strong></td>
+<td>Routen für Rollstuhl, Rollator, Kinderwagen</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Sicher über die Straße</strong></td>
+<td>Routen für blinde und sehbehinderte Menschen</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Was wäre, wenn …? Eine bessere Verbindung zum Campus</strong></td>
+<td>Fahrplan-Szenarien entwerfen und durchrechnen</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Wer steigt wo aus? Mitfahren bis zum Bahnhof</strong></td>
+<td>Auto und Fahrplan: Mitfahrende an Bahnhöfen absetzen</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="starter-repo-httpsgithub.comls11aeiun-routenplanung" class="block info">
+<h2>Starter-Repo: <a href="https://github.com/ls11ae/iun-routenplanung" class="uri">https://github.com/ls11ae/iun-routenplanung</a></h2>
+<p>Webdemo, Wegenetz (OSMnx), Nahverkehr (MOTIS, GTFS), Daten, Beispiel-Notebooks</p>
+</div>
+<p>Zu jedem Thema gibt es einen Steckbrief mit Leitfrage; eigene Ideen sind willkommen.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="live-nahverkehr-gegen-auto" class="slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Live: Nahverkehr gegen Auto</h1>
+<div class="layout">
+<div class="area">
+<div class="box block">
+<iframe class="demo" style="height: 560px" data-src="../../reisezeit.html?lang=de" title="Webdemo: Karte, wie viel länger Bus und Bahn zum Campus Nord brauchen als das Auto">
+</iframe>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="ausblick" class="slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Ausblick</h1>
+<div class="layout">
+<div class="area">
+<div class="box block">
+<ul>
+<li><strong>Mi 25.11.:</strong> letzte Sitzung mit Grundlagen; danach steht die Projektwahl an</li>
+<li><strong>Mi 16.12.:</strong> Fahrplanauskunft: Verbindungen im Nahverkehr nach Ankunftszeit, Umstiegen und Emissionen</li>
+<li>Webdemo und Starter-Repo: <a href="https://ls11ae.github.io/iun-routenplanung/" class="uri">https://ls11ae.github.io/iun-routenplanung/</a></li>
+</ul>
+<p><span class="ask">Fragen zu den Themen: jetzt, nach der Sitzung oder im Moodle-Forum</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="zusatzmaterial" class="section slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Zusatzmaterial</h1>
+<div class="layout">
+<div class="area">
+<div class="box block">
+<p>Zum Nachlesen</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="heuristiken-luftlinie-und-landmarken" class="slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Heuristiken: Luftlinie und Landmarken</h1>
+<div class="layout">
+<div class="area">
+<div class="box block">
+<ul>
+<li><strong>Luftlinie:</strong> <span class="math inline">\(h(v)=\text{Abstand}(v,t)/v_{\max}\)</span>; Dortmund: <span class="math inline">\(v_{\max}=18\)</span> km/h</li>
+<li><strong>Landmarken (ALT):</strong> Distanzen von und zu einigen Knoten <span class="math inline">\(L\)</span> vorberechnen; Dreiecksungleichung: <span class="math display">\[h(v)=\max_{L}\ \max\{\,d(v,L)-d(t,L),\;d(L,t)-d(L,v)\,\}\]</span></li>
+<li>Gute Landmarken liegen <strong>hinter</strong> <span class="math inline">\(t\)</span> oder <strong>hinter</strong> <span class="math inline">\(s\)</span>: weit verteilt wählen, <strong>farthest first</strong></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="übung-v-kontrahieren" class="columns slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Übung: <span class="math inline">\(v\)</span> kontrahieren</h1>
+<div class="layout row columns">
+<div class="area left" grow="1">
+<div id="section-29" class="left box block" grow="1">
+<h2 class="left"></h2>
+<div class="r-stack">
+<div class="nocap media">
+<figure class="image" style="height:auto;width:auto;">
+<img src="img/ch-exercise.svg" style="height:330px;width:auto;" aria-label="Knoten v mit Nachbarn a (2), b (3), c (4); Kanten a–b (4) und b–c (8)" alt="img/ch-exercise.svg" />
+<figcaption>
+Knoten v mit Nachbarn a (2), b (3), c (4); Kanten a–b (4) und b–c (8)
+</figcaption>
+</figure>
+</div>
+<div class="nocap media">
+<figure class="fragment image" style="height:auto;width:auto;">
+<img src="img/ch-exercise-solution.svg" style="height:330px;width:auto;" aria-label="Lösung: Abkürzungen a–c (6) und b–c (7); a–b braucht keine" alt="img/ch-exercise-solution.svg" />
+<figcaption>
+Lösung: Abkürzungen a–c (6) und b–c (7); a–b braucht keine
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="area right" grow="1">
+<div id="section-30" class="right box block" grow="1">
+<h2 class="right"></h2>
+<p>Welche <strong>Abkürzungen</strong> braucht die Kontraktion von <span class="math inline">\(v\)</span>?</p>
+<p>Prüfen Sie alle drei Paare von Nachbarn.</p>
+<p>Wie viele Kanten hat der Graph vorher und nachher?</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="warum-aufwärtssuchen-genügen" class="columns slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Warum Aufwärtssuchen genügen</h1>
+<div class="layout row columns">
+<div class="area left" grow="1">
+<div id="section-31" class="box block left" grow="1">
+<h2 class="left" id="section-31"></h2>
+<div id="behauptung" class="block info">
+<h2>Behauptung</h2>
+<p>Für alle <span class="math inline">\(s,t\)</span> gibt es einen kürzesten Weg, der in der Reihenfolge erst <strong>aufwärts</strong> und dann <strong>abwärts</strong> führt (mit Abkürzungen).</p>
+</div>
+<p><strong>Beweisidee:</strong> Nimm das tiefste <strong>Tal</strong> <span class="math inline">\(v\)</span> eines kürzesten Weges. Als <span class="math inline">\(v\)</span> kontrahiert wurde, gab es <span class="math inline">\(u\)</span> und <span class="math inline">\(w\)</span> noch: Eine Abkürzung <span class="math inline">\(u\)</span>–<span class="math inline">\(w\)</span> oder ein Zeuge über höhere Knoten ist höchstens so lang. Ersetzen, wiederholen.</p>
+</div>
+</div><div class="area right" grow="1.25">
+<div id="section-32" class="right box block" grow="1.25">
+<h2 class="right"></h2>
+<div class="nocap media">
+<figure class="image" style="height:auto;width:auto;">
+<img src="img/ch-up-down.svg" style="height:330px;width:auto;" aria-label="Ein kürzester Weg, gezeichnet mit der Reihenfolge als Höhe: Das Tal v, tiefer als seine Nachbarn u und w, wird durch die Abkürzung u–w ersetzt; danach führt der Weg von s aufwärts zum höchsten Knoten m und abwärts nach t, und die Aufwärtssuchen von s und von t treffen sich in m" alt="img/ch-up-down.svg" />
+<figcaption>
+Ein kürzester Weg, gezeichnet mit der Reihenfolge als Höhe: Das Tal v, tiefer als seine Nachbarn u und w, wird durch die Abkürzung u–w ersetzt; danach führt der Weg von s aufwärts zum höchsten Knoten m und abwärts nach t, und die Aufwärtssuchen von s und von t treffen sich in m
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="quellen" class="slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Quellen</h1>
+<div class="layout">
+<div class="area">
+<div class="box block">
+<div class="refs">
+<ul>
+<li><strong>Routenplanung:</strong> H. Bast, D. Delling, A. Goldberg, M. Müller-Hannemann, T. Pajor, P. Sanders, D. Wagner, R. F. Werneck (2016): Route planning in transportation networks. In <em>Algorithm Engineering</em>, LNCS 9220, 19–80. E. W. Dijkstra (1959): A note on two problems in connexion with graphs. <em>Numerische Mathematik</em> 1, 269–271. P. E. Hart, N. J. Nilsson, B. Raphael (1968): A formal basis for the heuristic determination of minimum cost paths. <em>IEEE Trans. Systems Science and Cybernetics</em> 4 (2). A. V. Goldberg, C. Harrelson (2005): Computing the shortest path: A* search meets graph theory. <em>SODA 2005</em>. R. Geisberger, P. Sanders, D. Schultes, D. Delling (2008): Contraction hierarchies. <em>WEA 2008</em>, LNCS 5038. J. Dibbelt, B. Strasser, D. Wagner (2014): Customizable contraction hierarchies. <em>SEA 2014</em>, LNCS 8504; <em>ACM J. Exp. Algorithmics</em> 21 (2016). E. Q. V. Martins (1984): On a multicriteria shortest path problem. <em>European J. Operational Research</em> 16 (2).</li>
+<li><strong>Routenwahl:</strong> M. Ehrgott, J. Y. T. Wang, A. Raith, C. van Houtte (2012): A bi-objective cyclist route choice model. <em>Transportation Research Part A</em> 46 (4). J. Dill, N. McNeil (2013): Four types of cyclists? <em>Transportation Research Record</em> 2387. A. Cohen, S. Dalyot (2021): Route planning for blind pedestrians using OpenStreetMap. <em>Environment and Planning B</em> 48 (6). C. F. Minett et al. (2011): Eco-routing. <em>IEEE Forum on Integrated and Sustainable Transportation Systems</em>.</li>
+<li><strong>Zahlen:</strong> Umweltbundesamt (2026): Treibhausgasdaten 2025, Pressemitteilung 08/2026; Umweltbundesamt: Radverkehr (Webseite, nach Mobilität in Deutschland 2023). Destatis (2026): Pressemitteilung 246 vom 13.07.2026. Unterziel 11.2: Vereinte Nationen, Resolution A/RES/70/1 (2015), deutsche Fassung.</li>
+<li><strong>Daten und Werkzeuge:</strong> OpenStreetMap-Mitwirkende, Open Database License, <a href="https://www.openstreetmap.org/copyright" class="uri">https://www.openstreetmap.org/copyright</a>; Höhen: DGM1, Geobasis NRW. Webdemo und Starter-Repo: <a href="https://github.com/ls11ae/iun-routenplanung" class="uri">https://github.com/ls11ae/iun-routenplanung</a>.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="lizenz-und-bildnachweise" class="slide level1">
+<div class="decker">
+<div class="alignment">
+<h1>Lizenz und Bildnachweise</h1>
+<div class="layout">
+<div class="area">
+<div class="box block">
+<div class="small">
+<ul>
+<li>Folien © 2026 Kevin Buchin, TU Dortmund, lizenziert unter <strong>CC BY 4.0</strong> (<a href="https://creativecommons.org/licenses/by/4.0/deed.de" class="uri">https://creativecommons.org/licenses/by/4.0/deed.de</a>). Namensnennung: „Kevin Buchin, Informatik und Nachhaltigkeit, TU Dortmund, CC BY 4.0“.</li>
+<li>Nicht von der Lizenz erfasst: die Software Decker und ihre Themes (eigene Lizenzen) und das Zitat des Unterziels 11.2.</li>
+<li>Karten, Wegenetz und Graphen: Daten © OpenStreetMap-Mitwirkende, Open Database License; daraus abgeleitete Daten ebenfalls unter der ODbL. Kartenbilder und Webdemo: eigene Arbeit, CC BY 4.0.</li>
+<li>Übrige Abbildungen: eigene Darstellungen, CC BY 4.0, nach den Abbildungen aus „Algorithms and Sustainability“ (Kevin Buchin, TU Dortmund); die kleinen Beispielgraphen sind konstruiert. Farben nach der Okabe-Ito-Palette. Die SDG-Farben dienen nur der Orientierung.</li>
+<li>Erstellt mit Decker: <a href="https://github.com/decker-edu/decker" class="uri">https://github.com/decker-edu/decker</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<code class="sourceCode markdown" style="display:none;"></code>
+
+    </div>
+  </div>
+  
+  <script src="../support/vendor/videojs/video.min.js"></script>
+  <script src="../support/vendor/chartjs/chart.umd.js"></script>
+  <script src="../support/plugins/quizzer/wordcloud2.js"></script>
+  <script src="../support/plugins/quizzer/d3-sankey.min.js"></script>
+  <script type="module" src="../support/components/custom-dialog.js"></script>
+  <script type="module" src="./../support/js/color-scheme.js"></script>
+
+<script type="module">
+  // import Reveal and all plugins
+  import Reveal from './../support/vendor/reveal/dist/reveal.esm.js';
+  import deckerPlugin from './../support/plugins/decker/decker.js';
+  import uiAnchorsPlugin from './../support/plugins/decker/ui-anchors.js'
+  import mathPlugin from './../support/plugins/math/math.js';
+  import whiteboardPlugin from './../support/plugins/whiteboard/whiteboard.js';
+  import sagePlugin from './../support/plugins/sage/sage.js';
+  import searchPlugin from './../support/plugins/search/search.js';
+  import zoomPlugin from './../support/plugins/zoom/zoom.js';
+  import printPlugin from './../support/plugins/print/print.js';
+  import jinglesPlugin from './../support/plugins/jingles/jingles.js';
+  import quizPlugin from './../support/plugins/quiz/quiz.js';
+  import quizWuePlugin from './../support/plugins/quiz-wue/quiz-wue.js';
+  import quizzerPlugin from './../support/plugins/quizzer/quizzer.js'
+  import explainPlugin from './../support/plugins/explain/explain.js';
+  import chartsPlugin from './../support/plugins/charts/charts.js';
+  import menuPlugin from './../support/plugins/menu/menu.js';
+  import feedbackPlugin from './../support/plugins/feedback/feedback.js';
+  import notesPlugin from './../support/vendor/reveal/plugin/notes/notes.esm.js';
+    import captionPlugin from './../support/plugins/live-captioning/live-captioning.js';
+      import a11yPlugin from './../support/plugins/a11y/a11y.js';
+  import handoutPlugin from './../support/plugins/handout/handout.js';
+  import chattyPlugin from './../support/plugins/chatty/chatty.js';
+
+  let revealConfig = { 
+    // reveal configuration (see https://revealjs.com/config/)
+    ...Decker.meta.reveal,
+
+    // plugin configuration
+    math: { mathjax: String.raw`../support/vendor/mathjax/`, ...Decker.meta.math },
+    chart: Decker.meta.chart,
+    menu: Decker.meta.menu,
+    explain: Decker.meta.explain,
+    feedback: Decker.meta.feedback || Decker.meta["decker-engine"],
+    jingles: Decker.meta.jingles,
+    whiteboard: Decker.meta.whiteboard,
+    
+    // list of plugins
+    plugins: [
+      deckerPlugin,
+      uiAnchorsPlugin,
+      sagePlugin,
+      mathPlugin,
+      chartsPlugin,
+      whiteboardPlugin,
+      searchPlugin,
+      zoomPlugin,
+      printPlugin,
+      jinglesPlugin,
+      quizPlugin,
+      quizWuePlugin,
+      quizzerPlugin,
+      explainPlugin,
+      menuPlugin,
+      chattyPlugin,
+      feedbackPlugin,
+      notesPlugin,
+            captionPlugin,
+              a11yPlugin,
+      handoutPlugin
+    ]
+  };
+
+  Reveal.initialize(revealConfig);
+</script>
+  
+
+</body>
+</html>

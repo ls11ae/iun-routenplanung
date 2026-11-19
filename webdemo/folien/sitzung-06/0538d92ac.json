@@ -1,0 +1,716 @@
+{
+    "affiliation": {
+        "name": "TU Dortmund · Fakultät für Informatik"
+    },
+    "author": "Prof. Dr. Kevin Buchin",
+    "build-time": [
+        "19.11.2026 02:04"
+    ],
+    "caption-server": "https://decker.cs.tu-dortmund.de/captions",
+    "chart": {
+        "colors": [
+            "#f5871f",
+            "#84B819",
+            "#2a9ddf",
+            "#c82829",
+            "#3e999f",
+            "#a3685a",
+            "#eab700",
+            "#8959a8"
+        ],
+        "defaults": {
+            "font": {
+                "family": "Lato",
+                "size": 20.0
+            },
+            "plugins": {
+                "colors": {
+                    "enabled": false
+                },
+                "colorschemes": {
+                    "scheme": "tableau.Classic10"
+                },
+                "legend": {
+                    "position": "bottom"
+                },
+                "title": {
+                    "font": {
+                        "size": 30.0,
+                        "weight": "normal"
+                    }
+                }
+            }
+        }
+    },
+    "copyright": {
+        "type": "Folien: CC BY 4.0 (ausgenommen gekennzeichnetes Material Dritter)",
+        "url": "https://creativecommons.org/licenses/by/4.0/deed.de"
+    },
+    "css-dark-color-declarations": [
+        "--shade7: #ffffff;",
+        "--shade6: #e0e0e0;",
+        "--shade5: #b0b0b0;",
+        "--shade4: #7a7a7a;",
+        "--shade3: #4a4a4a;",
+        "--shade2: #2a2a2a;",
+        "--shade1: #141414;",
+        "--shade0: #000000;",
+        "--contrast: 40%;",
+        "--base0F: #ffffff;",
+        "--base0E: #cc79a7;",
+        "--base0D: #0072b2;",
+        "--base0C: #56b4e9;",
+        "--base0B: #009e73;",
+        "--base0A: #f0e442;",
+        "--base09: #e69f00;",
+        "--base08: #d55e00;",
+        "--base07: #ffffff;",
+        "--base06: #e0e0e0;",
+        "--base05: #b0b0b0;",
+        "--base04: #7a7a7a;",
+        "--base03: #4a4a4a;",
+        "--base02: #2a2a2a;",
+        "--base01: #141414;",
+        "--base00: #000000;",
+        "--accent7: #ffffff;",
+        "--accent6: #cc79a7;",
+        "--accent5: #0072b2;",
+        "--accent4: #56b4e9;",
+        "--accent3: #009e73;",
+        "--accent2: #f0e442;",
+        "--accent1: #e69f00;",
+        "--accent0: #d55e00;"
+    ],
+    "css-dark-colors": {
+        "accent0": "#d55e00",
+        "accent1": "#e69f00",
+        "accent2": "#f0e442",
+        "accent3": "#009e73",
+        "accent4": "#56b4e9",
+        "accent5": "#0072b2",
+        "accent6": "#cc79a7",
+        "accent7": "#ffffff",
+        "base00": "#000000",
+        "base01": "#141414",
+        "base02": "#2a2a2a",
+        "base03": "#4a4a4a",
+        "base04": "#7a7a7a",
+        "base05": "#b0b0b0",
+        "base06": "#e0e0e0",
+        "base07": "#ffffff",
+        "base08": "#d55e00",
+        "base09": "#e69f00",
+        "base0A": "#f0e442",
+        "base0B": "#009e73",
+        "base0C": "#56b4e9",
+        "base0D": "#0072b2",
+        "base0E": "#cc79a7",
+        "base0F": "#ffffff",
+        "contrast": "40%",
+        "shade0": "#000000",
+        "shade1": "#141414",
+        "shade2": "#2a2a2a",
+        "shade3": "#4a4a4a",
+        "shade4": "#7a7a7a",
+        "shade5": "#b0b0b0",
+        "shade6": "#e0e0e0",
+        "shade7": "#ffffff"
+    },
+    "css-declarations": [],
+    "css-light-color-declarations": [
+        "--shade7: #000000;",
+        "--shade6: #222222;",
+        "--shade5: #555555;",
+        "--shade4: #808080;",
+        "--shade3: #b0b0b0;",
+        "--shade2: #dddddd;",
+        "--shade1: #f2f2f2;",
+        "--shade0: #ffffff;",
+        "--contrast: 40%;",
+        "--base0F: #000000;",
+        "--base0E: #cc79a7;",
+        "--base0D: #0072b2;",
+        "--base0C: #56b4e9;",
+        "--base0B: #009e73;",
+        "--base0A: #f0e442;",
+        "--base09: #e69f00;",
+        "--base08: #d55e00;",
+        "--base07: #000000;",
+        "--base06: #222222;",
+        "--base05: #555555;",
+        "--base04: #808080;",
+        "--base03: #b0b0b0;",
+        "--base02: #dddddd;",
+        "--base01: #f2f2f2;",
+        "--base00: #ffffff;",
+        "--accent7: #000000;",
+        "--accent6: #cc79a7;",
+        "--accent5: #0072b2;",
+        "--accent4: #56b4e9;",
+        "--accent3: #009e73;",
+        "--accent2: #f0e442;",
+        "--accent1: #e69f00;",
+        "--accent0: #d55e00;"
+    ],
+    "css-light-colors": {
+        "accent0": "#d55e00",
+        "accent1": "#e69f00",
+        "accent2": "#f0e442",
+        "accent3": "#009e73",
+        "accent4": "#56b4e9",
+        "accent5": "#0072b2",
+        "accent6": "#cc79a7",
+        "accent7": "#000000",
+        "base00": "#ffffff",
+        "base01": "#f2f2f2",
+        "base02": "#dddddd",
+        "base03": "#b0b0b0",
+        "base04": "#808080",
+        "base05": "#555555",
+        "base06": "#222222",
+        "base07": "#000000",
+        "base08": "#d55e00",
+        "base09": "#e69f00",
+        "base0A": "#f0e442",
+        "base0B": "#009e73",
+        "base0C": "#56b4e9",
+        "base0D": "#0072b2",
+        "base0E": "#cc79a7",
+        "base0F": "#000000",
+        "contrast": "40%",
+        "shade0": "#ffffff",
+        "shade1": "#f2f2f2",
+        "shade2": "#dddddd",
+        "shade3": "#b0b0b0",
+        "shade4": "#808080",
+        "shade5": "#555555",
+        "shade6": "#222222",
+        "shade7": "#000000"
+    },
+    "date": "18.11.2026",
+    "decker-meta-url": "0538d92ac.json",
+    "decker-plugins": {
+        "chatty": false,
+        "feedback": true,
+        "jingles": true,
+        "notes": true,
+        "quiz": true,
+        "quiz-wue": true,
+        "quizzer": false,
+        "zoom": true
+    },
+    "dictionary": {
+        "de": {
+            "exam": {
+                "Easy": "Leicht",
+                "Hard": "Schwer",
+                "Medium": "Mittelschwer",
+                "again-button": "Nochmal",
+                "placeholder": "Antwort eingeben",
+                "points": "Punkte",
+                "poll-button": "Poll",
+                "qrcode-button": "QRCode",
+                "reset-button": "Zurücksetzen",
+                "solution": "Lösung",
+                "solve-button": "Lösen",
+                "stop-button": "Stopp"
+            },
+            "quiz": {
+                "ic-placeholder": "Option auswählen…",
+                "input-placeholder": "Eingeben und 'Enter'",
+                "qmi-drag-hint": "Objekte per Drag&Drop ziehen…",
+                "qmi-drop-hint": "…und hier in die richtige Kategorie einsortieren.",
+                "reset-button": "Zurücksetzen",
+                "solution": "Lösung zeigen"
+            }
+        },
+        "en": {
+            "exam": {
+                "Easy": "Easy",
+                "Hard": "Hard",
+                "Medium": "Medium",
+                "again-button": "Again",
+                "placeholder": "Type in answer",
+                "points": "Points",
+                "poll-button": "Poll",
+                "qrcode-button": "QRCode",
+                "reset-button": "Reset",
+                "solution": "Solution",
+                "solve-button": "Solve",
+                "stop-button": "Stop"
+            },
+            "quiz": {
+                "ic-placeholder": "Select option…",
+                "input-placeholder": "Type and press 'Enter'",
+                "qmi-drag-hint": "Drag items from here…",
+                "qmi-drop-hint": "…and put them here into the correct category.",
+                "reset-button": "Reset",
+                "solution": "Show Solution"
+            }
+        }
+    },
+    "documentPath": "sitzung-06",
+    "editor": {
+        "link-prefix": "zed://file"
+    },
+    "experiments": {
+        "fragment-templates": false
+    },
+    "explain": {
+        "camHeight": 720.0,
+        "camWidth": 1280.0,
+        "recHeight": 1080.0,
+        "recWidth": 1920.0,
+        "useGreenScreen": false
+    },
+    "external-tools": {
+        "chrome": {
+            "linux": {
+                "arguments": [
+                    "--headless",
+                    "--disable-gpu",
+                    "--virtual-time-budget=10000",
+                    "--no-pdf-header-footer",
+                    "--run-all-compositor-stages-before-draw",
+                    "--virtual-time-budget=1000000",
+                    "--incognito",
+                    "--print-to-pdf=${output}",
+                    "${input}?print-pdf#/"
+                ],
+                "command": "chrome",
+                "help": ""
+            },
+            "macos": {
+                "arguments": [
+                    "--headless",
+                    "--disable-gpu",
+                    "--virtual-time-budget=10000",
+                    "--no-pdf-header-footer",
+                    "--run-all-compositor-stages-before-draw",
+                    "--virtual-time-budget=1000000",
+                    "--incognito",
+                    "--print-to-pdf=${output}",
+                    "${input}?print-pdf#/"
+                ],
+                "command": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+                "help": ""
+            }
+        },
+        "chromeheadless": {
+            "linux": {
+                "arguments": [
+                    "--headless",
+                    "--remote-debugging-port=${input}"
+                ],
+                "command": "chrome",
+                "help": ""
+            },
+            "macos": {
+                "arguments": [
+                    "--headless",
+                    "--log-level=3",
+                    "--disable-gpu",
+                    "--remote-debugging-port=${input}"
+                ],
+                "command": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+                "help": ""
+            },
+            "windows": {
+                "arguments": [
+                    "--headless",
+                    "--remote-debugging-port=${input}"
+                ],
+                "command": "C:\\PROGRA~2\\Microsoft\\Edge\\Application\\msedge.exe",
+                "help": "MS edge must be on the path! Please add `C:\\Program Files (x86)\\Microsoft\\Edge\\Application` to your path!"
+            }
+        },
+        "d2": {
+            "arguments": [
+                "--pad",
+                10,
+                "--sketch",
+                "--theme",
+                7,
+                "--dark-theme",
+                200,
+                "${input}",
+                "${output}"
+            ],
+            "command": "d2",
+            "help": "https://d2lang.com/"
+        },
+        "dot": {
+            "arguments": [
+                "-Tsvg",
+                "-o${output}",
+                "${input}"
+            ],
+            "command": "dot",
+            "help": "https://graphviz.org/"
+        },
+        "gnuplot": {
+            "arguments": [
+                "-d",
+                "-e",
+                "set terminal svg",
+                "-e",
+                "set output '${output}'",
+                "${input}"
+            ],
+            "command": "gnuplot",
+            "help": ""
+        },
+        "mermaid": {
+            "linux": {
+                "arguments": [
+                    "-i",
+                    "${input}",
+                    "-o",
+                    "${output}"
+                ],
+                "command": "mmdc",
+                "help": "https://github.com/mermaid-js/mermaid-cli"
+            },
+            "macos": {
+                "arguments": [
+                    "-i",
+                    "${input}",
+                    "-o",
+                    "${output}"
+                ],
+                "command": "mmdc",
+                "help": "https://github.com/mermaid-js/mermaid-cli"
+            },
+            "windows": {
+                "arguments": [
+                    "-i",
+                    "${input}",
+                    "-o",
+                    "${output}"
+                ],
+                "command": "mmdc",
+                "help": "https://github.com/mermaid-js/mermaid-cli"
+            }
+        },
+        "mp4towav": {
+            "arguments": [
+                "-y",
+                "-i",
+                "${input}",
+                "-acodec",
+                "pcm_s16le",
+                "-ac",
+                1,
+                "-ar",
+                16000,
+                "-af",
+                "speechnorm",
+                "${output}"
+            ],
+            "command": "ffmpeg",
+            "help": ""
+        },
+        "pdf2svg": {
+            "arguments": [
+                "${input}",
+                "${output}"
+            ],
+            "command": "pdf2svg",
+            "help": "https://github.com/dawbarton/pdf2svg"
+        },
+        "pdflatex": {
+            "arguments": [
+                "-halt-on-error",
+                "-interaction=batchmode",
+                "-no-shell-escape",
+                "-output-directory",
+                "${output}",
+                "${input}"
+            ],
+            "command": "pdflatex",
+            "help": "https://en.wikipedia.org/wiki/PdfTeX"
+        },
+        "plantuml": {
+            "arguments": [
+                "-tsvg",
+                "-pipe"
+            ],
+            "command": "plantuml",
+            "help": "",
+            "pipe": true
+        },
+        "rsync": {
+            "arguments": [
+                "--recursive",
+                "--copy-links",
+                "--delete",
+                "--no-group",
+                "--perms",
+                "--chmod=a+r,go-w",
+                "--no-owner",
+                "--copy-links",
+                "${input}",
+                "${output}"
+            ],
+            "command": "rsync",
+            "help": ""
+        },
+        "tomp4-concat": {
+            "arguments": [
+                "-nostdin",
+                "-v",
+                "fatal",
+                "-y",
+                "-f",
+                "concat",
+                "-safe",
+                0,
+                "-i",
+                "${input}",
+                "-vcodec",
+                "copy",
+                "-acodec",
+                "aac",
+                "${output}"
+            ],
+            "command": "ffmpeg",
+            "help": ""
+        },
+        "tomp4-copy": {
+            "arguments": [
+                "-nostdin",
+                "-v",
+                "fatal",
+                "-y",
+                "-i",
+                "${input}",
+                "-vcodec",
+                "copy",
+                "-acodec",
+                "aac",
+                "${output}"
+            ],
+            "command": "ffmpeg",
+            "help": ""
+        },
+        "tomp4-transcode": {
+            "arguments": [
+                "-nostdin",
+                "-v",
+                "fatal",
+                "-y",
+                "-i",
+                "${input}",
+                "-pix_fmt",
+                "yuv420p",
+                "-crf",
+                27,
+                "-preset",
+                "slow",
+                "-tune",
+                "stillimage",
+                "-ac",
+                1,
+                "-movflags",
+                "+faststart",
+                "-vcodec",
+                "libx264",
+                "-af",
+                "speechnorm",
+                "-r",
+                30,
+                "-metadata",
+                "comment=decker-crunched",
+                "${output}"
+            ],
+            "command": "ffmpeg",
+            "help": ""
+        },
+        "whisper": {
+            "arguments": [
+                "--file",
+                "${input}",
+                "-bs",
+                5,
+                "-mc",
+                0,
+                "--output-vtt",
+                "--output-file",
+                "${output}"
+            ],
+            "command": "whisper-cli",
+            "help": ""
+        }
+    },
+    "includeTULogo": false,
+    "index": {
+        "links": [
+            "a11y",
+            "handout",
+            "pdf"
+        ],
+        "listShowsDeckSubtitle": true,
+        "listShowsDeckTitle": true,
+        "manual": true,
+        "progress": true,
+        "search": true,
+        "searchShowsDeckSubtitle": true,
+        "searchShowsDeckTitle": true
+    },
+    "lang": "de-DE",
+    "live-captions": true,
+    "math": {
+        "scale": 1.0
+    },
+    "page-features": {
+        "codapi": false,
+        "math-module": false
+    },
+    "palette": {
+        "colors": {
+            "dark": [
+                "#000000",
+                "#141414",
+                "#2A2A2A",
+                "#4A4A4A",
+                "#7A7A7A",
+                "#B0B0B0",
+                "#E0E0E0",
+                "#FFFFFF",
+                "#D55E00",
+                "#E69F00",
+                "#F0E442",
+                "#009E73",
+                "#56B4E9",
+                "#0072B2",
+                "#CC79A7",
+                "#FFFFFF"
+            ],
+            "light": [
+                "#FFFFFF",
+                "#F2F2F2",
+                "#DDDDDD",
+                "#B0B0B0",
+                "#808080",
+                "#555555",
+                "#222222",
+                "#000000",
+                "#D55E00",
+                "#E69F00",
+                "#F0E442",
+                "#009E73",
+                "#56B4E9",
+                "#0072B2",
+                "#CC79A7",
+                "#000000"
+            ]
+        },
+        "contrast": 0.4
+    },
+    "progress": true,
+    "projectPath": "../",
+    "quizzer": {
+        "audio": {
+            "end": "default",
+            "loop": "default",
+            "start": "default",
+            "volume": 0.2
+        },
+        "url": "https://quiz.jetzt/"
+    },
+    "resource-pack": "exe:tudo",
+    "reveal": {
+        "backgroundTransition": "none",
+        "center": false,
+        "checkOverflow": false,
+        "controls": true,
+        "fragmentInURL": true,
+        "fragments": true,
+        "hash": true,
+        "height": 720.0,
+        "help": true,
+        "hideCursorTime": 2000.0,
+        "hideInactiveCursor": true,
+        "history": false,
+        "keyboard": true,
+        "margin": 5.0e-2,
+        "overview": false,
+        "pdfMaxPagesPerSlide": 10.0,
+        "pdfSeparateFragments": false,
+        "progress": true,
+        "scrollActivationWidth": [],
+        "slideNumber": true,
+        "touch": true,
+        "transition": "none",
+        "vertical-slides": true,
+        "viewDistance": 2.0,
+        "width": 1280.0
+    },
+    "runtime-path-variables": [
+        "logos",
+        "affiliation",
+        "author",
+        "authors",
+        "teaser",
+        "template",
+        "rpv-test.leaf-path",
+        "rpv-test.leaf-no-path",
+        "rpv-test.branch"
+    ],
+    "showDeckerLink": false,
+    "speech-recognition-language": "de-DE",
+    "static-resource-dirs": [
+        "./static"
+    ],
+    "subtitle": "Sitzung 6: Routenplanung",
+    "supportPath": "../support",
+    "targets": {
+        "decks": {
+            "public/sitzung-06/sitzung-06-deck.html": "sitzung-06/sitzung-06-deck.md"
+        },
+        "decksPdf": {
+            "public/sitzung-06/sitzung-06-deck.pdf": "sitzung-06/sitzung-06-deck.md"
+        },
+        "exams": {},
+        "handouts": {
+            "public/sitzung-06/sitzung-06-handout.html": "sitzung-06/sitzung-06-deck.md"
+        },
+        "handoutsPdf": {
+            "public/sitzung-06/sitzung-06-handout.pdf": "sitzung-06/sitzung-06-deck.md"
+        },
+        "pages": {},
+        "pagesPdf": {},
+        "questions": {},
+        "sources": [
+            "sitzung-06/sitzung-06-deck.md"
+        ],
+        "static": {
+            "public/static/iun.css": "static/iun.css"
+        }
+    },
+    "template": {
+        "css": [
+            "../static/iun.css"
+        ]
+    },
+    "templates": {
+        "deck": "<span class=\"icons\">\n<a title=\"Open HTML slides\" href=\":(url)-deck.html\"><i class=\"fa-brands fa-html5\"></i></a>\n<a title=\"Open PDF slides\" href=\":(url)-deck.pdf\"><i class=\"fas fa-file-pdf\"></i></a>\n</span>\n"
+    },
+    "test": {
+        "default-decker": "From default.yaml",
+        "default-decker-deck": "From default.yaml",
+        "merge-list": [
+            "This line is from default.yaml"
+        ],
+        "only-default": "From default.yaml",
+        "some-value": "This line is from default.yaml"
+    },
+    "title": "Informatik und Nachhaltigkeit",
+    "whisper": {
+        "lang": "de",
+        "model": "/opt/whisper/ggml-large-v3.bin"
+    },
+    "zoom": {
+        "trigger": "tripleClick"
+    }
+}
