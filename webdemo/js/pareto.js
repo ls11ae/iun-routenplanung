@@ -191,8 +191,8 @@
     P.ergebnis = null;
     P.ebene.clearLayers();
     $("#pareto-ergebnis").hidden = true;
-    $("#pareto-status").textContent = w("Start, Ziel oder Auswahl haben sich geändert: bitte neu berechnen.",
-      "Start, destination or selection have changed: please compute again.");
+    $("#pareto-status").textContent = w("Start, Ziel, Auswahl oder Einstellung haben sich geändert: bitte neu berechnen.",
+      "Start, destination, selection or settings have changed: please compute again.");
   }
 
   document.addEventListener("iun-bereit", () => {
@@ -222,6 +222,7 @@
     $("#pareto-tabelle").addEventListener("click", zeilenwahl);
     $("#pareto-tabelle").addEventListener("keydown", zeilenwahl);
     A.beiAenderung.push(veraltet);
+    A.beiEigene.push(() => { if (P.ergebnis && P.ergebnis.p.id === "eigene") veraltet(); });
     A.beiReiter.push((name) => { if (name === "pareto") { auswahlen(); karte(); } else P.ebene.clearLayers(); });
   });
 })();

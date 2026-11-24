@@ -13,6 +13,7 @@
     aktiv: new Set(["fuss", "rad"]), eigene: null,
     beiAenderung: [],      // Funktionen, die nach einer Änderung von Start oder Ziel laufen
     beiReiter: [],         // Funktionen, die nach einem Wechsel des Reiters laufen
+    beiEigene: [],         // Funktionen, die nach einer Änderung der eigenen Einstellung laufen
   });
 
   // ------------------------------------------------------------------ Hilfen
@@ -180,6 +181,9 @@
 
   // ------------------------------------------------------------------ Eigene Einstellung
 
+  /** Tempo der eigenen Einstellung in km/h, wie das Feld es zeigt (eine Nachkommastelle). */
+  const kmh = (p) => Math.round(p.tempo * 36) / 10;
+
   function reglerAufbauen() {
     $("#vorlage").innerHTML = A.personas.map((p) => `<option value="${p.id}">${S.feld(p, "name")}</option>`).join("");
     $("#vorlage").value = "rad";
@@ -193,8 +197,8 @@
   }
 
   function reglerZeigen() {
-    const p = A.eigene;
-    $("#tempo").value = Math.round(p.tempo * 3.6 * 2) / 2;
+    const p = A.eigene, feld = $("#tempo");
+    if (document.activeElement !== feld) feld.value = kmh(p);   // nicht in eine laufende Eingabe schreiben
     for (const k of A.kriterien) {
       const g = p.gewichte[k.id] || 0, regler = $("#g-" + k.id);
       if (regler) regler.value = g;
@@ -218,14 +222,17 @@
     A.aktiv.add("eigene");
     const haken = $("#p-eigene");
     if (haken) haken.checked = true;
+    A.beiEigene.forEach((f) => f());
     cancelAnimationFrame(geplant);
     geplant = requestAnimationFrame(routenNeu);
   }
 
   function reglerLesen() {
     const p = A.eigene;
-    const kmh = parseFloat($("#tempo").value);
-    if (kmh > 0) p.tempo = kmh / 3.6;
+    // Nur ein geänderter Wert im Feld ändert das Tempo. Sonst ersetzte jeder Regler das genaue Tempo
+    // der Vorlage durch den gerundeten Wert im Feld (zu Fuß: 1,2 m/s = 4,32 km/h, Feld 4,3).
+    const feld = Math.round(parseFloat($("#tempo").value) * 10) / 10;
+    if (feld > 0 && feld !== kmh(p)) p.tempo = feld / 3.6;
     p.gewichte = {}; p.sperren = [];
     for (const k of A.kriterien) {
       const regler = $("#g-" + k.id);
@@ -313,9 +320,11 @@
       routenNeu();
     });
     $("#alle-kriterien").addEventListener("change", routenNeu);
-    $("#vorlage-nehmen").addEventListener("click", vorlageNehmen);
+    $("#vorlage").addEventListener("change", vorlageNehmen);          // eine Vorlage gilt sofort
+    $("#vorlage-nehmen").addEventListener("click", vorlageNehmen);    // „zurücksetzen“
     $("#regler").addEventListener("input", reglerLesen);
-    $("#tempo").addEventListener("change", reglerLesen);
+    $("#tempo").addEventListener("input", reglerLesen);               // wirkt schon beim Tippen
+    $("#tempo").addEventListener("change", () => { $("#tempo").value = kmh(A.eigene); });
     A.beiAenderung.push(routenNeu);
     A.beiReiter.push((name) => { if (name === "routen") routenNeu(); else routenEbene.clearLayers(); });
 
